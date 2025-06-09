@@ -18,19 +18,19 @@ const Button: React.FC<ButtonProps> = ({
   className = '',
   ...props
 }) => {
-  const baseStyles = 'inline-flex items-center justify-center font-medium transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-2';
+  const baseStyles = 'inline-flex items-center justify-center font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2';
   
   const variantStyles = {
-    primary: 'text-white bg-blue-600 hover:bg-blue-700 focus:ring-blue-500',
-    secondary: 'text-blue-700 bg-blue-50 hover:bg-blue-100 focus:ring-blue-500',
-    outline: 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 focus:ring-blue-500',
-    danger: 'text-white bg-red-600 hover:bg-red-700 focus:ring-red-500',
+    primary: 'text-white bg-kanzlei-500 hover:bg-kanzlei-600 focus:ring-kanzlei-500 shadow-soft hover:shadow-medium',
+    secondary: 'text-kanzlei-500 bg-white hover:bg-graphit-50 border border-graphit-200 focus:ring-kanzlei-500 shadow-soft hover:shadow-medium',
+    outline: 'text-graphit-700 bg-white border border-graphit-300 hover:bg-graphit-50 focus:ring-kanzlei-500',
+    danger: 'text-white bg-akzent-500 hover:bg-akzent-600 focus:ring-akzent-500 shadow-soft hover:shadow-medium',
   };
   
   const sizeStyles = {
-    sm: 'px-3 py-1.5 text-xs rounded',
-    md: 'px-4 py-2 text-sm rounded-md',
-    lg: 'px-6 py-3 text-base rounded-md',
+    sm: 'px-3 py-1.5 text-xs rounded-lg',
+    md: 'px-4 py-2 text-sm rounded-xl',
+    lg: 'px-6 py-3 text-base rounded-xl',
   };
   
   const widthStyles = fullWidth ? 'w-full' : '';
