@@ -20,7 +20,7 @@ export default {
           200: '#e5e5e5',
           300: '#d4d4d4',
           400: '#a3a3a3',
-          500: '#5F5F5', // Graphit-Grau
+          500: '#5F5F5F', // Graphit-Grau
           600: '#525252',
           700: '#404040',
           800: '#262626',
@@ -44,7 +44,7 @@ export default {
           200: '#fecdd3',
           300: '#fda4af',
           400: '#fb7185',
-          500: '#F5F56', // Akzent-Rot
+          500: '#F55556', // Akzent-Rot
           600: '#e11d48',
           700: '#be123c',
           800: '#9f1239',

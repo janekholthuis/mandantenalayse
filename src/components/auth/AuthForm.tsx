@@ -118,7 +118,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ mode }) => {
             {mode === 'signup' && (
               <>
                 <div>
-                  <label htmlFor="name\" className=\"block text-sm font-medium text-graphit-700">
+                  <label htmlFor="name" className="block text-sm font-medium text-graphit-700">
                     Name
                   </label>
                   <div className="mt-1 relative rounded-md shadow-sm">
