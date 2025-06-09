@@ -1,59 +1,54 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-  content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}', './src/**/*.css'],
-  safelist: [
-    'text-graphit-800',
-    'bg-kanzlei-500',
-    'bg-kanzlei-600'
-  ],
+  content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
     extend: {
       colors: {
         // Custom color palette based on style guide
         'kanzlei': {
-          50: 'var(--kanzlei-50)',
-          100: 'var(--kanzlei-100)',
-          500: 'var(--kanzlei-500)', // Kanzlei-Dunkelblau
-          600: 'var(--kanzlei-600)',
-          700: 'var(--kanzlei-700)',
-          800: 'var(--kanzlei-800)',
-          900: 'var(--kanzlei-900)',
+          50: '#f0f4ff',
+          100: '#e0e9ff',
+          500: '#0A0A2C', // Kanzlei-Dunkelblau
+          600: '#080821',
+          700: '#060618',
+          800: '#04040f',
+          900: '#020206',
         },
         'graphit': {
-          50: 'var(--graphit-50)',
-          100: 'var(--graphit-100)',
-          200: 'var(--graphit-200)',
-          300: 'var(--graphit-300)',
-          400: 'var(--graphit-400)',
-          500: 'var(--graphit-500)', // Graphit-Grau
-          600: 'var(--graphit-600)',
-          700: 'var(--graphit-700)',
-          800: 'var(--graphit-800)',
-          900: 'var(--graphit-900)',
+          50: '#fafafa',
+          100: '#f5f5f5',
+          200: '#e5e5e5',
+          300: '#d4d4d4',
+          400: '#a3a3a3',
+          500: '#5F5F5', // Graphit-Grau
+          600: '#525252',
+          700: '#404040',
+          800: '#262626',
+          900: '#171717',
         },
         'benefit': {
-          50: 'var(--benefit-50)',
-          100: 'var(--benefit-100)',
-          200: 'var(--benefit-200)',
-          300: 'var(--benefit-300)',
-          400: 'var(--benefit-400)',
-          500: 'var(--benefit-500)', // Benefit-Grün
-          600: 'var(--benefit-600)',
-          700: 'var(--benefit-700)',
-          800: 'var(--benefit-800)',
-          900: 'var(--benefit-900)',
+          50: '#f0fdf4',
+          100: '#dcfce7',
+          200: '#bbf7d0',
+          300: '#86efac',
+          400: '#4ade80',
+          500: '#00E800', // Benefit-Grün
+          600: '#16a34a',
+          700: '#15803d',
+          800: '#166534',
+          900: '#14532d',
         },
         'akzent': {
-          50: 'var(--akzent-50)',
-          100: 'var(--akzent-100)',
-          200: 'var(--akzent-200)',
-          300: 'var(--akzent-300)',
-          400: 'var(--akzent-400)',
-          500: 'var(--akzent-500)', // Akzent-Rot
-          600: 'var(--akzent-600)',
-          700: 'var(--akzent-700)',
-          800: 'var(--akzent-800)',
-          900: 'var(--akzent-900)',
+          50: '#fff1f2',
+          100: '#ffe4e6',
+          200: '#fecdd3',
+          300: '#fda4af',
+          400: '#fb7185',
+          500: '#F5F56', // Akzent-Rot
+          600: '#e11d48',
+          700: '#be123c',
+          800: '#9f1239',
+          900: '#881337',
         }
       },
       fontFamily: {
