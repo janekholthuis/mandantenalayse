@@ -1,9 +1,24 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Shield, Clock, TrendingUp, Users, AlertTriangle, CheckCircle, FileText, BarChart3, Play } from 'lucide-react';
 import Button from '../components/ui/Button';
 
 const LandingPage: React.FC = () => {
+  useEffect(() => {
+    // Ensure Fillout script is loaded and initialize forms
+    const initializeFillout = () => {
+      if (window.Fillout) {
+        window.Fillout.initializeEmbeds();
+      } else {
+        // If Fillout is not loaded yet, try again after a short delay
+        setTimeout(initializeFillout, 100);
+      }
+    };
+
+    // Initialize when component mounts
+    initializeFillout();
+  }, []);
+
   return (
     <div className="min-h-screen bg-white">
       <nav className="bg-white border-b border-gray-100">
