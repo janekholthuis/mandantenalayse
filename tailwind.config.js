@@ -1,6 +1,9 @@
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}', './src/**/*.css'],
+  safelist: [
+    'text-graphit-800'
+  ],
   theme: {
     extend: {
       colors: {
