@@ -67,7 +67,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ mode }) => {
       setError(errorMessage);
       
       // Clear password field on error for security
-      const passwordInput = e.currentTarget.querySelector('input[type="password"]') as HTMLInputElement;
+      const passwordInput = e.currentTarget?.querySelector('input[type="password"]') as HTMLInputElement;
       if (passwordInput) {
         passwordInput.value = '';
       }
