@@ -1,24 +1,10 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Shield, Clock, TrendingUp, Users, AlertTriangle, CheckCircle, FileText, BarChart3, Play } from 'lucide-react';
+import { FilloutStandardEmbed } from '@fillout/react';
 import Button from '../components/ui/Button';
 
 const LandingPage: React.FC = () => {
-  useEffect(() => {
-    // Ensure Fillout script is loaded and initialize forms
-    const initializeFillout = () => {
-      if (window.Fillout) {
-        window.Fillout.initializeEmbeds();
-      } else {
-        // If Fillout is not loaded yet, try again after a short delay
-        setTimeout(initializeFillout, 100);
-      }
-    };
-
-    // Initialize when component mounts
-    initializeFillout();
-  }, []);
-
   return (
     <div className="min-h-screen bg-white">
       <nav className="bg-white border-b border-gray-100">
@@ -373,14 +359,13 @@ const LandingPage: React.FC = () => {
                 📝 Jetzt auf die Warteliste
               </h3>
               
-              {/* Fillout Form Embed */}
-              <div 
-                style={{width: '100%', height: '500px'}} 
-                data-fillout-id="wqXUryyoLZus" 
-                data-fillout-embed-type="standard" 
-                data-fillout-inherit-parameters 
-                data-fillout-dynamic-resize
-              ></div>
+              <div style={{ width: '100%', height: '500px' }}>
+                <FilloutStandardEmbed 
+                  filloutId="wqXUryyoLZus"
+                  dynamicResize
+                  inheritParameters
+                />
+              </div>
             </div>
           </div>
         </div>
