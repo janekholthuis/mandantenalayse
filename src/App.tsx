@@ -120,7 +120,7 @@ function App() {
         } />
         
         {/* Catch all other routes and redirect to home */}
-        <Route path="*" element={<Navigate to="/\" replace />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>
   );
