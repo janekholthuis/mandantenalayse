@@ -2,7 +2,9 @@
 export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}', './src/**/*.css'],
   safelist: [
-    'text-graphit-800'
+    'text-graphit-800',
+    'bg-kanzlei-500',
+    'bg-kanzlei-600'
   ],
   theme: {
     extend: {
