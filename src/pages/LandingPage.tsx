@@ -1,10 +1,92 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Shield, Clock, TrendingUp, Users, AlertTriangle, CheckCircle, FileText, BarChart3, Play } from 'lucide-react';
-import { FilloutStandardEmbed } from '@fillout/react';
 import Button from '../components/ui/Button';
 
 const LandingPage: React.FC = () => {
+  const [filloutError, setFilloutError] = React.useState(false);
+
+  // Fallback form component
+  const FallbackForm = () => (
+    <div className="bg-gray-50 p-8 rounded-lg border-2 border-dashed border-gray-300">
+      <div className="text-center">
+        <h4 className="text-lg font-medium text-gray-900 mb-4">
+          Interesse an der Pilotphase?
+        </h4>
+        <p className="text-gray-600 mb-6">
+          Kontaktieren Sie uns direkt für den Zugang zur Beta-Version.
+        </p>
+        <div className="space-y-4">
+          <a
+            href="mailto:info@mandantenanalyse.com?subject=Interesse%20an%20Pilotphase&body=Hallo,%0D%0A%0D%0AIch%20interessiere%20mich%20für%20die%20Pilotphase%20von%20Mandantenanalyse.com.%0D%0A%0D%0AName:%0D%0AUnternehmen:%0D%0ATelefon:%0D%0A%0D%0AVielen%20Dank!"
+            className="inline-block bg-blue-600 text-white px-6 py-3 rounded-md font-medium hover:bg-blue-700 transition-colors"
+          >
+            E-Mail senden
+          </a>
+          <p className="text-sm text-gray-500">
+            oder schreiben Sie uns an: info@mandantenanalyse.com
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+
+  // Fillout component with error handling
+  const FilloutEmbed = () => {
+    React.useEffect(() => {
+      // Check if Fillout is accessible
+      const checkFillout = async () => {
+        try {
+          const response = await fetch('https://forms.fillout.com/t/wqXUryyoLZus', { 
+            mode: 'no-cors',
+            method: 'HEAD'
+          });
+          // If we get here without error, Fillout is accessible
+        } catch (error) {
+          console.warn('Fillout not accessible, using fallback form');
+          setFilloutError(true);
+        }
+      };
+      
+      checkFillout();
+    }, []);
+
+    if (filloutError) {
+      return <FallbackForm />;
+    }
+
+    return (
+      <div 
+        style={{ width: '100%', height: '500px' }}
+        onError={() => setFilloutError(true)}
+      >
+        <iframe
+          src="https://forms.fillout.com/t/wqXUryyoLZus"
+          width="100%"
+          height="500"
+          frameBorder="0"
+          marginHeight={0}
+          marginWidth={0}
+          title="Warteliste Anmeldung"
+          onError={() => setFilloutError(true)}
+          onLoad={(e) => {
+            // Check if iframe loaded successfully
+            const iframe = e.target as HTMLIFrameElement;
+            try {
+              // This will throw an error if there's a CORS issue
+              iframe.contentWindow?.location.href;
+            } catch (error) {
+              // If we can't access the iframe content, it might be blocked
+              console.warn('Iframe access blocked, checking for alternative');
+            }
+          }}
+        >
+          <FallbackForm />
+        </iframe>
+      </div>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-white">
       <nav className="bg-white border-b border-gray-100">
@@ -359,13 +441,7 @@ const LandingPage: React.FC = () => {
                 📝 Jetzt auf die Warteliste
               </h3>
               
-              <div style={{ width: '100%', height: '500px' }}>
-                <FilloutStandardEmbed 
-                  filloutId="wqXUryyoLZus"
-                  dynamicResize
-                  inheritParameters
-                />
-              </div>
+              <FilloutEmbed />
             </div>
           </div>
         </div>
