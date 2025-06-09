@@ -359,13 +359,7 @@ const LandingPage: React.FC = () => {
               </h3>
               
               {/* Fillout Form Embed */}
-              <div 
-                style={{width: '100%', height: '500px'}} 
-                data-fillout-id="wqXUryyoLZus" 
-                data-fillout-embed-type="standard" 
-                data-fillout-inherit-parameters 
-                data-fillout-dynamic-resize
-              ></div>
+             <div style="width:100%;height:500px;" data-fillout-id="wqXUryyoLZus" data-fillout-embed-type="standard" data-fillout-inherit-parameters data-fillout-dynamic-resize></div><script src="https://server.fillout.com/embed/v1/"></script>
             </div>
           </div>
         </div>
