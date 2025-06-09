@@ -81,24 +81,24 @@ const AuthForm: React.FC<AuthFormProps> = ({ mode }) => {
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="text-center">
           <Link to="/" className="inline-block">
-            <span className="text-3xl font-heading font-bold text-kanzlei-500">Mandantenanalyse.com</span>
+            <span className="text-3xl font-bold text-blue-700">Mandantenanalyse.com</span>
           </Link>
         </div>
-        <h2 className="mt-6 text-center text-3xl font-heading font-bold text-kanzlei-500">
+        <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
           {mode === 'login' ? 'Willkommen zurück!' : 'Konto erstellen'}
         </h2>
-        <p className="mt-2 text-center text-sm text-graphit-600">
+        <p className="mt-2 text-center text-sm text-gray-600">
           {mode === 'login' ? (
             <>
               Neu bei Mandantenanalyse.com?{' '}
-              <Link to="/signup" className="font-medium text-kanzlei-500 hover:text-kanzlei-600 transition-colors">
+              <Link to="/signup" className="font-medium text-blue-600 hover:text-blue-500">
                 Jetzt registrieren
               </Link>
             </>
           ) : (
             <>
               Bereits registriert?{' '}
-              <Link to="/login" className="font-medium text-kanzlei-500 hover:text-kanzlei-600 transition-colors">
+              <Link to="/login" className="font-medium text-blue-600 hover:text-blue-500">
                 Anmelden
               </Link>
             </>
@@ -107,10 +107,10 @@ const AuthForm: React.FC<AuthFormProps> = ({ mode }) => {
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="card py-8 px-4 shadow-strong sm:px-10">
+        <div className="bg-white py-8 px-4 shadow-xl sm:rounded-lg sm:px-10">
           {success && (
-            <div className="rounded-xl bg-benefit-50 p-4 mb-6">
-              <div className="text-sm text-benefit-700">{success}</div>
+            <div className="rounded-md bg-green-50 p-4 mb-6">
+              <div className="text-sm text-green-700">{success}</div>
             </div>
           )}
 
@@ -118,38 +118,38 @@ const AuthForm: React.FC<AuthFormProps> = ({ mode }) => {
             {mode === 'signup' && (
               <>
                 <div>
-                  <label htmlFor="name\" className=\"block text-sm font-medium text-graphit-700">
+                  <label htmlFor="name\" className="block text-sm font-medium text-gray-700">
                     Name
                   </label>
                   <div className="mt-1 relative rounded-md shadow-sm">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <User className="h-5 w-5 text-graphit-400" />
+                      <User className="h-5 w-5 text-gray-400" />
                     </div>
                     <input
                       id="name"
                       name="name"
                       type="text"
                       required
-                      className="input-field pl-10"
+                      className="block w-full pl-10 pr-3 py-2 sm:text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                       placeholder="Max Mustermann"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label htmlFor="company" className="block text-sm font-medium text-graphit-700">
+                  <label htmlFor="company" className="block text-sm font-medium text-gray-700">
                     Unternehmen
                   </label>
                   <div className="mt-1 relative rounded-md shadow-sm">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <Building2 className="h-5 w-5 text-graphit-400" />
+                      <Building2 className="h-5 w-5 text-gray-400" />
                     </div>
                     <input
                       id="company"
                       name="company"
                       type="text"
                       required
-                      className="input-field pl-10"
+                      className="block w-full pl-10 pr-3 py-2 sm:text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                       placeholder="Steuerberatung Mustermann GmbH"
                     />
                   </div>
@@ -158,12 +158,12 @@ const AuthForm: React.FC<AuthFormProps> = ({ mode }) => {
             )}
 
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-graphit-700">
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
                 E-Mail-Adresse
               </label>
               <div className="mt-1 relative rounded-md shadow-sm">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Mail className="h-5 w-5 text-graphit-400" />
+                  <Mail className="h-5 w-5 text-gray-400" />
                 </div>
                 <input
                   id="email"
@@ -171,19 +171,19 @@ const AuthForm: React.FC<AuthFormProps> = ({ mode }) => {
                   type="email"
                   autoComplete="email"
                   required
-                  className="input-field pl-10"
+                  className="block w-full pl-10 pr-3 py-2 sm:text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   placeholder="max@beispiel.de"
                 />
               </div>
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-graphit-700">
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
                 Passwort
               </label>
               <div className="mt-1 relative rounded-md shadow-sm">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Lock className="h-5 w-5 text-graphit-400" />
+                  <Lock className="h-5 w-5 text-gray-400" />
                 </div>
                 <input
                   id="password"
@@ -191,7 +191,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ mode }) => {
                   type="password"
                   autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
                   required
-                  className="input-field pl-10"
+                  className="block w-full pl-10 pr-3 py-2 sm:text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   placeholder="••••••••"
                   minLength={8}
                 />
@@ -199,15 +199,15 @@ const AuthForm: React.FC<AuthFormProps> = ({ mode }) => {
             </div>
 
             {error && (
-              <div className="rounded-xl bg-akzent-50 p-4">
+              <div className="rounded-md bg-red-50 p-4">
                 <div className="flex items-center">
                   <div className="flex-shrink-0">
-                    <svg className="h-5 w-5 text-akzent-400" viewBox="0 0 20 20" fill="currentColor">
+                    <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
                       <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
                     </svg>
                   </div>
                   <div className="ml-3">
-                    <div className="text-sm text-akzent-700">{error}</div>
+                    <div className="text-sm text-red-700">{error}</div>
                   </div>
                 </div>
               </div>
@@ -219,6 +219,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ mode }) => {
                 variant="primary"
                 fullWidth
                 isLoading={isLoading}
+                className="bg-blue-600 hover:bg-blue-700"
               >
                 {mode === 'login' ? 'Anmelden' : 'Registrieren'}
               </Button>
@@ -228,7 +229,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ mode }) => {
               <div className="text-sm text-center">
                 <Link
                   to="/reset-password"
-                  className="font-medium text-kanzlei-500 hover:text-kanzlei-600 transition-colors"
+                  className="font-medium text-blue-600 hover:text-blue-500"
                 >
                   Passwort vergessen?
                 </Link>
