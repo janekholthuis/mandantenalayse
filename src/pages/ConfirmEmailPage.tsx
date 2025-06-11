@@ -13,10 +13,11 @@ const ConfirmEmailPage: React.FC = () => {
 
   useEffect(() => {
     const confirmEmail = async () => {
-      const token = searchParams.get('token');
+      const token_hash = searchParams.get('token_hash');
       const type = searchParams.get('type');
+      const next = searchParams.get('next') || '/login?confirmed=true';
 
-      if (!token || !type) {
+      if (!token_hash || !type) {
         setError('Ungültiger Bestätigungslink. Bitte überprüfen Sie den Link aus Ihrer E-Mail.');
         setIsLoading(false);
         return;
@@ -24,7 +25,7 @@ const ConfirmEmailPage: React.FC = () => {
 
       try {
         const { error } = await supabase.auth.verifyOtp({
-          token_hash: token,
+          token_hash: token_hash,
           type: type as any,
         });
 
@@ -33,6 +34,11 @@ const ConfirmEmailPage: React.FC = () => {
         }
 
         setIsConfirmed(true);
+        
+        // Redirect after a short delay
+        setTimeout(() => {
+          navigate(next);
+        }, 2000);
       } catch (err) {
         console.error('Email confirmation error:', err);
         if (err instanceof Error) {

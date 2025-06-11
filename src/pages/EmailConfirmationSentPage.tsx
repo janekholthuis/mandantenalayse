@@ -27,18 +27,13 @@ const EmailConfirmationSentPage: React.FC = () => {
       const { error } = await supabase.auth.resend({
         type: 'signup',
         email: email,
+        options: {
+          emailRedirectTo: `${window.location.origin}/confirm-email`,
+        },
       });
 
       if (error) {
         throw error;
-      }
-
-      // Also send our custom confirmation email
-      try {
-        await EmailService.sendEmailConfirmationEmail(email, 'confirmation-token-placeholder');
-      } catch (emailError) {
-        console.error('Failed to send custom confirmation email:', emailError);
-        // Don't fail the process if custom email fails
       }
 
       setResendSuccess(true);

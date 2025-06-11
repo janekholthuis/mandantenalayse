@@ -52,16 +52,16 @@ const AuthForm: React.FC<AuthFormProps> = ({ mode }) => {
               name: name,
               company: company,
             },
+            emailRedirectTo: `${window.location.origin}/confirm-email`,
           },
         });
         if (error) throw error;
         
-        // Send welcome email and email confirmation using our custom templates
+        // Send custom welcome email (confirmation email is handled by Supabase)
         try {
           await EmailService.sendWelcomeEmail(email, name, company);
-          await EmailService.sendEmailConfirmationEmail(email, 'confirmation-token-placeholder');
         } catch (emailError) {
-          console.error('Failed to send emails:', emailError);
+          console.error('Failed to send welcome email:', emailError);
           // Don't fail the registration if email fails
         }
         
@@ -76,7 +76,9 @@ const AuthForm: React.FC<AuthFormProps> = ({ mode }) => {
           if (error.message === 'Invalid login credentials') {
             throw new Error('E-Mail-Adresse oder Passwort ist falsch. Bitte überprüfen Sie Ihre Eingaben.');
           } else if (error.message.includes('Email not confirmed')) {
-            throw new Error('Bitte bestätigen Sie zuerst Ihre E-Mail-Adresse. Überprüfen Sie Ihren Posteingang.');
+            throw new Error('Bitte bestätigen Sie zuerst Ihre E-Mail-Adresse. Überprüfen Sie Ihren Posteingang und klicken Sie auf den Bestätigungslink.');
+          } else if (error.message.includes('email_not_confirmed')) {
+            throw new Error('Ihre E-Mail-Adresse wurde noch nicht bestätigt. Bitte überprüfen Sie Ihren Posteingang.');
           }
           throw error;
         }

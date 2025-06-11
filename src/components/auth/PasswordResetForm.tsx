@@ -21,12 +21,12 @@ const PasswordResetForm: React.FC = () => {
 
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/reset-password`,
+        redirectTo: `${window.location.origin}/update-password`,
       });
       
       if (error) throw error;
       
-      // Send custom password reset email
+      // Send custom password reset email (optional, Supabase also sends one)
       try {
         await EmailService.sendPasswordResetEmail(email, 'reset-token-placeholder');
       } catch (emailError) {

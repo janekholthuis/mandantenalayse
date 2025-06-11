@@ -96,6 +96,7 @@ export class EmailService {
       let emailContent = template.html_content
         .replace(/{{user_email}}/g, userEmail)
         .replace(/{{reset_url}}/g, resetUrl)
+        .replace(/{{\.RedirectTo}}/g, resetUrl)
         .replace(/{{support_email}}/g, 'support@mandantenanalyse.com')
         .replace(/{{current_year}}/g, new Date().getFullYear().toString());
 
@@ -115,12 +116,14 @@ export class EmailService {
         return false;
       }
 
-      const confirmationUrl = `${window.location.origin}/confirm-email?token=${confirmationToken}&type=signup`;
+      const confirmationUrl = `${window.location.origin}/confirm-email?token_hash=${confirmationToken}&type=signup`;
 
       // Replace placeholders in the template
       let emailContent = template.html_content
         .replace(/{{user_email}}/g, userEmail)
         .replace(/{{confirmation_url}}/g, confirmationUrl)
+        .replace(/{{\.Email}}/g, userEmail)
+        .replace(/{{\.ConfirmationURL}}/g, confirmationUrl)
         .replace(/{{support_email}}/g, 'support@mandantenanalyse.com')
         .replace(/{{current_year}}/g, new Date().getFullYear().toString());
 
@@ -143,16 +146,28 @@ export class EmailService {
         </head>
         <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
           <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
-            <h1 style="color: #3b82f6;">Test Email</h1>
+            <h1 style="color: #3b82f6;">✅ Test Email - Mandantenanalyse.com</h1>
             <p>Dies ist eine Test-E-Mail von Mandantenanalyse.com.</p>
             <p>Wenn Sie diese E-Mail erhalten, funktioniert der E-Mail-Service korrekt.</p>
+            <div style="background-color: #f0f9ff; border-left: 4px solid #3b82f6; padding: 15px; margin: 20px 0;">
+              <h3 style="margin-top: 0; color: #1e40af;">📧 E-Mail-Service Status</h3>
+              <ul style="margin: 0; color: #1e40af;">
+                <li>✅ Edge Function erreichbar</li>
+                <li>✅ E-Mail-Provider verbunden</li>
+                <li>✅ Template-System funktional</li>
+                <li>✅ Zustellung erfolgreich</li>
+              </ul>
+            </div>
             <p>Gesendet am: ${new Date().toLocaleString('de-DE')}</p>
+            <p style="font-size: 12px; color: #666;">
+              Diese Test-E-Mail wurde über die Mandantenanalyse.com Plattform versendet.
+            </p>
           </div>
         </body>
         </html>
       `;
 
-      return await this.sendEmail(userEmail, 'Test Email - Mandantenanalyse.com', testHtml);
+      return await this.sendEmail(userEmail, '✅ Test Email - Mandantenanalyse.com E-Mail-Service', testHtml);
     } catch (error) {
       console.error('Error sending test email:', error);
       return false;
