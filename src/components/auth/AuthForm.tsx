@@ -52,7 +52,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ mode }) => {
               name: name,
               company: company,
             },
-            emailRedirectTo: `${window.location.origin}/confirm-email`,
+            emailRedirectTo: `https://mandantenanalyse.com/confirm-email`,
           },
         });
         if (error) throw error;

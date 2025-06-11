@@ -28,7 +28,7 @@ const EmailConfirmationSentPage: React.FC = () => {
         type: 'signup',
         email: email,
         options: {
-          emailRedirectTo: `${window.location.origin}/confirm-email`,
+          emailRedirectTo: `https://mandantenanalyse.com/confirm-email`,
         },
       });
 
