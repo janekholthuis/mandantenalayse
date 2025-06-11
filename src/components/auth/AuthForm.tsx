@@ -3,6 +3,7 @@ import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { Lock, Mail, User, Building2 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import Button from '../ui/Button';
+import { EmailService } from '../../services/emailService';
 
 interface AuthFormProps {
   mode: 'login' | 'signup';
@@ -48,6 +49,19 @@ const AuthForm: React.FC<AuthFormProps> = ({ mode }) => {
           },
         });
         if (error) throw error;
+        
+        // Send welcome email using our custom template
+        try {
+          await EmailService.sendWelcomeEmail(
+            email,
+            formData.get('name') as string,
+            formData.get('company') as string
+          );
+        } catch (emailError) {
+          console.error('Failed to send welcome email:', emailError);
+          // Don't fail the registration if email fails
+        }
+        
         navigate('/login?registered=true');
       } else {
         const { error } = await supabase.auth.signInWithPassword({

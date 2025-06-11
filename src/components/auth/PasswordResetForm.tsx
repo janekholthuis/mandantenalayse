@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Mail } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import Button from '../ui/Button';
+import { EmailService } from '../../services/emailService';
 
 const PasswordResetForm: React.FC = () => {
   const navigate = useNavigate();
@@ -24,6 +25,15 @@ const PasswordResetForm: React.FC = () => {
       });
       
       if (error) throw error;
+      
+      // Send custom password reset email
+      try {
+        await EmailService.sendPasswordResetEmail(email, 'reset-token-placeholder');
+      } catch (emailError) {
+        console.error('Failed to send custom password reset email:', emailError);
+        // Don't fail the process if custom email fails
+      }
+      
       setSuccess(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Passwort-Reset fehlgeschlagen');
