@@ -1,7 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './hooks/useAuth';
-import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import PasswordResetPage from './pages/PasswordResetPage';
@@ -57,10 +56,10 @@ function App() {
   return (
     <Router>
       <Routes>
-        {/* Public routes */}
+        {/* Login as initial page */}
         <Route path="/" element={
           <PublicRoute>
-            <LandingPage />
+            <LoginPage />
           </PublicRoute>
         } />
         <Route path="/login" element={
@@ -120,7 +119,7 @@ function App() {
         } />
         
         {/* Catch all other routes and redirect to home */}
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </Router>
   );
