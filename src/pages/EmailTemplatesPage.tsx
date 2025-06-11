@@ -171,14 +171,14 @@ const EmailTemplatesPage: React.FC = () => {
                   <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                     <h4 className="text-sm font-medium text-blue-800 mb-2">Verfügbare Platzhalter:</h4>
                     <div className="text-sm text-blue-700 space-y-1">
-                      <div><code>{{`{{user_name}}`}}</code> - Name des Benutzers</div>
-                      <div><code>{{`{{user_email}}`}}</code> - E-Mail-Adresse des Benutzers</div>
-                      <div><code>{{`{{company_name}}`}}</code> - Firmenname</div>
-                      <div><code>{{`{{login_url}}`}}</code> - Link zur Anmeldung</div>
-                      <div><code>{{`{{reset_url}}`}}</code> - Link zum Passwort zurücksetzen</div>
-                      <div><code>{{`{{confirmation_url}}`}}</code> - Link zur E-Mail-Bestätigung</div>
-                      <div><code>{{`{{support_email}}`}}</code> - Support E-Mail-Adresse</div>
-                      <div><code>{{`{{current_year}}`}}</code> - Aktuelles Jahr</div>
+                      <div><code>{'{{user_name}}'}</code> - Name des Benutzers</div>
+                      <div><code>{'{{user_email}}'}</code> - E-Mail-Adresse des Benutzers</div>
+                      <div><code>{'{{company_name}}'}</code> - Firmenname</div>
+                      <div><code>{'{{login_url}}'}</code> - Link zur Anmeldung</div>
+                      <div><code>{'{{reset_url}}'}</code> - Link zum Passwort zurücksetzen</div>
+                      <div><code>{'{{confirmation_url}}'}</code> - Link zur E-Mail-Bestätigung</div>
+                      <div><code>{'{{support_email}}'}</code> - Support E-Mail-Adresse</div>
+                      <div><code>{'{{current_year}}'}</code> - Aktuelles Jahr</div>
                     </div>
                   </div>
                 </div>
