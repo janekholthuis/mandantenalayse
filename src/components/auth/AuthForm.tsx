@@ -19,10 +19,13 @@ const AuthForm: React.FC<AuthFormProps> = ({ mode }) => {
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     if (params.get('registered')) {
-      setSuccess('Registrierung erfolgreich! Bitte überprüfen Sie Ihre E-Mails zur Bestätigung Ihres Kontos.');
+      setSuccess('Registrierung erfolgreich! Bitte bestätigen Sie Ihre E-Mail-Adresse, um sich anmelden zu können.');
     }
     if (params.get('passwordUpdated')) {
       setSuccess('Passwort erfolgreich aktualisiert! Bitte melden Sie sich mit Ihrem neuen Passwort an.');
+    }
+    if (params.get('confirmed')) {
+      setSuccess('E-Mail-Adresse erfolgreich bestätigt! Sie können sich jetzt anmelden.');
     }
   }, [location]);
 
@@ -38,31 +41,32 @@ const AuthForm: React.FC<AuthFormProps> = ({ mode }) => {
 
     try {
       if (mode === 'signup') {
+        const name = formData.get('name') as string;
+        const company = formData.get('company') as string;
+        
         const { error } = await supabase.auth.signUp({
           email,
           password,
           options: {
             data: {
-              name: formData.get('name'),
-              company: formData.get('company'),
+              name: name,
+              company: company,
             },
           },
         });
         if (error) throw error;
         
-        // Send welcome email using our custom template
+        // Send welcome email and email confirmation using our custom templates
         try {
-          await EmailService.sendWelcomeEmail(
-            email,
-            formData.get('name') as string,
-            formData.get('company') as string
-          );
+          await EmailService.sendWelcomeEmail(email, name, company);
+          await EmailService.sendEmailConfirmationEmail(email, 'confirmation-token-placeholder');
         } catch (emailError) {
-          console.error('Failed to send welcome email:', emailError);
+          console.error('Failed to send emails:', emailError);
           // Don't fail the registration if email fails
         }
         
-        navigate('/login?registered=true');
+        // Redirect to email confirmation sent page
+        navigate(`/email-confirmation-sent?email=${encodeURIComponent(email)}&name=${encodeURIComponent(name)}`);
       } else {
         const { error } = await supabase.auth.signInWithPassword({
           email,
@@ -71,6 +75,8 @@ const AuthForm: React.FC<AuthFormProps> = ({ mode }) => {
         if (error) {
           if (error.message === 'Invalid login credentials') {
             throw new Error('E-Mail-Adresse oder Passwort ist falsch. Bitte überprüfen Sie Ihre Eingaben.');
+          } else if (error.message.includes('Email not confirmed')) {
+            throw new Error('Bitte bestätigen Sie zuerst Ihre E-Mail-Adresse. Überprüfen Sie Ihren Posteingang.');
           }
           throw error;
         }

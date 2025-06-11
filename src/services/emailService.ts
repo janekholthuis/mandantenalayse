@@ -115,7 +115,7 @@ export class EmailService {
         return false;
       }
 
-      const confirmationUrl = `${window.location.origin}/confirm-email?token=${confirmationToken}`;
+      const confirmationUrl = `${window.location.origin}/confirm-email?token=${confirmationToken}&type=signup`;
 
       // Replace placeholders in the template
       let emailContent = template.html_content

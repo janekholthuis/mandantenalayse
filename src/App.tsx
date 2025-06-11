@@ -7,6 +7,8 @@ import PasswordResetPage from './pages/PasswordResetPage';
 import UpdatePasswordPage from './pages/UpdatePasswordPage';
 import DatenschutzPage from './pages/DatenschutzPage';
 import AGBPage from './pages/AGBPage';
+import ConfirmEmailPage from './pages/ConfirmEmailPage';
+import EmailConfirmationSentPage from './pages/EmailConfirmationSentPage';
 import MainLayout from './components/layout/MainLayout';
 import ClientsPage from './pages/ClientsPage';
 import NewClientPage from './pages/NewClientPage';
@@ -80,6 +82,8 @@ function App() {
         <Route path="/update-password" element={<UpdatePasswordPage />} />
         <Route path="/datenschutz" element={<DatenschutzPage />} />
         <Route path="/agb" element={<AGBPage />} />
+        <Route path="/confirm-email" element={<ConfirmEmailPage />} />
+        <Route path="/email-confirmation-sent" element={<EmailConfirmationSentPage />} />
         
         {/* Protected app routes */}
         <Route path="/clients" element={
