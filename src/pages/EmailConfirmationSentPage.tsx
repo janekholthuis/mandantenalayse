@@ -52,17 +52,6 @@ const EmailConfirmationSentPage: React.FC = () => {
       setIsResending(false);
     }
   };
-        throw error;
-      }
-
-      setResendSuccess(true);
-    } catch (err) {
-      console.error('Error resending confirmation:', err);
-      setResendError(err instanceof Error ? err.message : 'Fehler beim erneuten Senden der Bestätigungs-E-Mail');
-    } finally {
-      setIsResending(false);
-    }
-  };
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
