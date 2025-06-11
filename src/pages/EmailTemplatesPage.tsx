@@ -1,17 +1,35 @@
 import React, { useState } from 'react';
-import { Mail, Edit, Save, X, Eye, Send } from 'lucide-react';
+import { Mail, Edit, Save, X, Eye, Send, Plus, Trash2, Copy } from 'lucide-react';
 import { useEmailTemplates } from '../hooks/useEmailTemplates';
-import { EmailService } from '../services/emailService';
 import Button from '../components/ui/Button';
 
 const EmailTemplatesPage: React.FC = () => {
-  const { templates, loading, error, updateTemplate } = useEmailTemplates();
+  const { 
+    templates, 
+    loading, 
+    error, 
+    updateTemplate, 
+    createTemplate, 
+    deleteTemplate, 
+    previewTemplate, 
+    sendTestEmail 
+  } = useEmailTemplates();
+  
   const [editingTemplate, setEditingTemplate] = useState<string | null>(null);
-  const [previewTemplate, setPreviewTemplate] = useState<string | null>(null);
+  const [previewTemplateId, setPreviewTemplateId] = useState<string | null>(null);
+  const [previewContent, setPreviewContent] = useState<string>('');
   const [showTestEmailModal, setShowTestEmailModal] = useState(false);
+  const [showCreateModal, setShowCreateModal] = useState(false);
   const [testEmail, setTestEmail] = useState('');
+  const [selectedTemplateForTest, setSelectedTemplateForTest] = useState<string>('');
   const [sendingTest, setSendingTest] = useState(false);
   const [editForm, setEditForm] = useState({
+    type: '',
+    subject: '',
+    html_content: ''
+  });
+  const [createForm, setCreateForm] = useState({
+    type: '',
     subject: '',
     html_content: ''
   });
@@ -19,6 +37,7 @@ const EmailTemplatesPage: React.FC = () => {
   const handleEdit = (template: any) => {
     setEditingTemplate(template.id);
     setEditForm({
+      type: template.type,
       subject: template.subject,
       html_content: template.html_content
     });
@@ -28,17 +47,40 @@ const EmailTemplatesPage: React.FC = () => {
     const success = await updateTemplate(templateId, editForm);
     if (success) {
       setEditingTemplate(null);
-      setEditForm({ subject: '', html_content: '' });
+      setEditForm({ type: '', subject: '', html_content: '' });
     }
   };
 
   const handleCancel = () => {
     setEditingTemplate(null);
-    setEditForm({ subject: '', html_content: '' });
+    setEditForm({ type: '', subject: '', html_content: '' });
   };
 
-  const handlePreview = (template: any) => {
-    setPreviewTemplate(template.id);
+  const handleCreate = async () => {
+    if (!createForm.type || !createForm.subject || !createForm.html_content) {
+      alert('Bitte füllen Sie alle Felder aus.');
+      return;
+    }
+
+    const success = await createTemplate(createForm);
+    if (success) {
+      setShowCreateModal(false);
+      setCreateForm({ type: '', subject: '', html_content: '' });
+    }
+  };
+
+  const handleDelete = async (templateId: string, templateType: string) => {
+    if (window.confirm(`Sind Sie sicher, dass Sie die Vorlage "${templateType}" löschen möchten?`)) {
+      await deleteTemplate(templateId);
+    }
+  };
+
+  const handlePreview = async (template: any) => {
+    const content = await previewTemplate(template.type);
+    if (content) {
+      setPreviewContent(content);
+      setPreviewTemplateId(template.id);
+    }
   };
 
   const handleSendTestEmail = async () => {
@@ -46,7 +88,19 @@ const EmailTemplatesPage: React.FC = () => {
     
     setSendingTest(true);
     try {
-      const success = await EmailService.sendTestEmail(testEmail);
+      let success = false;
+      
+      if (selectedTemplateForTest) {
+        // Send test using specific template
+        success = await sendTestEmail(testEmail, selectedTemplateForTest, {
+          user_name: 'Test Benutzer',
+          company_name: 'Test Unternehmen'
+        });
+      } else {
+        // Send general test email
+        success = await sendTestEmail(testEmail);
+      }
+      
       if (success) {
         alert('Test-E-Mail erfolgreich gesendet!');
       } else {
@@ -59,7 +113,17 @@ const EmailTemplatesPage: React.FC = () => {
       setSendingTest(false);
       setShowTestEmailModal(false);
       setTestEmail('');
+      setSelectedTemplateForTest('');
     }
+  };
+
+  const handleCopyTemplate = (template: any) => {
+    setCreateForm({
+      type: `${template.type}_copy`,
+      subject: `${template.subject} (Kopie)`,
+      html_content: template.html_content
+    });
+    setShowCreateModal(true);
   };
 
   const getTemplateDisplayName = (type: string) => {
@@ -77,7 +141,7 @@ const EmailTemplatesPage: React.FC = () => {
       'password_reset': 'Wird gesendet, wenn ein Benutzer sein Passwort zurücksetzen möchte',
       'email_confirmation': 'Wird zur Bestätigung der E-Mail-Adresse gesendet'
     };
-    return descriptions[type] || '';
+    return descriptions[type] || 'Benutzerdefinierte E-Mail-Vorlage';
   };
 
   if (loading) {
@@ -106,17 +170,26 @@ const EmailTemplatesPage: React.FC = () => {
             Verwalten Sie die E-Mail-Vorlagen für Authentifizierungs-Workflows
           </p>
         </div>
-        <div className="flex items-center">
-          <Mail className="h-6 w-6 text-blue-600 mr-2" />
-          <span className="text-sm text-gray-600">{templates.length} Vorlagen</span>
+        <div className="flex items-center space-x-4">
+          <div className="flex items-center">
+            <Mail className="h-6 w-6 text-blue-600 mr-2" />
+            <span className="text-sm text-gray-600">{templates.length} Vorlagen</span>
+          </div>
+          <Button
+            variant="secondary"
+            onClick={() => setShowTestEmailModal(true)}
+            icon={<Send size={16} />}
+          >
+            Test-E-Mail senden
+          </Button>
+          <Button
+            variant="primary"
+            onClick={() => setShowCreateModal(true)}
+            icon={<Plus size={16} />}
+          >
+            Neue Vorlage
+          </Button>
         </div>
-        <Button
-          variant="secondary"
-          onClick={() => setShowTestEmailModal(true)}
-          icon={<Send size={16} />}
-        >
-          Test-E-Mail senden
-        </Button>
       </div>
 
       <div className="grid gap-6">
@@ -144,6 +217,14 @@ const EmailTemplatesPage: React.FC = () => {
                   >
                     Vorschau
                   </Button>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => handleCopyTemplate(template)}
+                    icon={<Copy size={16} />}
+                  >
+                    Kopieren
+                  </Button>
                   {editingTemplate === template.id ? (
                     <>
                       <Button
@@ -164,20 +245,41 @@ const EmailTemplatesPage: React.FC = () => {
                       </Button>
                     </>
                   ) : (
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      onClick={() => handleEdit(template)}
-                      icon={<Edit size={16} />}
-                    >
-                      Bearbeiten
-                    </Button>
+                    <>
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        onClick={() => handleEdit(template)}
+                        icon={<Edit size={16} />}
+                      >
+                        Bearbeiten
+                      </Button>
+                      <Button
+                        variant="danger"
+                        size="sm"
+                        onClick={() => handleDelete(template.id, template.type)}
+                        icon={<Trash2 size={16} />}
+                      >
+                        Löschen
+                      </Button>
+                    </>
                   )}
                 </div>
               </div>
 
               {editingTemplate === template.id ? (
                 <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Typ
+                    </label>
+                    <input
+                      type="text"
+                      value={editForm.type}
+                      onChange={(e) => setEditForm({ ...editForm, type: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    />
+                  </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Betreff
@@ -202,15 +304,18 @@ const EmailTemplatesPage: React.FC = () => {
                   </div>
                   <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                     <h4 className="text-sm font-medium text-blue-800 mb-2">Verfügbare Platzhalter:</h4>
-                    <div className="text-sm text-blue-700 space-y-1">
+                    <div className="text-sm text-blue-700 space-y-1 grid grid-cols-2 gap-2">
                       <div><code>{'{{user_name}}'}</code> - Name des Benutzers</div>
-                      <div><code>{'{{user_email}}'}</code> - E-Mail-Adresse des Benutzers</div>
+                      <div><code>{'{{user_email}}'}</code> - E-Mail-Adresse</div>
                       <div><code>{'{{company_name}}'}</code> - Firmenname</div>
                       <div><code>{'{{login_url}}'}</code> - Link zur Anmeldung</div>
-                      <div><code>{'{{reset_url}}'}</code> - Link zum Passwort zurücksetzen</div>
-                      <div><code>{'{{confirmation_url}}'}</code> - Link zur E-Mail-Bestätigung</div>
-                      <div><code>{'{{support_email}}'}</code> - Support E-Mail-Adresse</div>
+                      <div><code>{'{{reset_url}}'}</code> - Passwort zurücksetzen</div>
+                      <div><code>{'{{confirmation_url}}'}</code> - E-Mail-Bestätigung</div>
+                      <div><code>{'{{support_email}}'}</code> - Support E-Mail</div>
                       <div><code>{'{{current_year}}'}</code> - Aktuelles Jahr</div>
+                      <div><code>{'{{.Email}}'}</code> - E-Mail (Supabase)</div>
+                      <div><code>{'{{.ConfirmationURL}}'}</code> - Bestätigung (Supabase)</div>
+                      <div><code>{'{{.RedirectTo}}'}</code> - Weiterleitung (Supabase)</div>
                     </div>
                   </div>
                 </div>
@@ -240,13 +345,13 @@ const EmailTemplatesPage: React.FC = () => {
       </div>
 
       {/* Preview Modal */}
-      {previewTemplate && (
+      {previewTemplateId && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-hidden">
             <div className="flex items-center justify-between p-6 border-b border-gray-200">
               <h3 className="text-lg font-medium text-gray-900">E-Mail-Vorschau</h3>
               <button
-                onClick={() => setPreviewTemplate(null)}
+                onClick={() => setPreviewTemplateId(null)}
                 className="text-gray-400 hover:text-gray-500"
               >
                 <X size={20} />
@@ -255,16 +360,7 @@ const EmailTemplatesPage: React.FC = () => {
             <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
               <div className="border border-gray-300 rounded-lg overflow-hidden">
                 <iframe
-                  srcDoc={templates.find(t => t.id === previewTemplate)?.html_content
-                    .replace(/{{user_name}}/g, 'Max Mustermann')
-                    .replace(/{{company_name}}/g, 'Beispiel Steuerberatung GmbH')
-                    .replace(/{{user_email}}/g, 'max@beispiel.de')
-                    .replace(/{{login_url}}/g, `${window.location.origin}/login`)
-                    .replace(/{{reset_url}}/g, `${window.location.origin}/update-password?token=example`)
-                    .replace(/{{confirmation_url}}/g, `${window.location.origin}/confirm-email?token=example`)
-                    .replace(/{{support_email}}/g, 'support@mandantenanalyse.com')
-                    .replace(/{{current_year}}/g, new Date().getFullYear().toString())
-                  }
+                  srcDoc={previewContent}
                   className="w-full h-96 border-0"
                   title="E-Mail-Vorschau"
                 />
@@ -300,6 +396,23 @@ const EmailTemplatesPage: React.FC = () => {
                   placeholder="test@beispiel.de"
                 />
               </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Vorlage (optional)
+                </label>
+                <select
+                  value={selectedTemplateForTest}
+                  onChange={(e) => setSelectedTemplateForTest(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                >
+                  <option value="">Allgemeine Test-E-Mail</option>
+                  {templates.map(template => (
+                    <option key={template.id} value={template.type}>
+                      {getTemplateDisplayName(template.type)}
+                    </option>
+                  ))}
+                </select>
+              </div>
               <div className="flex space-x-3">
                 <Button
                   variant="secondary"
@@ -318,6 +431,77 @@ const EmailTemplatesPage: React.FC = () => {
                   Test senden
                 </Button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Create Template Modal */}
+      {showCreateModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-hidden">
+            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+              <h3 className="text-lg font-medium text-gray-900">Neue E-Mail-Vorlage erstellen</h3>
+              <button
+                onClick={() => setShowCreateModal(false)}
+                className="text-gray-400 hover:text-gray-500"
+              >
+                <X size={20} />
+              </button>
+            </div>
+            <div className="p-6 overflow-y-auto max-h-[calc(90vh-180px)]">
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Typ
+                  </label>
+                  <input
+                    type="text"
+                    value={createForm.type}
+                    onChange={(e) => setCreateForm({ ...createForm, type: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="z.B. welcome, notification, reminder"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Betreff
+                  </label>
+                  <input
+                    type="text"
+                    value={createForm.subject}
+                    onChange={(e) => setCreateForm({ ...createForm, subject: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="E-Mail-Betreff"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    HTML-Inhalt
+                  </label>
+                  <textarea
+                    value={createForm.html_content}
+                    onChange={(e) => setCreateForm({ ...createForm, html_content: e.target.value })}
+                    rows={15}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-mono text-sm"
+                    placeholder="HTML-Inhalt der E-Mail..."
+                  />
+                </div>
+              </div>
+            </div>
+            <div className="flex justify-end space-x-3 p-6 border-t border-gray-200">
+              <Button
+                variant="secondary"
+                onClick={() => setShowCreateModal(false)}
+              >
+                Abbrechen
+              </Button>
+              <Button
+                variant="primary"
+                onClick={handleCreate}
+              >
+                Vorlage erstellen
+              </Button>
             </div>
           </div>
         </div>
