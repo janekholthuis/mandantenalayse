@@ -28,6 +28,34 @@ export class EmailService {
     }
   }
 
+  private static async sendEmail(to: string, subject: string, html: string): Promise<boolean> {
+    try {
+      const { data, error } = await supabase.functions.invoke('send-email', {
+        body: {
+          to,
+          subject,
+          html,
+        },
+      });
+
+      if (error) {
+        console.error('Error calling send-email function:', error);
+        return false;
+      }
+
+      if (data?.success) {
+        console.log('Email sent successfully to:', to);
+        return true;
+      } else {
+        console.error('Email sending failed:', data?.error);
+        return false;
+      }
+    } catch (error) {
+      console.error('Error in sendEmail:', error);
+      return false;
+    }
+  }
+
   static async sendWelcomeEmail(userEmail: string, userName: string, companyName?: string): Promise<boolean> {
     try {
       const template = await this.getTemplate('welcome');
@@ -46,15 +74,7 @@ export class EmailService {
         .replace(/{{support_email}}/g, 'support@mandantenanalyse.com')
         .replace(/{{current_year}}/g, new Date().getFullYear().toString());
 
-      // In a real implementation, you would send this via your email service
-      // For now, we'll log it and return true to simulate success
-      console.log('Welcome email would be sent:', {
-        to: userEmail,
-        subject: template.subject,
-        html: emailContent
-      });
-
-      return true;
+      return await this.sendEmail(userEmail, template.subject, emailContent);
     } catch (error) {
       console.error('Error sending welcome email:', error);
       return false;
@@ -79,14 +99,7 @@ export class EmailService {
         .replace(/{{support_email}}/g, 'support@mandantenanalyse.com')
         .replace(/{{current_year}}/g, new Date().getFullYear().toString());
 
-      // In a real implementation, you would send this via your email service
-      console.log('Password reset email would be sent:', {
-        to: userEmail,
-        subject: template.subject,
-        html: emailContent
-      });
-
-      return true;
+      return await this.sendEmail(userEmail, template.subject, emailContent);
     } catch (error) {
       console.error('Error sending password reset email:', error);
       return false;
@@ -111,15 +124,37 @@ export class EmailService {
         .replace(/{{support_email}}/g, 'support@mandantenanalyse.com')
         .replace(/{{current_year}}/g, new Date().getFullYear().toString());
 
-      console.log('Email confirmation would be sent:', {
-        to: userEmail,
-        subject: template.subject,
-        html: emailContent
-      });
-
-      return true;
+      return await this.sendEmail(userEmail, template.subject, emailContent);
     } catch (error) {
       console.error('Error sending email confirmation:', error);
+      return false;
+    }
+  }
+
+  // Test function to verify email service is working
+  static async sendTestEmail(userEmail: string): Promise<boolean> {
+    try {
+      const testHtml = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="UTF-8">
+          <title>Test Email</title>
+        </head>
+        <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+          <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+            <h1 style="color: #3b82f6;">Test Email</h1>
+            <p>Dies ist eine Test-E-Mail von Mandantenanalyse.com.</p>
+            <p>Wenn Sie diese E-Mail erhalten, funktioniert der E-Mail-Service korrekt.</p>
+            <p>Gesendet am: ${new Date().toLocaleString('de-DE')}</p>
+          </div>
+        </body>
+        </html>
+      `;
+
+      return await this.sendEmail(userEmail, 'Test Email - Mandantenanalyse.com', testHtml);
+    } catch (error) {
+      console.error('Error sending test email:', error);
       return false;
     }
   }

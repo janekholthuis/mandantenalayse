@@ -1,12 +1,16 @@
 import React, { useState } from 'react';
-import { Mail, Edit, Save, X, Eye } from 'lucide-react';
+import { Mail, Edit, Save, X, Eye, Send } from 'lucide-react';
 import { useEmailTemplates } from '../hooks/useEmailTemplates';
+import { EmailService } from '../services/emailService';
 import Button from '../components/ui/Button';
 
 const EmailTemplatesPage: React.FC = () => {
   const { templates, loading, error, updateTemplate } = useEmailTemplates();
   const [editingTemplate, setEditingTemplate] = useState<string | null>(null);
   const [previewTemplate, setPreviewTemplate] = useState<string | null>(null);
+  const [showTestEmailModal, setShowTestEmailModal] = useState(false);
+  const [testEmail, setTestEmail] = useState('');
+  const [sendingTest, setSendingTest] = useState(false);
   const [editForm, setEditForm] = useState({
     subject: '',
     html_content: ''
@@ -35,6 +39,27 @@ const EmailTemplatesPage: React.FC = () => {
 
   const handlePreview = (template: any) => {
     setPreviewTemplate(template.id);
+  };
+
+  const handleSendTestEmail = async () => {
+    if (!testEmail) return;
+    
+    setSendingTest(true);
+    try {
+      const success = await EmailService.sendTestEmail(testEmail);
+      if (success) {
+        alert('Test-E-Mail erfolgreich gesendet!');
+      } else {
+        alert('Fehler beim Senden der Test-E-Mail. Bitte überprüfen Sie die Konsole für Details.');
+      }
+    } catch (error) {
+      console.error('Error sending test email:', error);
+      alert('Fehler beim Senden der Test-E-Mail.');
+    } finally {
+      setSendingTest(false);
+      setShowTestEmailModal(false);
+      setTestEmail('');
+    }
   };
 
   const getTemplateDisplayName = (type: string) => {
@@ -85,6 +110,13 @@ const EmailTemplatesPage: React.FC = () => {
           <Mail className="h-6 w-6 text-blue-600 mr-2" />
           <span className="text-sm text-gray-600">{templates.length} Vorlagen</span>
         </div>
+        <Button
+          variant="secondary"
+          onClick={() => setShowTestEmailModal(true)}
+          icon={<Send size={16} />}
+        >
+          Test-E-Mail senden
+        </Button>
       </div>
 
       <div className="grid gap-6">
@@ -236,6 +268,55 @@ const EmailTemplatesPage: React.FC = () => {
                   className="w-full h-96 border-0"
                   title="E-Mail-Vorschau"
                 />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Test Email Modal */}
+      {showTestEmailModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-md w-full p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-medium text-gray-900">Test-E-Mail senden</h3>
+              <button
+                onClick={() => setShowTestEmailModal(false)}
+                className="text-gray-400 hover:text-gray-500"
+              >
+                <X size={20} />
+              </button>
+            </div>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  E-Mail-Adresse
+                </label>
+                <input
+                  type="email"
+                  value={testEmail}
+                  onChange={(e) => setTestEmail(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="test@beispiel.de"
+                />
+              </div>
+              <div className="flex space-x-3">
+                <Button
+                  variant="secondary"
+                  onClick={() => setShowTestEmailModal(false)}
+                  className="flex-1"
+                >
+                  Abbrechen
+                </Button>
+                <Button
+                  variant="primary"
+                  onClick={handleSendTestEmail}
+                  isLoading={sendingTest}
+                  disabled={!testEmail || sendingTest}
+                  className="flex-1"
+                >
+                  Test senden
+                </Button>
               </div>
             </div>
           </div>
