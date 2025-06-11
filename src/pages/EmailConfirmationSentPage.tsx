@@ -33,6 +33,25 @@ const EmailConfirmationSentPage: React.FC = () => {
       });
 
       if (error) {
+        if (error.message.includes('already_confirmed') || error.message.includes('Email already confirmed')) {
+          setResendError('Diese E-Mail-Adresse wurde bereits bestätigt. Sie können sich jetzt anmelden.');
+        } else {
+          throw error;
+        }
+      } else {
+        setResendSuccess(true);
+      }
+    } catch (err) {
+      console.error('Error resending confirmation:', err);
+      if (err instanceof Error) {
+        setResendError(err.message);
+      } else {
+        setResendError('Fehler beim erneuten Senden der Bestätigungs-E-Mail');
+      }
+    } finally {
+      setIsResending(false);
+    }
+  };
         throw error;
       }
 

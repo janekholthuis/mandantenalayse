@@ -75,6 +75,8 @@ const AuthForm: React.FC<AuthFormProps> = ({ mode }) => {
         if (error) {
           if (error.message === 'Invalid login credentials') {
             throw new Error('E-Mail-Adresse oder Passwort ist falsch. Bitte überprüfen Sie Ihre Eingaben.');
+          } else if (error.message.includes('Email not confirmed') || error.message.includes('email_not_confirmed')) {
+            throw new Error('Bitte bestätigen Sie zuerst Ihre E-Mail-Adresse. Überprüfen Sie Ihren Posteingang und klicken Sie auf den Bestätigungslink.');
           } else if (error.message.includes('Email not confirmed')) {
             throw new Error('Bitte bestätigen Sie zuerst Ihre E-Mail-Adresse. Überprüfen Sie Ihren Posteingang und klicken Sie auf den Bestätigungslink.');
           } else if (error.message.includes('email_not_confirmed')) {
