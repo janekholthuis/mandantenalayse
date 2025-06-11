@@ -12,14 +12,14 @@ const Footer: React.FC = () => {
             </h3>
             <ul className="mt-4 space-y-4">
               <li>
-                <Link to="/datenschutz" className="text-base text-gray-500 hover:text-gray-900">
+                <a href="/datenschutz" className="text-base text-gray-500 hover:text-gray-900">
                   Datenschutz
-                </Link>
+                </a>
               </li>
               <li>
-                <Link to="/agb" className="text-base text-gray-500 hover:text-gray-900">
+                <a href="/agb" className="text-base text-gray-500 hover:text-gray-900">
                   AGB
-                </Link>
+                </a>
               </li>
             </ul>
           </div>

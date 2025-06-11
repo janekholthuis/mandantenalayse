@@ -235,6 +235,18 @@ const AuthForm: React.FC<AuthFormProps> = ({ mode }) => {
                 </Link>
               </div>
             )}
+
+            {mode === 'login' && (
+              <div className="text-sm text-center">
+                <span className="text-gray-600">Noch kein Konto? </span>
+                <Link
+                  to="/signup"
+                  className="font-medium text-blue-600 hover:text-blue-500"
+                >
+                  Jetzt registrieren
+                </Link>
+              </div>
+            )}
           </form>
         </div>
       </div>

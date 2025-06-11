@@ -7,9 +7,9 @@ const AGBPage: React.FC = () => {
     <div className="min-h-screen bg-gray-50 py-12">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-8">
-          <Link to="/" className="text-blue-600 hover:text-blue-500 flex items-center">
+          <Link to="/login" className="text-blue-600 hover:text-blue-500 flex items-center">
             <ArrowLeft size={16} className="mr-1" />
-            Zurück zur Startseite
+            Zurück zur Anmeldung
           </Link>
         </div>
 
