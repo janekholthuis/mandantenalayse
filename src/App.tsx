@@ -11,7 +11,6 @@ import MainLayout from './components/layout/MainLayout';
 import ClientsPage from './pages/ClientsPage';
 import NewClientPage from './pages/NewClientPage';
 import ClientDetailPage from './pages/ClientDetailPage';
-import TransactionsPage from './pages/TransactionsPage';
 import SettingsPage from './pages/SettingsPage';
 
 // Protected Route Component
@@ -100,13 +99,6 @@ function App() {
           <ProtectedRoute>
             <MainLayout>
               <ClientDetailPage />
-            </MainLayout>
-          </ProtectedRoute>
-        } />
-        <Route path="/transactions" element={
-          <ProtectedRoute>
-            <MainLayout>
-              <TransactionsPage />
             </MainLayout>
           </ProtectedRoute>
         } />
