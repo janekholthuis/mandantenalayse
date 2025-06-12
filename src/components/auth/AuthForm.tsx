@@ -56,13 +56,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ mode }) => {
         });
         if (error) throw error;
         
-        // Send custom welcome email (confirmation email is handled by Supabase)
-        try {
-          await EmailService.sendWelcomeEmail(email, name, company);
-        } catch (emailError) {
-          console.error('Failed to send welcome email:', emailError);
-          // Don't fail the registration if email fails
-        }
+       
         
         // Redirect to email confirmation sent page
         navigate(`/email-confirmation-sent?email=${encodeURIComponent(email)}&name=${encodeURIComponent(name)}`);
