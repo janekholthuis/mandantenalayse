@@ -77,10 +77,7 @@ const SettingsPage: React.FC = () => {
 
         {/* E-Mail */}
        <div className="p-6 bg-white rounded-lg shadow border border-gray-200">
-  <div className="flex items-center justify-between mb-2">
-    <label className="text-sm font-semibold text-gray-700">E-Mail-Adresse</label>
-    <ChangeEmailDialog />
-  </div>
+  
 
   <input
     type="email"
@@ -92,6 +89,10 @@ const SettingsPage: React.FC = () => {
   <p className="mt-2 text-sm text-gray-500">
     Diese E-Mail-Adresse ist derzeit mit Ihrem Konto verknüpft. Änderungen sind über den Button möglich.
   </p>
+         <div className="flex items-center justify-between mb-2">
+    <label className="text-sm font-semibold text-gray-700">E-Mail-Adresse</label>
+    <ChangeEmailDialog />
+  </div>
 </div>
 
 
