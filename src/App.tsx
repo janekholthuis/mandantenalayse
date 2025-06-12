@@ -1,4 +1,3 @@
-// src/App.tsx
 import React from 'react'
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { useAuth } from './hooks/useAuth'
@@ -19,10 +18,15 @@ import { Toaster } from 'react-hot-toast'
 const AppContent: React.FC = () => {
   const { user, loading } = useAuth()
   const loc = useLocation()
-  const authPaths = ['/login','/signup','/reset-password','/update-password','/confirm-email','/email-confirmation-sent']
+  const authPaths = ['/login', '/signup', '/reset-password', '/update-password', '/confirm-email', '/email-confirmation-sent']
   const isAuth = authPaths.includes(loc.pathname)
 
-  if (loading) return <div className="min-h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"/></div>
+  if (loading)
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500" />
+      </div>
+    )
 
   return (
     <>
@@ -30,9 +34,9 @@ const AppContent: React.FC = () => {
       <div className="flex">
         {!isAuth && user && <Sidebar />}
         <main className="flex-1 min-h-screen bg-gray-50">
-          <div className={`max-w-7xl mx-auto p-4 lg:p-8 ${!isAuth ? 'pt-4' : ''}`}>
+          <div className={`max-w-7xl mx-auto px-4 lg:px-8 py-8 ${!isAuth ? 'pt-4' : ''}`}>
             <Routes>
-              {/* Auth */}
+              {/* Public/Auth */}
               <Route path="/login" element={<LoginForm />} />
               <Route path="/signup" element={<SignupForm />} />
               <Route path="/reset-password" element={<PasswordResetPage />} />
@@ -41,17 +45,18 @@ const AppContent: React.FC = () => {
               <Route path="/email-confirmation-sent" element={<EmailConfirmationSentPage />} />
 
               {/* Protected */}
-              {user
-                ? <>
-                    <Route path="/" element={<Navigate to="/clients" replace />} />
-                    <Route path="/clients" element={<ClientsPage />} />
-                    <Route path="/clients/new" element={<NewClientPage />} />
-                    <Route path="/clients/:id" element={<ClientDetailPage />} />
-                    <Route path="/settings" element={<SettingsPage />} />
-                    <Route path="*" element={<Navigate to="/clients" replace />} />
-                  </>
-                : <Route path="*" element={<Navigate to="/login" replace />} />
-              }
+              {user ? (
+                <>
+                  <Route path="/" element={<Navigate to="/clients" replace />} />
+                  <Route path="/clients" element={<ClientsPage />} />
+                  <Route path="/clients/new" element={<NewClientPage />} />
+                  <Route path="/clients/:id" element={<ClientDetailPage />} />
+                  <Route path="/settings" element={<SettingsPage />} />
+                  <Route path="*" element={<Navigate to="/clients" replace />} />
+                </>
+              ) : (
+                <Route path="*" element={<Navigate to="/login" replace />} />
+              )}
             </Routes>
           </div>
         </main>
@@ -62,5 +67,9 @@ const AppContent: React.FC = () => {
 }
 
 export default function App() {
-  return <Router><AppContent /></Router>
+  return (
+    <Router>
+      <AppContent />
+    </Router>
+  )
 }
