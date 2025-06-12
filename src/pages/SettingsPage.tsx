@@ -1,13 +1,27 @@
-import React, { useState } from 'react';
-import { Save, Lock, Globe, Mail } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Save, Lock } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import Button from '../components/ui/Button';
 import ChangeEmailDialog from '../components/settings/ChangeEmailDialog';
 
 const SettingsPage: React.FC = () => {
+  const [email, setEmail] = useState('');
+  const [name, setName] = useState('');
   const [password, setPassword] = useState('');
   const [passwordStatus, setPasswordStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [passwordMessage, setPasswordMessage] = useState('');
+
+  // Lade Name + E-Mail beim Laden der Seite
+  useEffect(() => {
+    const fetchUser = async () => {
+      const { data } = await supabase.auth.getUser();
+      if (data?.user) {
+        setEmail(data.user.email || '');
+        setName(data.user.user_metadata?.name || '');
+      }
+    };
+    fetchUser();
+  }, []);
 
   const handlePasswordChange = async () => {
     const { error } = await supabase.auth.updateUser({ password });
@@ -29,7 +43,7 @@ const SettingsPage: React.FC = () => {
       </div>
 
       <div className="bg-white shadow rounded-lg divide-y divide-gray-200">
-        {/* Profil Einstellungen */}
+        {/* Profil */}
         <div className="p-6">
           <h2 className="text-lg font-medium text-gray-900 mb-4">Profil</h2>
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
@@ -38,22 +52,24 @@ const SettingsPage: React.FC = () => {
               <input
                 type="text"
                 id="name"
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                defaultValue="Max Steuerberater"
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm bg-gray-100"
+                value={name}
+                disabled
               />
             </div>
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700">E-Mail</label>
-              <input
-                type="email"
-                id="email"
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                defaultValue="max@beispiel.de"
-              />
+              <div className="mt-1 flex gap-2">
+                <input
+                  type="email"
+                  id="email"
+                  value={email}
+                  disabled
+                  className="flex-1 rounded-md border-gray-300 shadow-sm bg-gray-100"
+                />
+                <ChangeEmailDialog />
+              </div>
             </div>
-          </div>
-          <div className="mt-6">
-            <ChangeEmailDialog />
           </div>
         </div>
 
@@ -76,8 +92,6 @@ const SettingsPage: React.FC = () => {
             {passwordStatus === 'error' && <p className="text-red-600">{passwordMessage}</p>}
           </div>
         </div>
-
-      
       </div>
 
       <div className="flex justify-end">
