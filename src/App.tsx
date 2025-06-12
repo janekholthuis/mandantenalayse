@@ -1,5 +1,11 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+  useLocation,
+} from 'react-router-dom';
 import { useAuth } from './hooks/useAuth';
 import Navbar from './components/layout/Navbar';
 import Sidebar from './components/layout/Sidebar';
@@ -19,7 +25,14 @@ const AppContent: React.FC = () => {
   const { user, loading } = useAuth();
   const location = useLocation();
 
-  const authPaths = ['/login', '/signup', '/reset-password', '/update-password', '/confirm-email', '/email-confirmation-sent'];
+  const authPaths = [
+    '/login',
+    '/signup',
+    '/reset-password',
+    '/update-password',
+    '/confirm-email',
+    '/email-confirmation-sent',
+  ];
   const isAuthPage = authPaths.includes(location.pathname);
 
   if (loading) {
@@ -31,23 +44,33 @@ const AppContent: React.FC = () => {
   }
 
   return (
-    <>
+    <div className="min-h-screen bg-gray-50 flex flex-col">
+      <Toaster position="top-right" toastOptions={{ duration: 4000 }} />
+
       {!isAuthPage && <Navbar />}
-      <div className="flex">
+
+      <div className="flex flex-1">
         {user && !isAuthPage && <Sidebar />}
 
-        <main className="flex-1 min-h-screen bg-gray-50">
-          <div className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 ${!isAuthPage ? 'pt-4' : ''}`}>
+        <main className="flex-1">
+          <div
+            className={`${
+              !isAuthPage ? 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8' : ''
+            }`}
+          >
             <Routes>
-              {/* Public / Auth routes */}
+              {/* Auth Routes */}
               <Route path="/login" element={<LoginPage />} />
               <Route path="/signup" element={<SignupPage />} />
               <Route path="/reset-password" element={<PasswordResetPage />} />
               <Route path="/update-password" element={<UpdatePasswordPage />} />
               <Route path="/confirm-email" element={<ConfirmEmailPage />} />
-              <Route path="/email-confirmation-sent" element={<EmailConfirmationSentPage />} />
+              <Route
+                path="/email-confirmation-sent"
+                element={<EmailConfirmationSentPage />}
+              />
 
-              {/* Protected / App routes */}
+              {/* App Routes */}
               {user ? (
                 <>
                   <Route path="/" element={<Navigate to="/clients" replace />} />
@@ -64,9 +87,7 @@ const AppContent: React.FC = () => {
           </div>
         </main>
       </div>
-
-      <Toaster position="top-right" />
-    </>
+    </div>
   );
 };
 
