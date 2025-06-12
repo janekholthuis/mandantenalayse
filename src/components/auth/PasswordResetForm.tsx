@@ -26,12 +26,7 @@ const PasswordResetForm: React.FC = () => {
       if (error) throw error;
       
       // Send custom password reset email (optional, Supabase also sends one)
-      try {
-        await EmailService.sendPasswordResetEmail(email, 'reset-token-placeholder');
-      } catch (emailError) {
-        console.error('Failed to send custom password reset email:', emailError);
-        // Don't fail the process if custom email fails
-      }
+     
       
       setSuccess(true);
     } catch (err) {
