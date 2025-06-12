@@ -1,21 +1,8 @@
-import React, { useState } from 'react';
-import { Save, Bell, Lock, Globe, Mail } from 'lucide-react';
+import React from 'react';
+import { Save, Lock, Globe, Mail } from 'lucide-react';
 import Button from '../components/ui/Button';
 
 const SettingsPage: React.FC = () => {
-  const [notifications, setNotifications] = useState({
-    email: true,
-    desktop: false,
-    updates: true
-  });
-
-  const handleNotificationChange = (key: keyof typeof notifications) => {
-    setNotifications(prev => ({
-      ...prev,
-      [key]: !prev[key]
-    }));
-  };
-
   return (
     <div className="space-y-6">
       <div className="pb-5 border-b border-gray-200">
@@ -55,53 +42,6 @@ const SettingsPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Benachrichtigungen */}
-        <div className="p-6">
-          <div className="flex items-center mb-4">
-            <Bell size={20} className="text-gray-400 mr-2" />
-            <h2 className="text-lg font-medium text-gray-900">Benachrichtigungen</h2>
-          </div>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-700">E-Mail-Benachrichtigungen</p>
-                <p className="text-sm text-gray-500">Erhalten Sie wichtige Updates per E-Mail</p>
-              </div>
-              <button
-                onClick={() => handleNotificationChange('email')}
-                className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
-                  notifications.email ? 'bg-blue-600' : 'bg-gray-200'
-                }`}
-              >
-                <span
-                  className={`inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
-                    notifications.email ? 'translate-x-5' : 'translate-x-0'
-                  }`}
-                />
-              </button>
-            </div>
-
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-700">Desktop-Benachrichtigungen</p>
-                <p className="text-sm text-gray-500">Erhalten Sie Echtzeit-Benachrichtigungen im Browser</p>
-              </div>
-              <button
-                onClick={() => handleNotificationChange('desktop')}
-                className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
-                  notifications.desktop ? 'bg-blue-600' : 'bg-gray-200'
-                }`}
-              >
-                <span
-                  className={`inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
-                    notifications.desktop ? 'translate-x-5' : 'translate-x-0'
-                  }`}
-                />
-              </button>
-            </div>
-          </div>
-        </div>
-
         {/* Sicherheit */}
         <div className="p-6">
           <div className="flex items-center mb-4">
@@ -114,19 +54,14 @@ const SettingsPage: React.FC = () => {
                 Passwort ändern
               </Button>
             </div>
-            <div>
-              <Button variant="secondary">
-                Zwei-Faktor-Authentifizierung aktivieren
-              </Button>
-            </div>
           </div>
         </div>
 
-        {/* Sprache und Region */}
+        {/* Sprache & Zeitzone */}
         <div className="p-6">
           <div className="flex items-center mb-4">
             <Globe size={20} className="text-gray-400 mr-2" />
-            <h2 className="text-lg font-medium text-gray-900">Sprache und Region</h2>
+            <h2 className="text-lg font-medium text-gray-900">Sprache & Zeitzone</h2>
           </div>
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
             <div>
@@ -137,9 +72,9 @@ const SettingsPage: React.FC = () => {
                 id="language"
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                 defaultValue="de"
+                disabled
               >
                 <option value="de">Deutsch</option>
-                <option value="en">English</option>
               </select>
             </div>
             <div>
@@ -152,8 +87,6 @@ const SettingsPage: React.FC = () => {
                 defaultValue="Europe/Berlin"
               >
                 <option value="Europe/Berlin">Berlin (UTC+1)</option>
-                <option value="Europe/London">London (UTC)</option>
-                <option value="America/New_York">New York (UTC-5)</option>
               </select>
             </div>
           </div>
