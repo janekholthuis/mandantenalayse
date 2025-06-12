@@ -79,7 +79,7 @@ const SettingsPage: React.FC = () => {
   
        <div className="p-6 bg-white rounded-lg shadow border border-gray-200">
    <label className="text-sm font-semibold text-gray-700">E-Mail-Adresse</label>
-         <br></br>
+         <br>
 
   <input
     type="email"
