@@ -15,7 +15,7 @@ import NewClientPage from './pages/NewClientPage';
 import ClientDetailPage from './pages/ClientDetailPage';
 import EmailTemplatesPage from './pages/EmailTemplatesPage';
 import SettingsPage from './pages/SettingsPage';
-import AuthCallbackPage from './pages/AuthCallbackPage'; // ✅ NEW
+import AuthCallbackPage from './pages/AuthCallbackPage';
 
 // Protected Route Component
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
