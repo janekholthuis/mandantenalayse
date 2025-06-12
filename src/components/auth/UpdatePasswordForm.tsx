@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Lock } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import Button from '../ui/Button';
@@ -7,102 +7,44 @@ import toast from 'react-hot-toast';
 
 const UpdatePasswordForm: React.FC = () => {
   const navigate = useNavigate();
-  const { 0: params } = useSearchParams();
-  const [isLoading, setIsLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const passwordRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    // Session wiederherstellen aus Fragment (falls vorhanden)
-    supabase.auth.getSessionFromUrl({ storeSession: true }).catch(console.error);
-
-    // Fokus auf Passwortfeld
-    passwordRef.current?.focus();
-  }, []);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setIsLoading(true);
+    setLoading(true);
     setError(null);
-
-    const formData = new FormData(e.currentTarget);
-    const password = formData.get('password') as string;
-    const confirmPassword = formData.get('confirmPassword') as string;
-
-    if (password !== confirmPassword) {
-      setError('Die Passwörter stimmen nicht überein');
-      setIsLoading(false);
-      return;
-    }
-
-    try {
-      const { error: err } = await supabase.auth.updateUser({ password });
-      if (err) throw err;
-
-      toast.success('Passwort erfolgreich geändert ✅');
-      setTimeout(() => navigate('/login?passwordUpdated=true'), 1500);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Passwort konnte nicht aktualisiert werden');
-    } finally {
-      setIsLoading(false);
-    }
+    const form = new FormData(e.currentTarget);
+    const pw = form.get('password') as string;
+    const confirm = form.get('confirmPassword') as string;
+    if (pw !== confirm) return setError('Die Passwörter stimmen nicht überein');
+    const { error: err } = await supabase.auth.updateUser({ password: pw });
+    setLoading(false);
+    if (err) return setError(err.message);
+    toast.success('Passwort erfolgreich geändert 🔐');
+    navigate('/login?passwordUpdated=true');
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="text-center">
-          <Lock className="mx-auto h-12 w-12 text-blue-600" />
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Neues Passwort festlegen
-          </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
-            Bitte geben Sie Ihr neues Passwort ein.
-          </p>
-        </div>
-      </div>
-
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
-          <form className="space-y-6" onSubmit={handleSubmit}>
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">Neues Passwort</label>
-              <input
-                ref={passwordRef}
-                id="password"
-                name="password"
-                type="password"
-                minLength={8}
-                required
-                className="block w-full pl-4 py-2 border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                placeholder="••••••••"
-              />
+    <div className="min-h-screen flex flex-col justify-center px-6">
+      <div className="max-w-md mx-auto bg-white p-6 shadow rounded-lg">
+        <h2 className="text-xl font-extrabold text-gray-900 mb-4">Neues Passwort festlegen</h2>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700">Neues Passwort</label>
+            <div className="mt-1 relative rounded-md shadow-sm">
+              <Lock className="absolute left-3 top-2 text-gray-400" /><input id="password" name="password" type="password" required minLength={8} placeholder="••••••••" className="pl-10 w-full border rounded-md focus:ring-blue-500" />
             </div>
-
-            <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">Passwort bestätigen</label>
-              <input
-                id="confirmPassword"
-                name="confirmPassword"
-                type="password"
-                minLength={8}
-                required
-                className="block w-full pl-4 py-2 border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                placeholder="••••••••"
-              />
+          </div>
+          <div>
+            <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">Passwort bestätigen</label>
+            <div className="mt-1 relative rounded-md shadow-sm">
+              <Lock className="absolute left-3 top-2 text-gray-400" /><input id="confirmPassword" name="confirmPassword" type="password" required minLength={8} placeholder="••••••••" className="pl-10 w-full border rounded-md focus:ring-blue-500" />
             </div>
-
-            {error && (
-              <div className="rounded-md bg-red-50 p-4">
-                <div className="text-sm text-red-700">{error}</div>
-              </div>
-            )}
-
-            <Button type="submit" variant="primary" fullWidth isLoading={isLoading}>
-              Passwort aktualisieren
-            </Button>
-          </form>
-        </div>
+          </div>
+          {error && <p className="text-red-600">{error}</p>}
+          <Button type="submit" variant="primary" fullWidth isLoading={loading}>Passwort aktualisieren</Button>
+        </form>
       </div>
     </div>
   );
