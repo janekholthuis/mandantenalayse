@@ -13,14 +13,11 @@ import MainLayout from './components/layout/MainLayout';
 import ClientsPage from './pages/ClientsPage';
 import NewClientPage from './pages/NewClientPage';
 import ClientDetailPage from './pages/ClientDetailPage';
-import EmailTemplatesPage from './pages/EmailTemplatesPage';
 import SettingsPage from './pages/SettingsPage';
-import AuthCallbackPage from './pages/AuthCallbackPage';
 
 // Protected Route Component
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, loading } = useAuth();
-
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -28,18 +25,13 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
       </div>
     );
   }
-
-  if (!user) {
-    return <Navigate to="/login" replace />;
-  }
-
+  if (!user) return <Navigate to="/login" replace />;
   return <>{children}</>;
 };
 
-// Public Route Component (redirects to app if authenticated)
+// Public Route Component
 const PublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, loading } = useAuth();
-
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -47,11 +39,7 @@ const PublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       </div>
     );
   }
-
-  if (user) {
-    return <Navigate to="/clients" replace />;
-  }
-
+  if (user) return <Navigate to="/clients" replace />;
   return <>{children}</>;
 };
 
@@ -59,7 +47,7 @@ function App() {
   return (
     <Router>
       <Routes>
-        {/* Public Routes */}
+        {/* Public */}
         <Route path="/" element={<PublicRoute><LoginPage /></PublicRoute>} />
         <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
         <Route path="/signup" element={<PublicRoute><SignupPage /></PublicRoute>} />
@@ -69,46 +57,14 @@ function App() {
         <Route path="/agb" element={<AGBPage />} />
         <Route path="/confirm-email" element={<ConfirmEmailPage />} />
         <Route path="/email-confirmation-sent" element={<EmailConfirmationSentPage />} />
-        <Route path="/auth/callback" element={<AuthCallbackPage />} /> {/* ✅ NEW */}
 
-        {/* Protected Routes */}
-        <Route path="/clients" element={
-          <ProtectedRoute>
-            <MainLayout>
-              <ClientsPage />
-            </MainLayout>
-          </ProtectedRoute>
-        } />
-        <Route path="/clients/new" element={
-          <ProtectedRoute>
-            <MainLayout>
-              <NewClientPage />
-            </MainLayout>
-          </ProtectedRoute>
-        } />
-        <Route path="/clients/:id" element={
-          <ProtectedRoute>
-            <MainLayout>
-              <ClientDetailPage />
-            </MainLayout>
-          </ProtectedRoute>
-        } />
-        <Route path="/email-templates" element={
-          <ProtectedRoute>
-            <MainLayout>
-              <EmailTemplatesPage />
-            </MainLayout>
-          </ProtectedRoute>
-        } />
-        <Route path="/settings" element={
-          <ProtectedRoute>
-            <MainLayout>
-              <SettingsPage />
-            </MainLayout>
-          </ProtectedRoute>
-        } />
+        {/* Protected */}
+        <Route path="/clients" element={<ProtectedRoute><MainLayout><ClientsPage /></MainLayout></ProtectedRoute>} />
+        <Route path="/clients/new" element={<ProtectedRoute><MainLayout><NewClientPage /></MainLayout></ProtectedRoute>} />
+        <Route path="/clients/:id" element={<ProtectedRoute><MainLayout><ClientDetailPage /></MainLayout></ProtectedRoute>} />
+        <Route path="/settings" element={<ProtectedRoute><MainLayout><SettingsPage /></MainLayout></ProtectedRoute>} />
 
-        {/* Catch-all */}
+        {/* Fallback */}
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </Router>
