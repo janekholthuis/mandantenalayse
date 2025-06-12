@@ -26,8 +26,8 @@ const Sidebar = () => {
   };
 
   return (
-    <div className="hidden md:block w-64 bg-gray-50 border-r border-gray-200">
-      <div className="h-full flex flex-col justify-between">
+    <div className="hidden md:flex w-64 bg-gray-50 border-r border-gray-200 sticky top-0 h-screen">
+      <div className="flex flex-col justify-between w-full overflow-y-auto">
         <nav className="pt-5 px-2 space-y-1">
           {navItems.map((item) => (
             <Link
