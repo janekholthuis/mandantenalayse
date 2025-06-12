@@ -8,6 +8,25 @@ interface AuthFormProps {
   mode: 'login' | 'signup';
 }
 
+import toast from 'react-hot-toast';
+
+const handleLogin = async (email: string, password: string) => {
+  setLoading(true);
+  setError(null);
+
+  const { error } = await supabase.auth.signInWithPassword({ email, password });
+
+  if (error) {
+    setError(error.message);
+  } else {
+    toast.success('Willkommen zurück 👋');
+    navigate('/clients'); // oder dein default logged-in route
+  }
+
+  setLoading(false);
+};
+
+
 const AuthForm: React.FC<AuthFormProps> = ({ mode }) => {
   const navigate = useNavigate();
   const location = useLocation();
