@@ -1,28 +1,32 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Mail } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import Button from '../components/ui/Button';
 import { showSuccess, showError } from '../lib/toast';
 
-const PasswordResetForm: React.FC = () => {
+const PasswordResetPage: React.FC = () => {
+  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    setError('');
     
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email, { 
         redirectTo: `${window.location.origin}/update-password` 
       });
+      
       if (error) throw error;
-      showSuccess('Passwort-Reset-Link gesendet 📧');
+      
+      showSuccess('Passwort-Reset-Link gesendet! 📧');
       setSuccess(true);
     } catch (err: any) {
-      showError(err.message);
-      setError(err.message);
+      console.error('Password reset error:', err);
+      showError(err.message || 'Fehler beim Senden des Reset-Links');
     } finally { 
       setIsLoading(false); 
     }
@@ -30,15 +34,26 @@ const PasswordResetForm: React.FC = () => {
 
   if (success) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-md w-full space-y-8">
-          <div className="text-center">
-            <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
-              E-Mail gesendet
-            </h2>
-            <p className="mt-2 text-sm text-gray-600">
-              Wir haben Ihnen einen Link zum Zurücksetzen Ihres Passworts gesendet.
-            </p>
+      <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+        <div className="sm:mx-auto sm:w-full sm:max-w-md">
+          <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+            <div className="text-center">
+              <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 mb-4">
+                <Mail className="h-6 w-6 text-green-600" />
+              </div>
+              <h2 className="text-xl font-medium text-gray-900 mb-2">E-Mail gesendet</h2>
+              <p className="text-sm text-gray-600 mb-6">
+                Wir haben Ihnen einen Link zum Zurücksetzen Ihres Passworts an <strong>{email}</strong> gesendet. 
+                Bitte überprüfen Sie Ihren Posteingang.
+              </p>
+              <Button
+                variant="secondary"
+                onClick={() => navigate('/login')}
+                className="w-full"
+              >
+                Zurück zur Anmeldung
+              </Button>
+            </div>
           </div>
         </div>
       </div>
@@ -46,9 +61,10 @@ const PasswordResetForm: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div>
+    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+      <div className="sm:mx-auto sm:w-full sm:max-w-md">
+        <div className="text-center">
+          <Mail className="mx-auto h-12 w-12 text-blue-600" />
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
             Passwort zurücksetzen
           </h2>
@@ -56,41 +72,57 @@ const PasswordResetForm: React.FC = () => {
             Geben Sie Ihre E-Mail-Adresse ein, um einen Reset-Link zu erhalten.
           </p>
         </div>
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <div>
-            <label htmlFor="email" className="sr-only">
-              E-Mail-Adresse
-            </label>
-            <input
-              id="email"
-              name="email"
-              type="email"
-              autoComplete="email"
-              required
-              className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-              placeholder="E-Mail-Adresse"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-          </div>
+      </div>
 
-          {error && (
-            <div className="text-red-600 text-sm text-center">{error}</div>
-          )}
+      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+        <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+          <form className="space-y-6" onSubmit={handleSubmit}>
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                E-Mail-Adresse
+              </label>
+              <div className="mt-1 relative rounded-md shadow-sm">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Mail className="h-5 w-5 text-gray-400" />
+                </div>
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  autoComplete="email"
+                  required
+                  className="block w-full pl-10 pr-3 py-2 sm:text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="max@beispiel.de"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+              </div>
+            </div>
 
-          <div>
-            <button
+            <Button
               type="submit"
-              disabled={isLoading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
+              variant="primary"
+              fullWidth
+              isLoading={isLoading}
+              className="bg-blue-600 hover:bg-blue-700"
             >
-              {isLoading ? 'Wird gesendet...' : 'Reset-Link senden'}
-            </button>
-          </div>
-        </form>
+              Reset-Link senden
+            </Button>
+
+            <div className="text-sm text-center">
+              <button
+                type="button"
+                onClick={() => navigate('/login')}
+                className="font-medium text-blue-600 hover:text-blue-500"
+              >
+                Zurück zur Anmeldung
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );
 };
 
-export default PasswordResetForm;
+export default PasswordResetPage;
