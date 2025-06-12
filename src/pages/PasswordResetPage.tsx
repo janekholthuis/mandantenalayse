@@ -1,5 +1,5 @@
 // … Import Toaster
-import { showSuccess, showError } from '../../lib/toast';
+import { showSuccess, showError } from '../lib/toast';
 
 const PasswordResetForm: React.FC = () => {
   // ...
