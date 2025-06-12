@@ -1,100 +1,66 @@
-import React from 'react';
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  Navigate,
-  useLocation,
-} from 'react-router-dom';
-import { useAuth } from './hooks/useAuth';
-import Navbar from './components/layout/Navbar';
-import Sidebar from './components/layout/Sidebar';
-import LoginPage from './pages/LoginPage';
-import SignupPage from './pages/SignupPage';
-import PasswordResetPage from './pages/PasswordResetPage';
-import UpdatePasswordPage from './pages/UpdatePasswordPage';
-import ConfirmEmailPage from './pages/ConfirmEmailPage';
-import EmailConfirmationSentPage from './pages/EmailConfirmationSentPage';
-import ClientsPage from './pages/ClientsPage';
-import NewClientPage from './pages/NewClientPage';
-import ClientDetailPage from './pages/ClientDetailPage';
-import SettingsPage from './pages/SettingsPage';
-import { Toaster } from 'react-hot-toast';
+// src/App.tsx
+import React from 'react'
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom'
+import { useAuth } from './hooks/useAuth'
+import LoginForm from './components/auth/LoginForm'
+import SignupForm from './components/auth/SignupForm'
+import PasswordResetPage from './pages/PasswordResetPage'
+import UpdatePasswordPage from './pages/UpdatePasswordPage'
+import ConfirmEmailPage from './pages/ConfirmEmailPage'
+import EmailConfirmationSentPage from './pages/EmailConfirmationSentPage'
+import ClientsPage from './pages/ClientsPage'
+import NewClientPage from './pages/NewClientPage'
+import ClientDetailPage from './pages/ClientDetailPage'
+import SettingsPage from './pages/SettingsPage'
+import Navbar from './components/layout/Navbar'
+import Sidebar from './components/layout/Sidebar'
+import { Toaster } from 'react-hot-toast'
 
 const AppContent: React.FC = () => {
-  const { user, loading } = useAuth();
-  const location = useLocation();
+  const { user, loading } = useAuth()
+  const loc = useLocation()
+  const authPaths = ['/login','/signup','/reset-password','/update-password','/confirm-email','/email-confirmation-sent']
+  const isAuth = authPaths.includes(loc.pathname)
 
-  const authPaths = [
-    '/login',
-    '/signup',
-    '/reset-password',
-    '/update-password',
-    '/confirm-email',
-    '/email-confirmation-sent',
-  ];
-  const isAuthPage = authPaths.includes(location.pathname);
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-      </div>
-    );
-  }
+  if (loading) return <div className="min-h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"/></div>
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      <Toaster position="top-right" toastOptions={{ duration: 4000 }} />
-
-      {!isAuthPage && <Navbar />}
-
-      <div className="flex flex-1">
-        {user && !isAuthPage && <Sidebar />}
-
-        <main className="flex-1">
-          <div
-            className={`${
-              !isAuthPage ? 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8' : ''
-            }`}
-          >
+    <>
+      {!isAuth && <Navbar />}
+      <div className="flex">
+        {!isAuth && user && <Sidebar />}
+        <main className="flex-1 min-h-screen bg-gray-50">
+          <div className={`max-w-7xl mx-auto p-4 lg:p-8 ${!isAuth ? 'pt-4' : ''}`}>
             <Routes>
-              {/* Auth Routes */}
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/signup" element={<SignupPage />} />
+              {/* Auth */}
+              <Route path="/login" element={<LoginForm />} />
+              <Route path="/signup" element={<SignupForm />} />
               <Route path="/reset-password" element={<PasswordResetPage />} />
               <Route path="/update-password" element={<UpdatePasswordPage />} />
               <Route path="/confirm-email" element={<ConfirmEmailPage />} />
-              <Route
-                path="/email-confirmation-sent"
-                element={<EmailConfirmationSentPage />}
-              />
+              <Route path="/email-confirmation-sent" element={<EmailConfirmationSentPage />} />
 
-              {/* App Routes */}
-              {user ? (
-                <>
-                  <Route path="/" element={<Navigate to="/clients" replace />} />
-                  <Route path="/clients" element={<ClientsPage />} />
-                  <Route path="/clients/new" element={<NewClientPage />} />
-                  <Route path="/clients/:id" element={<ClientDetailPage />} />
-                  <Route path="/settings" element={<SettingsPage />} />
-                  <Route path="*" element={<Navigate to="/clients" replace />} />
-                </>
-              ) : (
-                <Route path="*" element={<Navigate to="/login" replace />} />
-              )}
+              {/* Protected */}
+              {user
+                ? <>
+                    <Route path="/" element={<Navigate to="/clients" replace />} />
+                    <Route path="/clients" element={<ClientsPage />} />
+                    <Route path="/clients/new" element={<NewClientPage />} />
+                    <Route path="/clients/:id" element={<ClientDetailPage />} />
+                    <Route path="/settings" element={<SettingsPage />} />
+                    <Route path="*" element={<Navigate to="/clients" replace />} />
+                  </>
+                : <Route path="*" element={<Navigate to="/login" replace />} />
+              }
             </Routes>
           </div>
         </main>
       </div>
-    </div>
-  );
-};
+      <Toaster position="top-right" />
+    </>
+  )
+}
 
 export default function App() {
-  return (
-    <Router>
-      <AppContent />
-    </Router>
-  );
+  return <Router><AppContent /></Router>
 }
