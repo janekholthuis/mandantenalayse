@@ -1,22 +1,34 @@
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { Users, UserPlus, Settings } from 'lucide-react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Users, UserPlus, Settings, LogOut } from 'lucide-react';
+import { useAuth } from '../../hooks/useAuth';
+import { supabase } from '../../lib/supabase';
 
 const Sidebar = () => {
   const location = useLocation();
-  
+  const navigate = useNavigate();
+  const { user } = useAuth();
+
+  const name = user?.user_metadata?.name || 'Unbekannt';
+  const company = user?.user_metadata?.company || 'Organisation';
+
   const navItems = [
     { path: '/clients', label: 'Mandanten', icon: <Users size={20} /> },
     { path: '/clients/new', label: 'Mandanten hinzufügen', icon: <UserPlus size={20} /> },
     { path: '/settings', label: 'Einstellungen', icon: <Settings size={20} /> },
   ];
-  
+
   const isActive = (path: string) => location.pathname === path;
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    navigate('/login');
+  };
 
   return (
     <div className="hidden md:block w-64 bg-gray-50 border-r border-gray-200">
-      <div className="h-full flex flex-col">
-        <nav className="flex-1 pt-5 px-2 space-y-1">
+      <div className="h-full flex flex-col justify-between">
+        <nav className="pt-5 px-2 space-y-1">
           {navItems.map((item) => (
             <Link
               key={item.path}
@@ -32,15 +44,25 @@ const Sidebar = () => {
             </Link>
           ))}
         </nav>
-        <div className="flex-shrink-0 border-t border-gray-200 p-4">
-          <div className="flex items-center w-full">
-            <div className="h-8 w-8 rounded-full bg-blue-600 flex items-center justify-center text-white">
-              MS
+
+        <div className="border-t border-gray-200 p-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <div className="h-8 w-8 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold">
+                {name.charAt(0).toUpperCase()}
+              </div>
+              <div className="ml-3">
+                <p className="text-sm font-medium text-gray-900">{name}</p>
+                <p className="text-xs font-medium text-gray-500">{company}</p>
+              </div>
             </div>
-            <div className="ml-3 flex-1">
-              <p className="text-sm font-medium text-gray-900">Max Steuerberater</p>
-              <p className="text-xs font-medium text-gray-500">Administrator</p>
-            </div>
+            <button
+              onClick={handleLogout}
+              className="ml-4 text-gray-400 hover:text-red-600"
+              title="Abmelden"
+            >
+              <LogOut size={18} />
+            </button>
           </div>
         </div>
       </div>
