@@ -1,7 +1,5 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import Navbar from './components/layout/Navbar'; // optional
-import Sidebar from './components/layout/Sidebar';
 import ClientsPage from './pages/ClientsPage';
 import NewClientPage from './pages/NewClientPage';
 import SettingsPage from './pages/SettingsPage';
@@ -9,37 +7,30 @@ import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import ConfirmEmailPage from './pages/ConfirmEmailPage';
 import EmailConfirmationSentPage from './pages/EmailConfirmationSentPage';
+import AppLayout from './layouts/AppLayout';
+import AuthLayout from './layouts/AuthLayout';
 import { Toaster } from 'react-hot-toast';
 
 const App: React.FC = () => {
   return (
     <Router>
-      <div className="flex min-h-screen bg-gray-50">
-        {/* 🌟 Sidebar immer sichtbar auf Desktop */}
-        <Sidebar />
+      <Toaster position="top-right" />
+      <Routes>
+        {/* Öffentliche Seiten */}
+        <Route path="/login" element={<AuthLayout><LoginPage /></AuthLayout>} />
+        <Route path="/signup" element={<AuthLayout><SignupPage /></AuthLayout>} />
+        <Route path="/confirm-email" element={<AuthLayout><ConfirmEmailPage /></AuthLayout>} />
+        <Route path="/email-confirmation-sent" element={<AuthLayout><EmailConfirmationSentPage /></AuthLayout>} />
 
-        {/* Inhalt + Navbar */}
-        <div className="flex-1 flex flex-col">
-          {/* Optional: Globale Navbar über dem Content */}
-          {/* <Navbar /> */}
+        {/* Geschützte Seiten mit Sidebar */}
+        <Route path="/" element={<Navigate to="/clients" replace />} />
+        <Route path="/clients" element={<AppLayout><ClientsPage /></AppLayout>} />
+        <Route path="/clients/new" element={<AppLayout><NewClientPage /></AppLayout>} />
+        <Route path="/settings" element={<AppLayout><SettingsPage /></AppLayout>} />
 
-          <main className="flex-1 p-4">
-            <Routes>
-              <Route path="/" element={<Navigate to="/clients" replace />} />
-              <Route path="/clients" element={<ClientsPage />} />
-              <Route path="/clients/new" element={<NewClientPage />} />
-              <Route path="/settings" element={<SettingsPage />} />
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/signup" element={<SignupPage />} />
-              <Route path="/confirm-email" element={<ConfirmEmailPage />} />
-              <Route path="/email-confirmation-sent" element={<EmailConfirmationSentPage />} />
-              <Route path="*" element={<Navigate to="/clients" replace />} />
-            </Routes>
-          </main>
-        </div>
-
-        <Toaster position="top-right" />
-      </div>
+        {/* Fallback */}
+        <Route path="*" element={<Navigate to="/clients" replace />} />
+      </Routes>
     </Router>
   );
 };
