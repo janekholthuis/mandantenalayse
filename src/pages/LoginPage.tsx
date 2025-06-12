@@ -1,22 +1,8 @@
-import React, { useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import AuthForm from '../components/auth/AuthForm';
-import toast from 'react-hot-toast';
+import React from 'react';
+import LoginForm from '../components/auth/LoginForm';
 
 const LoginPage: React.FC = () => {
-  const [params] = useSearchParams();
-
-  useEffect(() => {
-    if (params.get('confirmed') === 'true') {
-      toast.success('E-Mail erfolgreich bestätigt 🎉');
-    }
-
-    if (params.get('passwordUpdated') === 'true') {
-      toast.success('Passwort erfolgreich geändert 🔐');
-    }
-  }, [params]);
-
-  return <AuthForm />;
+  return <LoginForm />;
 };
 
 export default LoginPage;

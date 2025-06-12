@@ -1,8 +1,8 @@
 import React from 'react';
-import AuthForm from '../components/auth/AuthForm';
+import SignupForm from '../components/auth/SignupForm';
 
 const SignupPage: React.FC = () => {
-  return <AuthForm mode="signup" />;
+  return <SignupForm />;
 };
 
 export default SignupPage;
