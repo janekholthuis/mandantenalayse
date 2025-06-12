@@ -1,15 +1,31 @@
-import React from 'react';
-import { Save, Lock, Globe } from 'lucide-react';
+import React, { useState } from 'react';
+import { Save, Lock, Globe, Mail } from 'lucide-react';
+import { supabase } from '../lib/supabase';
 import Button from '../components/ui/Button';
+import ChangeEmailDialog from '../components/ChangeEmailDialog';
 
 const SettingsPage: React.FC = () => {
+  const [password, setPassword] = useState('');
+  const [passwordStatus, setPasswordStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [passwordMessage, setPasswordMessage] = useState('');
+
+  const handlePasswordChange = async () => {
+    const { error } = await supabase.auth.updateUser({ password });
+
+    if (error) {
+      setPasswordStatus('error');
+      setPasswordMessage(error.message);
+    } else {
+      setPasswordStatus('success');
+      setPasswordMessage('Passwort erfolgreich geändert.');
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="pb-5 border-b border-gray-200">
         <h1 className="text-2xl font-bold text-gray-900">Einstellungen</h1>
-        <p className="mt-1 text-sm text-gray-500">
-          Verwalten Sie Ihre Konto- und Anwendungseinstellungen
-        </p>
+        <p className="mt-1 text-sm text-gray-500">Verwalten Sie Ihre Konto-Einstellungen</p>
       </div>
 
       <div className="bg-white shadow rounded-lg divide-y divide-gray-200">
@@ -18,9 +34,7 @@ const SettingsPage: React.FC = () => {
           <h2 className="text-lg font-medium text-gray-900 mb-4">Profil</h2>
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
             <div>
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-                Name
-              </label>
+              <label htmlFor="name" className="block text-sm font-medium text-gray-700">Name</label>
               <input
                 type="text"
                 id="name"
@@ -29,9 +43,7 @@ const SettingsPage: React.FC = () => {
               />
             </div>
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                E-Mail
-              </label>
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700">E-Mail</label>
               <input
                 type="email"
                 id="email"
@@ -40,25 +52,28 @@ const SettingsPage: React.FC = () => {
               />
             </div>
           </div>
+          <div className="mt-6">
+            <ChangeEmailDialog />
+          </div>
         </div>
 
-        {/* Sicherheit */}
+        {/* Passwort ändern */}
         <div className="p-6">
           <div className="flex items-center mb-4">
             <Lock size={20} className="text-gray-400 mr-2" />
-            <h2 className="text-lg font-medium text-gray-900">Sicherheit</h2>
+            <h2 className="text-lg font-medium text-gray-900">Passwort ändern</h2>
           </div>
-          <div className="space-y-4">
-            <div>
-              <Button variant="secondary">
-                Passwort ändern
-              </Button>
-            </div>
-            <div>
-              <Button variant="secondary">
-                E-Mail-Adresse ändern
-              </Button>
-            </div>
+          <div className="space-y-4 max-w-sm">
+            <input
+              type="password"
+              placeholder="Neues Passwort"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full rounded border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200"
+            />
+            <Button variant="primary" onClick={handlePasswordChange}>Passwort ändern</Button>
+            {passwordStatus === 'success' && <p className="text-green-600">{passwordMessage}</p>}
+            {passwordStatus === 'error' && <p className="text-red-600">{passwordMessage}</p>}
           </div>
         </div>
 
@@ -70,22 +85,17 @@ const SettingsPage: React.FC = () => {
           </div>
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
             <div>
-              <label htmlFor="language" className="block text-sm font-medium text-gray-700">
-                Sprache
-              </label>
+              <label htmlFor="language" className="block text-sm font-medium text-gray-700">Sprache</label>
               <select
                 id="language"
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                 defaultValue="de"
-                disabled
               >
                 <option value="de">Deutsch</option>
               </select>
             </div>
             <div>
-              <label htmlFor="timezone" className="block text-sm font-medium text-gray-700">
-                Zeitzone
-              </label>
+              <label htmlFor="timezone" className="block text-sm font-medium text-gray-700">Zeitzone</label>
               <select
                 id="timezone"
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
@@ -99,10 +109,7 @@ const SettingsPage: React.FC = () => {
       </div>
 
       <div className="flex justify-end">
-        <Button
-          variant="primary"
-          icon={<Save size={16} />}
-        >
+        <Button variant="primary" icon={<Save size={16} />}>
           Einstellungen speichern
         </Button>
       </div>
