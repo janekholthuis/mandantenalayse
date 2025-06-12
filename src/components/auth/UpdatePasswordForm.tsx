@@ -147,6 +147,7 @@ const UpdatePasswordForm: React.FC<Props> = ({ sessionReady, errorMessage }) => 
                   id="password"
                   name="password"
                   type="password"
+                  autoComplete="new-password"
                   required
                   className="block w-full pl-10 pr-3 py-2 sm:text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   placeholder="••••••••"
@@ -167,6 +168,7 @@ const UpdatePasswordForm: React.FC<Props> = ({ sessionReady, errorMessage }) => 
                   id="confirmPassword"
                   name="confirmPassword"
                   type="password"
+                  autoComplete="new-password"
                   required
                   className="block w-full pl-10 pr-3 py-2 sm:text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   placeholder="••••••••"
@@ -193,6 +195,7 @@ const UpdatePasswordForm: React.FC<Props> = ({ sessionReady, errorMessage }) => 
               variant="primary"
               fullWidth
               isLoading={isLoading}
+              className="bg-blue-600 hover:bg-blue-700"
             >
               Passwort aktualisieren
             </Button>

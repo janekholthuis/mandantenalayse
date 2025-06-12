@@ -106,6 +106,7 @@ const SignupForm: React.FC = () => {
               id="email" 
               name="email" 
               type="email" 
+              autoComplete="email"
               required 
               placeholder="max@beispiel.de"
               className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -125,6 +126,7 @@ const SignupForm: React.FC = () => {
               id="password" 
               name="password" 
               type="password" 
+              autoComplete="new-password"
               required 
               placeholder="••••••••"
               className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -133,7 +135,7 @@ const SignupForm: React.FC = () => {
           </div>
         </div>
         
-        <Button type="submit" variant="primary" fullWidth isLoading={isLoading}>
+        <Button type="submit" variant="primary" fullWidth isLoading={isLoading} className="bg-blue-600 hover:bg-blue-700">
           Registrieren
         </Button>
       </form>

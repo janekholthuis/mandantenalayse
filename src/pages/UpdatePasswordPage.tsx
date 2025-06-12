@@ -12,33 +12,34 @@ const UpdatePasswordPage: React.FC = () => {
   useEffect(() => {
     const handlePasswordReset = async () => {
       try {
-        // First, check if there's a token in the URL
-        const token = searchParams.get('token');
+        // Check if there's already an active session (user clicked reset link)
+        const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
         
-        if (token) {
-          // If there's a token, verify it with Supabase
-          const { data, error } = await supabase.auth.verifyOtp({
-            token_hash: token,
-            type: 'recovery'
-          });
-          
-          if (error) {
-            console.error('Token verification error:', error);
-            setErrorMessage('Der Link ist ungültig oder abgelaufen. Bitte fordern Sie einen neuen Passwort-Reset an.');
-          } else if (data.session) {
-            // Token is valid and session is established
-            setSessionReady(true);
-          } else {
-            setErrorMessage('Der Link ist ungültig oder abgelaufen. Bitte fordern Sie einen neuen Passwort-Reset an.');
-          }
+        if (sessionError) {
+          console.error('Session error:', sessionError);
+          setErrorMessage('Der Link ist ungültig oder abgelaufen. Bitte fordern Sie einen neuen Passwort-Reset an.');
+        } else if (sessionData.session) {
+          // Session exists, user can update password
+          setSessionReady(true);
         } else {
-          // No token in URL, check if there's already an active session
-          const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+          // No session, check for token in URL and verify it
+          const token_hash = searchParams.get('token_hash');
+          const type = searchParams.get('type');
           
-          if (sessionError) {
-            setErrorMessage('Der Link ist ungültig oder abgelaufen. Bitte fordern Sie einen neuen Passwort-Reset an.');
-          } else if (sessionData.session) {
-            setSessionReady(true);
+          if (token_hash && type) {
+            const { data, error } = await supabase.auth.verifyOtp({
+              token_hash,
+              type: type as any
+            });
+            
+            if (error) {
+              console.error('Token verification error:', error);
+              setErrorMessage('Der Link ist ungültig oder abgelaufen. Bitte fordern Sie einen neuen Passwort-Reset an.');
+            } else if (data.session) {
+              setSessionReady(true);
+            } else {
+              setErrorMessage('Der Link ist ungültig oder abgelaufen. Bitte fordern Sie einen neuen Passwort-Reset an.');
+            }
           } else {
             setErrorMessage('Der Link ist ungültig oder abgelaufen. Bitte fordern Sie einen neuen Passwort-Reset an.');
           }
