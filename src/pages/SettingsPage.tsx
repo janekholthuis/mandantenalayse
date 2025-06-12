@@ -7,8 +7,10 @@ import ChangeEmailDialog from '../components/settings/ChangeEmailDialog';
 const SettingsPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
-  const [nameStatus, setNameStatus] = useState<'idle' | 'success' | 'error'>('idle');
-  const [nameMessage, setNameMessage] = useState('');
+  const [company, setCompany] = useState('');
+
+  const [userMetaStatus, setUserMetaStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [userMetaMessage, setUserMetaMessage] = useState('');
 
   const [password, setPassword] = useState('');
   const [passwordStatus, setPasswordStatus] = useState<'idle' | 'success' | 'error'>('idle');
@@ -20,19 +22,23 @@ const SettingsPage: React.FC = () => {
       if (data?.user) {
         setEmail(data.user.email || '');
         setName(data.user.user_metadata?.name || '');
+        setCompany(data.user.user_metadata?.company || '');
       }
     };
     fetchUser();
   }, []);
 
-  const handleNameChange = async () => {
-    const { error } = await supabase.auth.updateUser({ data: { name } });
+  const handleMetaChange = async () => {
+    const { error } = await supabase.auth.updateUser({
+      data: { name, company },
+    });
+
     if (error) {
-      setNameStatus('error');
-      setNameMessage(error.message);
+      setUserMetaStatus('error');
+      setUserMetaMessage(error.message);
     } else {
-      setNameStatus('success');
-      setNameMessage('Name erfolgreich aktualisiert.');
+      setUserMetaStatus('success');
+      setUserMetaMessage('Profil erfolgreich aktualisiert.');
     }
   };
 
@@ -57,37 +63,49 @@ const SettingsPage: React.FC = () => {
 
       <div className="bg-white shadow rounded-lg divide-y divide-gray-200">
         {/* Profil */}
-        <div className="p-6">
-          <h2 className="text-lg font-medium text-gray-900 mb-4">Profil</h2>
+        <div className="p-6 space-y-6">
+          <h2 className="text-lg font-medium text-gray-900">Profil</h2>
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
             <div>
               <label htmlFor="name" className="block text-sm font-medium text-gray-700">Name</label>
               <input
-                type="text"
                 id="name"
+                type="text"
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
               />
-              <div className="mt-2 flex gap-2">
-                <Button variant="primary" onClick={handleNameChange}>Name speichern</Button>
-                {nameStatus === 'success' && <p className="text-green-600 text-sm">{nameMessage}</p>}
-                {nameStatus === 'error' && <p className="text-red-600 text-sm">{nameMessage}</p>}
-              </div>
             </div>
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">E-Mail</label>
-              <div className="mt-1 flex gap-2">
-                <input
-                  type="email"
-                  id="email"
-                  value={email}
-                  disabled
-                  className="flex-1 rounded-md border-gray-300 shadow-sm bg-gray-100"
-                />
-                <ChangeEmailDialog />
-              </div>
+              <label htmlFor="company" className="block text-sm font-medium text-gray-700">Unternehmen</label>
+              <input
+                id="company"
+                type="text"
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                value={company}
+                onChange={(e) => setCompany(e.target.value)}
+              />
             </div>
+          </div>
+          <div className="flex gap-2 items-center">
+            <Button variant="primary" onClick={handleMetaChange}>Änderungen speichern</Button>
+            {userMetaStatus === 'success' && <p className="text-sm text-green-600">{userMetaMessage}</p>}
+            {userMetaStatus === 'error' && <p className="text-sm text-red-600">{userMetaMessage}</p>}
+          </div>
+        </div>
+
+        {/* E-Mail */}
+        <div className="p-6">
+          <label htmlFor="email" className="block text-sm font-medium text-gray-700">E-Mail</label>
+          <div className="mt-1 flex gap-2">
+            <input
+              type="email"
+              id="email"
+              value={email}
+              disabled
+              className="flex-1 rounded-md border-gray-300 shadow-sm bg-gray-100"
+            />
+            <ChangeEmailDialog />
           </div>
         </div>
 
