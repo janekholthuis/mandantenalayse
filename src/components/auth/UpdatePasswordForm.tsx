@@ -1,13 +1,24 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Lock } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import Button from '../ui/Button';
+import toast from 'react-hot-toast';
 
 const UpdatePasswordForm: React.FC = () => {
   const navigate = useNavigate();
+  const { 0: params } = useSearchParams();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const passwordRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    // Session wiederherstellen aus Fragment (falls vorhanden)
+    supabase.auth.getSessionFromUrl({ storeSession: true }).catch(console.error);
+
+    // Fokus auf Passwortfeld
+    passwordRef.current?.focus();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -25,12 +36,11 @@ const UpdatePasswordForm: React.FC = () => {
     }
 
     try {
-      const { error } = await supabase.auth.updateUser({
-        password: password
-      });
+      const { error: err } = await supabase.auth.updateUser({ password });
+      if (err) throw err;
 
-      if (error) throw error;
-      navigate('/login?passwordUpdated=true');
+      toast.success('Passwort erfolgreich geändert ✅');
+      setTimeout(() => navigate('/login?passwordUpdated=true'), 1500);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Passwort konnte nicht aktualisiert werden');
     } finally {
@@ -56,43 +66,30 @@ const UpdatePasswordForm: React.FC = () => {
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
           <form className="space-y-6" onSubmit={handleSubmit}>
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                Neues Passwort
-              </label>
-              <div className="mt-1 relative rounded-md shadow-sm">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Lock className="h-5 w-5 text-gray-400" />
-                </div>
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  required
-                  className="block w-full pl-10 sm:text-sm border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="••••••••"
-                  minLength={8}
-                />
-              </div>
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700">Neues Passwort</label>
+              <input
+                ref={passwordRef}
+                id="password"
+                name="password"
+                type="password"
+                minLength={8}
+                required
+                className="block w-full pl-4 py-2 border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                placeholder="••••••••"
+              />
             </div>
 
             <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
-                Passwort bestätigen
-              </label>
-              <div className="mt-1 relative rounded-md shadow-sm">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Lock className="h-5 w-5 text-gray-400" />
-                </div>
-                <input
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  type="password"
-                  required
-                  className="block w-full pl-10 sm:text-sm border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="••••••••"
-                  minLength={8}
-                />
-              </div>
+              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">Passwort bestätigen</label>
+              <input
+                id="confirmPassword"
+                name="confirmPassword"
+                type="password"
+                minLength={8}
+                required
+                className="block w-full pl-4 py-2 border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                placeholder="••••••••"
+              />
             </div>
 
             {error && (
@@ -101,12 +98,7 @@ const UpdatePasswordForm: React.FC = () => {
               </div>
             )}
 
-            <Button
-              type="submit"
-              variant="primary"
-              fullWidth
-              isLoading={isLoading}
-            >
+            <Button type="submit" variant="primary" fullWidth isLoading={isLoading}>
               Passwort aktualisieren
             </Button>
           </form>
