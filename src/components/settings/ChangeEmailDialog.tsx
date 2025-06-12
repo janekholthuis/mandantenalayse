@@ -1,44 +1,29 @@
 import React, { useState } from 'react';
 import { supabase } from '../../lib/supabase';
 import Button from '../ui/Button';
-import toast from 'react-hot-toast';
 
-const ChangeEmailDialog: React.FC = () => {
+interface Props { onSuccess?: (msg: string) => void }
+
+const ChangeEmailDialog: React.FC<Props> = ({ onSuccess }) => {
   const [open, setOpen] = useState(false);
   const [newEmail, setNewEmail] = useState('');
 
-  const handleEmailChange = async () => {
+  const handle = async () => {
     const { error } = await supabase.auth.updateUser({ email: newEmail });
-    error
-      ? toast.error('📛 ' + error.message)
-      : toast.success('📧 Bestätigungs-E-Mail gesendet');
-
+    if (error) return alert(error.message);
+    const msg = 'Bestätigungs-E-Mail gesendet';
+    onSuccess?.(msg);
     setOpen(false);
-    setNewEmail('');
   };
 
-  return (
-    <div className="mt-2">
-      {!open ? (
-        <Button variant="primary" onClick={() => setOpen(true)}>
-          E-Mail ändern
-        </Button>
-      ) : (
-        <div className="space-y-2 max-w-md">
-          <input
-            type="email"
-            placeholder="Neue E-Mail-Adresse"
-            value={newEmail}
-            onChange={(e) => setNewEmail(e.target.value)}
-            className="w-full rounded border-gray-300 px-3 py-2 shadow-sm focus:ring-blue-500"
-          />
-          <div className="flex gap-2">
-            <Button variant="primary" onClick={handleEmailChange}>Ändern</Button>
-            <Button variant="secondary" onClick={() => setOpen(false)}>Abbrechen</Button>
-          </div>
-        </div>
-      )}
+  return open ? (
+    <div>
+      <input value={newEmail} onChange={e => setNewEmail(e.target.value)} />
+      <Button onClick={handle}>Ändern</Button>
+      <Button onClick={() => setOpen(false)}>Abbrechen</Button>
     </div>
+  ) : (
+    <Button onClick={() => setOpen(true)}>E-Mail-Adresse ändern</Button>
   );
 };
 
