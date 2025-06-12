@@ -1,69 +1,62 @@
 import React, { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { Lock } from 'lucide-react';
 import { supabase } from '../lib/supabase';
-import UpdatePasswordForm from '../components/auth/UpdatePasswordForm';
+import Button from '../components/ui/Button';
+import toast from 'react-hot-toast';
 
 const UpdatePasswordPage: React.FC = () => {
   const [searchParams] = useSearchParams();
-  const [sessionReady, setSessionReady] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const navigate = useNavigate();
+  const token = searchParams.get('token');
+  const [password, setPassword] = useState('');
+  const [confirm, setConfirm] = useState('');
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const handlePasswordReset = async () => {
-      try {
-        // Check if there's already an active session (user clicked reset link)
-        const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
-        
-        if (sessionError) {
-          console.error('Session error:', sessionError);
-          setErrorMessage('Der Link ist ungültig oder abgelaufen. Bitte fordern Sie einen neuen Passwort-Reset an.');
-        } else if (sessionData.session) {
-          // Session exists, user can update password
-          setSessionReady(true);
-        } else {
-          // No session, check for token in URL and verify it
-          const token_hash = searchParams.get('token_hash');
-          const type = searchParams.get('type');
-          
-          if (token_hash && type) {
-            const { data, error } = await supabase.auth.verifyOtp({
-              token_hash,
-              type: type as any
-            });
-            
-            if (error) {
-              console.error('Token verification error:', error);
-              setErrorMessage('Der Link ist ungültig oder abgelaufen. Bitte fordern Sie einen neuen Passwort-Reset an.');
-            } else if (data.session) {
-              setSessionReady(true);
-            } else {
-              setErrorMessage('Der Link ist ungültig oder abgelaufen. Bitte fordern Sie einen neuen Passwort-Reset an.');
-            }
-          } else {
-            setErrorMessage('Der Link ist ungültig oder abgelaufen. Bitte fordern Sie einen neuen Passwort-Reset an.');
-          }
-        }
-      } catch (err) {
-        console.error('Password reset error:', err);
-        setErrorMessage('Der Link ist ungültig oder abgelaufen. Bitte fordern Sie einen neuen Passwort-Reset an.');
-      } finally {
-        setIsLoading(false);
-      }
-    };
+    if (!token) {
+      setError('Ungültiger Reset-Link.');
+    }
+  }, [token]);
 
-    handlePasswordReset();
-  }, [searchParams]);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    if (password !== confirm) {
+      setError('Passwörter stimmen nicht überein.');
+      return;
+    }
+    if (!token) return;
+    const { error: err } = await supabase.auth.verifyOtp({
+      token,
+      type: 'recovery',
+    });
+    if (err) {
+      setError(err.message);
+      return;
+    }
+    const { error: updateErr } = await supabase.auth.updateUser({ password });
+    if (updateErr) {
+      setError(updateErr.message);
+      return;
+    }
+    toast.success('Passwort erfolgreich geändert 🔐');
+    navigate('/login');
+  };
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+  return (
+    <div className="min-h-screen ...">
+      <div className="...">
+        <Lock className="mx-auto..." />
+        <h2>Neues Passwort festlegen</h2>
       </div>
-    );
-  }
-
-  return <UpdatePasswordForm sessionReady={sessionReady} errorMessage={errorMessage} />;
+      <form onSubmit={handleSubmit} className="...">
+        {error && <div className="text-red-600">{error}</div>}
+        {/* password inputs */}
+        <Button type="submit">Passwort aktualisieren</Button>
+      </form>
+    </div>
+  );
 };
 
 export default UpdatePasswordPage;
