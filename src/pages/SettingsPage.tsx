@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import Button from '../components/ui/Button';
 import ChangeEmailDialog from '../components/settings/ChangeEmailDialog';
-import { showSuccess, showError } from '../lib/toast';
+import { showError, showSuccess } from '../../lib/toast';
 
 const SettingsPage: React.FC = () => {
   const [name, setName] = useState('');
