@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Save, Lock } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import Button from '../components/ui/Button';
@@ -7,11 +7,13 @@ import ChangeEmailDialog from '../components/settings/ChangeEmailDialog';
 const SettingsPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
+  const [nameStatus, setNameStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [nameMessage, setNameMessage] = useState('');
+
   const [password, setPassword] = useState('');
   const [passwordStatus, setPasswordStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [passwordMessage, setPasswordMessage] = useState('');
 
-  // Lade Name + E-Mail beim Laden der Seite
   useEffect(() => {
     const fetchUser = async () => {
       const { data } = await supabase.auth.getUser();
@@ -22,6 +24,17 @@ const SettingsPage: React.FC = () => {
     };
     fetchUser();
   }, []);
+
+  const handleNameChange = async () => {
+    const { error } = await supabase.auth.updateUser({ data: { name } });
+    if (error) {
+      setNameStatus('error');
+      setNameMessage(error.message);
+    } else {
+      setNameStatus('success');
+      setNameMessage('Name erfolgreich aktualisiert.');
+    }
+  };
 
   const handlePasswordChange = async () => {
     const { error } = await supabase.auth.updateUser({ password });
@@ -52,10 +65,15 @@ const SettingsPage: React.FC = () => {
               <input
                 type="text"
                 id="name"
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm bg-gray-100"
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                 value={name}
-                disabled
+                onChange={(e) => setName(e.target.value)}
               />
+              <div className="mt-2 flex gap-2">
+                <Button variant="primary" onClick={handleNameChange}>Name speichern</Button>
+                {nameStatus === 'success' && <p className="text-green-600 text-sm">{nameMessage}</p>}
+                {nameStatus === 'error' && <p className="text-red-600 text-sm">{nameMessage}</p>}
+              </div>
             </div>
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700">E-Mail</label>
