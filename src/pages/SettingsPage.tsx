@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Save, Lock, Globe, Mail } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import Button from '../components/ui/Button';
-import ChangeEmailDialog from '../components/ChangeEmailDialog';
+import ChangeEmailDialog from '../components/settings/ChangeEmailDialog';
 
 const SettingsPage: React.FC = () => {
   const [password, setPassword] = useState('');
