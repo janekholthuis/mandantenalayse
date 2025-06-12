@@ -77,35 +77,7 @@ const SettingsPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Sprache & Zeitzone */}
-        <div className="p-6">
-          <div className="flex items-center mb-4">
-            <Globe size={20} className="text-gray-400 mr-2" />
-            <h2 className="text-lg font-medium text-gray-900">Sprache & Zeitzone</h2>
-          </div>
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-            <div>
-              <label htmlFor="language" className="block text-sm font-medium text-gray-700">Sprache</label>
-              <select
-                id="language"
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                defaultValue="de"
-              >
-                <option value="de">Deutsch</option>
-              </select>
-            </div>
-            <div>
-              <label htmlFor="timezone" className="block text-sm font-medium text-gray-700">Zeitzone</label>
-              <select
-                id="timezone"
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                defaultValue="Europe/Berlin"
-              >
-                <option value="Europe/Berlin">Berlin (UTC+1)</option>
-              </select>
-            </div>
-          </div>
-        </div>
+      
       </div>
 
       <div className="flex justify-end">
