@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { Mail } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import Button from '../ui/Button';
-import { EmailService } from '../../services/emailService';
 
 const PasswordResetForm: React.FC = () => {
   const navigate = useNavigate();
