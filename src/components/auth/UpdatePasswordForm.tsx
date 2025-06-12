@@ -18,3 +18,6 @@ const UpdatePasswordForm: React.FC = () => {
     }
   };
 };
+
+
+export default UpdatePasswordForm
