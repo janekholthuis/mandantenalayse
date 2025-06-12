@@ -1,7 +1,6 @@
-// src/components/ChangeEmailDialog.tsx
 import React, { useState } from 'react';
-import { supabase } from '../lib/supabase';
-import Button from './ui/Button';
+import { supabase } from '../../../lib/supabase';
+import Button from '../ui/Button';
 
 const ChangeEmailDialog: React.FC = () => {
   const [open, setOpen] = useState(false);
@@ -24,7 +23,9 @@ const ChangeEmailDialog: React.FC = () => {
   return (
     <div className="mt-4">
       {!open ? (
-        <Button variant="secondary" onClick={() => setOpen(true)}>E-Mail-Adresse ändern</Button>
+        <Button variant="secondary" onClick={() => setOpen(true)}>
+          E-Mail-Adresse ändern
+        </Button>
       ) : (
         <div className="space-y-4">
           <input
