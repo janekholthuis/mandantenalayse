@@ -3,7 +3,6 @@ import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { Lock, Mail, User, Building2 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import Button from '../ui/Button';
-import { EmailService } from '../../services/emailService';
 
 interface AuthFormProps {
   mode: 'login' | 'signup';
