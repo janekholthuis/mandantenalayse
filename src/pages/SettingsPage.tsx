@@ -1,5 +1,5 @@
 import React from 'react';
-import { Save, Lock, Globe, Mail } from 'lucide-react';
+import { Save, Lock, Globe } from 'lucide-react';
 import Button from '../components/ui/Button';
 
 const SettingsPage: React.FC = () => {
@@ -52,6 +52,11 @@ const SettingsPage: React.FC = () => {
             <div>
               <Button variant="secondary">
                 Passwort ändern
+              </Button>
+            </div>
+            <div>
+              <Button variant="secondary">
+                E-Mail-Adresse ändern
               </Button>
             </div>
           </div>
