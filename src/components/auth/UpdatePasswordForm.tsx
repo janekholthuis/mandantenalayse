@@ -1,93 +1,147 @@
-// src/components/auth/UpdatePasswordForm.tsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Lock } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import Button from '../ui/Button';
-import { showSuccess, showError } from '../../lib/toast';
+import toast from '../../lib/toast';
 
 interface Props {
   code: string;
+  email: string;
 }
 
-const UpdatePasswordForm: React.FC<Props> = ({ code }) => {
+const UpdatePasswordForm: React.FC<Props> = ({ code, email }) => {
   const navigate = useNavigate();
+  const [verified, setVerified] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
 
   useEffect(() => {
-    if (!code) {
-      setError('Kein Reset-Code gefunden in der URL.');
-    }
-  }, [code]);
+    const verify = async () => {
+      if (!code || !email) {
+        setError('Ungültiger oder unvollständiger Link.');
+        return;
+      }
 
-  const handleSubmit = async (e: React.FormEvent) => {
+      const { data, error: verifyError } = await supabase.auth.verifyOtp({
+        type: 'password',
+        token: code,
+        email: email,
+      });
+
+      if (verifyError) {
+        setError('Verifizierung fehlgeschlagen: ' + verifyError.message);
+      } else if (data?.user) {
+        setVerified(true);
+      }
+    };
+
+    verify();
+  }, [code, email]);
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!code) return;
-    if (password !== confirmPassword) {
-      setError('Die Passwörter stimmen nicht überein.');
-      return;
-    }
-
     setIsLoading(true);
     setError(null);
 
-    // 1. Token überprüfen
-    const { data: verifyData, error: verifyError } = await supabase.auth.verifyOtp({
-      type: 'password',
-      token: code,
-    });
-    if (verifyError || !verifyData) {
-      setError(verifyError?.message || 'Token ungültig oder abgelaufen.');
+    const formData = new FormData(e.currentTarget);
+    const password = formData.get('password') as string;
+    const confirmPassword = formData.get('confirmPassword') as string;
+
+    if (password !== confirmPassword) {
+      setError('Die Passwörter stimmen nicht überein');
       setIsLoading(false);
       return;
     }
 
-    // 2. Passwort aktualisieren
-    const { error: updateError } = await supabase.auth.updateUser({ password });
-    if (updateError) {
-      setError(updateError.message);
-      setIsLoading(false);
-      return;
-    }
+    try {
+      const { error: updateError } = await supabase.auth.updateUser({ password });
 
-    showSuccess('🔐 Passwort erfolgreich geändert');
-    navigate('/login?passwordUpdated=true');
+      if (updateError) throw updateError;
+
+      toast.success('Passwort erfolgreich geändert 🔐');
+      navigate('/login?passwordUpdated=true');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Passwort konnte nicht aktualisiert werden');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12">
-      <div className="w-full max-w-md bg-white p-8 rounded-lg shadow">
-        <div className="text-center mb-6">
-          <Lock className="mx-auto h-12 w-12 text-blue-600" />
-          <h2 className="mt-4 text-2xl font-bold text-gray-900">Neues Passwort</h2>
+  if (!verified) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-center px-4">
+        <div className="max-w-md">
+          <h2 className="text-xl font-semibold text-red-600">Verifizierung fehlgeschlagen</h2>
+          <p className="text-sm text-gray-600 mt-2">
+            Bitte überprüfen Sie den Link oder fordern Sie einen neuen Passwort-Reset an.
+          </p>
         </div>
-        {error && <p className="text-red-600 mb-4">{error}</p>}
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <input
-            type="password"
-            placeholder="Neues Passwort"
-            minLength={8}
-            value={password}
-            onChange={e => setPassword(e.target.value)}
-            className="w-full px-3 py-2 border rounded"
-            required
-          />
-          <input
-            type="password"
-            placeholder="Passwort bestätigen"
-            minLength={8}
-            value={confirmPassword}
-            onChange={e => setConfirmPassword(e.target.value)}
-            className="w-full px-3 py-2 border rounded"
-            required
-          />
-          <Button type="submit" variant="primary" fullWidth isLoading={isLoading}>
-            Passwort aktualisieren
-          </Button>
-        </form>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+      <div className="sm:mx-auto sm:w-full sm:max-w-md">
+        <div className="text-center">
+          <Lock className="mx-auto h-12 w-12 text-blue-600" />
+          <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
+            Neues Passwort festlegen
+          </h2>
+          <p className="mt-2 text-sm text-gray-600">Bitte geben Sie Ihr neues Passwort ein.</p>
+        </div>
+      </div>
+
+      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+        <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+          <form className="space-y-6" onSubmit={handleSubmit}>
+            <div>
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                Neues Passwort
+              </label>
+              <input
+                id="password"
+                name="password"
+                type="password"
+                required
+                className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                placeholder="••••••••"
+                minLength={8}
+              />
+            </div>
+
+            <div>
+              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
+                Passwort bestätigen
+              </label>
+              <input
+                id="confirmPassword"
+                name="confirmPassword"
+                type="password"
+                required
+                className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                placeholder="••••••••"
+                minLength={8}
+              />
+            </div>
+
+            {error && (
+              <div className="rounded-md bg-red-50 p-4">
+                <div className="text-sm text-red-700">{error}</div>
+              </div>
+            )}
+
+            <Button
+              type="submit"
+              variant="primary"
+              fullWidth
+              isLoading={isLoading}
+            >
+              Passwort aktualisieren
+            </Button>
+          </form>
+        </div>
       </div>
     </div>
   );
