@@ -65,19 +65,21 @@ const SettingsPage: React.FC = () => {
           <Button variant="primary" onClick={handleMetaChange}>Profil speichern</Button>
         </div>
 
-        {/* E-Mail */}
-        <div className="p-6">
-          <label className="block text-sm font-medium">E-Mail</label>
-          <div className="mt-1 flex gap-2">
-            <input
-              type="email"
-              disabled
-              className="flex-1 rounded border-gray-300 bg-gray-100 shadow-sm"
-              value={email}
-            />
-            <ChangeEmailDialog />
-          </div>
-        </div>
+      {/* E-Mail */}
+<div className="p-6">
+  <div className="flex items-center justify-between mb-2">
+    <label className="text-sm font-medium text-gray-700">E-Mail-Adresse</label>
+    <ChangeEmailDialog />
+  </div>
+  <input
+    type="email"
+    disabled
+    className="w-full rounded-md border border-gray-300 bg-gray-100 px-3 py-2 shadow-sm text-gray-700"
+    value={email}
+  />
+  <p className="mt-1 text-sm text-gray-500">Diese E-Mail-Adresse ist aktuell aktiv.</p>
+</div>
+
 
         {/* Passwort ändern */}
         <div className="p-6">
