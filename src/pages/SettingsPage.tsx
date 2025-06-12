@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
+import { useAuth } from '../hooks/useAuth';
 import Button from '../components/ui/Button';
 import ChangeEmailDialog from '../components/settings/ChangeEmailDialog';
 import { showError, showSuccess } from '../lib/toast';
