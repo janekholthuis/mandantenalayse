@@ -76,20 +76,24 @@ const SettingsPage: React.FC = () => {
         </div>
 
         {/* E-Mail */}
-        <div className="p-6">
-         
-          <input
-            type="email"
-            disabled
-            className="w-full rounded-md border border-gray-300 bg-gray-100 px-3 py-2 shadow-sm text-gray-700"
-            value={email}
-          />
-          <p className="mt-1 text-sm text-gray-500">Diese E-Mail-Adresse ist aktuell aktiv.</p>
-           <div className="flex items-center justify-between mb-2">
-            <label className="text-sm font-medium text-gray-700">E-Mail-Adresse</label>
-            <ChangeEmailDialog />
-          </div>
-        </div>
+       <div className="p-6 bg-white rounded-lg shadow border border-gray-200">
+  <div className="flex items-center justify-between mb-2">
+    <label className="text-sm font-semibold text-gray-700">E-Mail-Adresse</label>
+    <ChangeEmailDialog />
+  </div>
+
+  <input
+    type="email"
+    disabled
+    className="w-full rounded-md border border-gray-300 bg-gray-100 px-4 py-2 text-sm text-gray-700 shadow-sm cursor-not-allowed"
+    value={email}
+  />
+
+  <p className="mt-2 text-sm text-gray-500">
+    Diese E-Mail-Adresse ist derzeit mit Ihrem Konto verknüpft. Änderungen sind über den Button möglich.
+  </p>
+</div>
+
 
         {/* Passwort ändern */}
         <div className="p-6">
