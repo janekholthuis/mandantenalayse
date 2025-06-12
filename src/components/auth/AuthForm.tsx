@@ -138,7 +138,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ mode }) => {
           {mode === 'login' && (
             <div className="text-center text-sm space-y-1">
               <Link to="/reset-password" className="font-medium text-blue-600">Passwort vergessen?</Link><br/>
-              <span>Noch kein Konto? </span><Link to="/signup" className="font-medium text-blue-600">Jetzt registrieren</Link>
+              <span>Noch kein Konto? </span><Link to="/signup" className=\"font-medium text-blue-600">Jetzt registrieren</Link>
             </div>
           )}
         </form>
