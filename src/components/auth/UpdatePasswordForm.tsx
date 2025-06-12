@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Lock } from 'lucide-react';
-import toast from 'react-hot-toast';
+import { supabase } from '../../lib/supabase';
 import Button from '../ui/Button';
-  
+import { showSuccess, showError } from '../../lib/toast';
 
 interface Props {
   code: string;
@@ -23,16 +23,20 @@ const UpdatePasswordForm: React.FC<Props> = ({ code, email }) => {
         return;
       }
 
-      const { data, error: verifyError } = await supabase.auth.verifyOtp({
-        type: 'password',
-        token: code,
-        email: email,
-      });
+      try {
+        const { data, error: verifyError } = await supabase.auth.verifyOtp({
+          type: 'recovery',
+          token_hash: code,
+          email: email,
+        });
 
-      if (verifyError) {
-        setError('Verifizierung fehlgeschlagen: ' + verifyError.message);
-      } else if (data?.user) {
-        setVerified(true);
+        if (verifyError) {
+          setError('Verifizierung fehlgeschlagen. Bitte überprüfen Sie den Link oder fordern Sie einen neuen Passwort-Reset an.');
+        } else if (data?.user) {
+          setVerified(true);
+        }
+      } catch (err) {
+        setError('Verifizierung fehlgeschlagen. Bitte überprüfen Sie den Link oder fordern Sie einen neuen Passwort-Reset an.');
       }
     };
 
@@ -59,7 +63,7 @@ const UpdatePasswordForm: React.FC<Props> = ({ code, email }) => {
 
       if (updateError) throw updateError;
 
-      toast.success('Passwort erfolgreich geändert 🔐');
+      showSuccess('Passwort erfolgreich geändert 🔐');
       navigate('/login?passwordUpdated=true');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Passwort konnte nicht aktualisiert werden');
@@ -74,8 +78,16 @@ const UpdatePasswordForm: React.FC<Props> = ({ code, email }) => {
         <div className="max-w-md">
           <h2 className="text-xl font-semibold text-red-600">Verifizierung fehlgeschlagen</h2>
           <p className="text-sm text-gray-600 mt-2">
-            Bitte überprüfen Sie den Link oder fordern Sie einen neuen Passwort-Reset an.
+            {error || 'Bitte überprüfen Sie den Link oder fordern Sie einen neuen Passwort-Reset an.'}
           </p>
+          <div className="mt-4 space-y-2">
+            <Button variant="primary" onClick={() => navigate('/reset-password')}>
+              Neuen Reset-Link anfordern
+            </Button>
+            <Button variant="secondary" onClick={() => navigate('/login')}>
+              Zur Anmeldung
+            </Button>
+          </div>
         </div>
       </div>
     );
