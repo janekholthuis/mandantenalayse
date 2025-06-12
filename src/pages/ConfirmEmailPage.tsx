@@ -7,107 +7,60 @@ import toast from 'react-hot-toast';
 
 const ConfirmEmailPage: React.FC = () => {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-
+  const [params] = useSearchParams();
   const [isLoading, setIsLoading] = useState(true);
   const [isConfirmed, setIsConfirmed] = useState(false);
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const confirmEmail = async () => {
-      const token_hash = searchParams.get('token_hash');
-      const type = searchParams.get('type');
-      const next = searchParams.get('next') || '/login?confirmed=true';
-
+    async function confirmEmail() {
+      const token_hash = params.get('token_hash');
+      const type = params.get('type');
       if (!token_hash || !type) {
-        setErrorMsg('Ungültiger Bestätigungslink.');
-        setIsLoading(false);
-        toast.error('🔗 Der Bestätigungslink ist ungültig.');
-        return;
+        setError('Ungültiger Bestätigungslink.');
+        return setIsLoading(false);
       }
-
-      try {
-        const { data, error } = await supabase.auth.verifyOtp({
-          token_hash,
-          type: type as any,
-        });
-
-        if (error) throw error;
-
-        if (data?.user) {
-          setIsConfirmed(true);
-          toast.success('✅ E-Mail erfolgreich bestätigt!');
-          setTimeout(() => {
-            navigate(next);
-          }, 2500);
-        } else {
-          throw new Error('Keine Benutzerdaten erhalten.');
-        }
-      } catch (err) {
-        const message = err instanceof Error ? err.message : 'Unbekannter Fehler';
-        setErrorMsg(message);
-        toast.error('❌ Bestätigung fehlgeschlagen: ' + message);
-      } finally {
-        setIsLoading(false);
+      const { data, error: err } = await supabase.auth.verifyOtp({ token_hash, type: type as any });
+      if (err) {
+        setError(err.message.includes('expired') ? 'Link abgelaufen.' : 'Bestätigung fehlgeschlagen.');
+      } else if (data?.user) {
+        setIsConfirmed(true);
+        toast.success('E‑Mail erfolgreich bestätigt 🎉');
+        setTimeout(() => navigate('/login?confirmed=true'), 2500);
       }
-    };
-
+      setIsLoading(false);
+    }
     confirmEmail();
-  }, [searchParams, navigate]);
+  }, [params]);
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 p-6">
-        <div className="rounded-xl bg-white p-8 shadow-lg text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mx-auto mb-4"></div>
-          <h2 className="text-xl font-medium text-gray-900 mb-2">E-Mail wird bestätigt…</h2>
-          <p className="text-sm text-gray-600">Bitte einen Moment Geduld.</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (isConfirmed) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 p-6">
-        <div className="rounded-xl bg-white p-8 shadow-lg text-center space-y-4">
-          <div className="mx-auto rounded-full bg-green-100 p-3">
-            <CheckCircle className="h-8 w-8 text-green-600" />
-          </div>
-          <h2 className="text-xl font-medium text-gray-900">🎉 E-Mail bestätigt!</h2>
-          <p className="text-sm text-gray-600">Du wirst weitergeleitet…</p>
-          <Button
-            variant="primary"
-            onClick={() => navigate(next)}
-          >
-            Zur Anmeldung
-          </Button>
-        </div>
-      </div>
-    );
-  }
+  if (isLoading) return (
+    <div className="min-h-screen flex flex-col justify-center px-6">
+      <div className="animate-spin h-12 w-12 mx-auto border-t-2 border-blue-500 rounded-full"></div>
+      <p className="mt-4 text-center">E-Mail wird bestätigt...</p>
+    </div>
+  );
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-6">
-      <div className="rounded-xl bg-white p-8 shadow-lg text-center space-y-4">
-        <div className="mx-auto rounded-full bg-red-100 p-3">
-          <AlertCircle className="h-8 w-8 text-red-600" />
-        </div>
-        <h2 className="text-xl font-medium text-gray-900">Bestätigung fehlgeschlagen</h2>
-        <p className="text-sm text-gray-600">{errorMsg}</p>
-
-        <div className="space-y-2">
-          <Button variant="primary" onClick={() => navigate('/login')}>
-            Zur Anmeldung
-          </Button>
-          <Button variant="secondary" onClick={() => navigate('/signup')}>
-            Neu registrieren
-          </Button>
-        </div>
-
-        <p className="mt-4 text-xs text-gray-500">
-          Hilfe? Kontakt: <a href="mailto:support@mandantenanalyse.com" className="text-blue-600">support@mandantenanalyse.com</a>
-        </p>
+    <div className="min-h-screen flex flex-col justify-center px-6">
+      <div className="max-w-md mx-auto bg-white p-6 shadow rounded-lg text-center">
+        {isConfirmed ? (
+          <>
+            <div className="bg-green-100 rounded-full p-4 inline-block mb-4"><CheckCircle size={32} className="text-green-600" /></div>
+            <h2 className="text-xl font-medium">E‑Mail bestätigt!</h2>
+            <p className="mt-2">Weiterleitung zur Anmeldung...</p>
+            <Button variant="primary" className="mt-4" onClick={() => navigate('/login?confirmed=true')}>Jetzt anmelden</Button>
+          </>
+        ) : (
+          <>
+            <div className="bg-red-100 rounded-full p-4 inline-block mb-4"><AlertCircle size={32} className="text-red-600" /></div>
+            <h2 className="text-xl font-medium">Fehler bei Bestätigung</h2>
+            <p className="mt-2">{error}</p>
+            <div className="mt-4 space-y-2">
+              <Button variant="primary" onClick={() => navigate('/login')}>Zur Anmeldung</Button>
+              <Button variant="secondary" onClick={() => navigate('/signup')}>Neu registrieren</Button>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
