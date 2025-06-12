@@ -67,10 +67,6 @@ const SettingsPage: React.FC = () => {
 
       {/* E-Mail */}
 <div className="p-6">
-  <div className="flex items-center justify-between mb-2">
-    <label className="text-sm font-medium text-gray-700">E-Mail-Adresse</label>
-    <ChangeEmailDialog />
-  </div>
   <input
     type="email"
     disabled
@@ -78,6 +74,10 @@ const SettingsPage: React.FC = () => {
     value={email}
   />
   <p className="mt-1 text-sm text-gray-500">Diese E-Mail-Adresse ist aktuell aktiv.</p>
+  <div className="flex items-center justify-between mb-2">
+    <label className="text-sm font-medium text-gray-700">E-Mail-Adresse</label>
+    <ChangeEmailDialog />
+  </div>
 </div>
 
 
