@@ -3,7 +3,6 @@ import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'r
 import { useAuth } from './hooks/useAuth';
 import Navbar from './components/layout/Navbar';
 import Sidebar from './components/layout/Sidebar';
-import Footer from './components/layout/Footer';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import PasswordResetPage from './pages/PasswordResetPage';
@@ -66,7 +65,6 @@ const AppContent: React.FC = () => {
         </main>
       </div>
 
-      {!isAuthPage && <Footer />}
       <Toaster position="top-right" />
     </>
   );
