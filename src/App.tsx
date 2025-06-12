@@ -5,7 +5,6 @@ import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import PasswordResetPage from './pages/PasswordResetPage';
 import UpdatePasswordPage from './pages/UpdatePasswordPage';
-import AuthCallbackPage from './pages/AuthCallbackPage';
 import DatenschutzPage from './pages/DatenschutzPage';
 import AGBPage from './pages/AGBPage';
 import ConfirmEmailPage from './pages/ConfirmEmailPage';
@@ -16,6 +15,7 @@ import NewClientPage from './pages/NewClientPage';
 import ClientDetailPage from './pages/ClientDetailPage';
 import EmailTemplatesPage from './pages/EmailTemplatesPage';
 import SettingsPage from './pages/SettingsPage';
+import AuthCallbackPage from './pages/AuthCallbackPage'; // ✅ NEW
 
 // Protected Route Component
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -59,34 +59,19 @@ function App() {
   return (
     <Router>
       <Routes>
-        {/* Login as initial page */}
-        <Route path="/" element={
-          <PublicRoute>
-            <LoginPage />
-          </PublicRoute>
-        } />
-        <Route path="/login" element={
-          <PublicRoute>
-            <LoginPage />
-          </PublicRoute>
-        } />
-        <Route path="/signup" element={
-          <PublicRoute>
-            <SignupPage />
-          </PublicRoute>
-        } />
-        <Route path="/reset-password" element={
-          <PublicRoute>
-            <PasswordResetPage />
-          </PublicRoute>
-        } />
+        {/* Public Routes */}
+        <Route path="/" element={<PublicRoute><LoginPage /></PublicRoute>} />
+        <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
+        <Route path="/signup" element={<PublicRoute><SignupPage /></PublicRoute>} />
+        <Route path="/reset-password" element={<PublicRoute><PasswordResetPage /></PublicRoute>} />
         <Route path="/update-password" element={<UpdatePasswordPage />} />
         <Route path="/datenschutz" element={<DatenschutzPage />} />
         <Route path="/agb" element={<AGBPage />} />
         <Route path="/confirm-email" element={<ConfirmEmailPage />} />
         <Route path="/email-confirmation-sent" element={<EmailConfirmationSentPage />} />
-        
-        {/* Protected app routes */}
+        <Route path="/auth/callback" element={<AuthCallbackPage />} /> {/* ✅ NEW */}
+
+        {/* Protected Routes */}
         <Route path="/clients" element={
           <ProtectedRoute>
             <MainLayout>
@@ -101,8 +86,6 @@ function App() {
             </MainLayout>
           </ProtectedRoute>
         } />
-        <Route path="/auth/callback" element={<AuthCallbackPage />} />
-
         <Route path="/clients/:id" element={
           <ProtectedRoute>
             <MainLayout>
@@ -124,8 +107,8 @@ function App() {
             </MainLayout>
           </ProtectedRoute>
         } />
-        
-        {/* Catch all other routes and redirect to home */}
+
+        {/* Catch-all */}
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </Router>
