@@ -5,6 +5,7 @@ import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import PasswordResetPage from './pages/PasswordResetPage';
 import UpdatePasswordPage from './pages/UpdatePasswordPage';
+import AuthCallbackPage from './pages/AuthCallbackPage';
 import DatenschutzPage from './pages/DatenschutzPage';
 import AGBPage from './pages/AGBPage';
 import ConfirmEmailPage from './pages/ConfirmEmailPage';
@@ -100,6 +101,8 @@ function App() {
             </MainLayout>
           </ProtectedRoute>
         } />
+        <Route path="/auth/callback" element={<AuthCallbackPage />} />
+
         <Route path="/clients/:id" element={
           <ProtectedRoute>
             <MainLayout>
