@@ -53,7 +53,7 @@ const App: React.FC = () => {
                   <Route path="/clients/new" element={<NewClientPage />} />
                   <Route path="/clients/:id" element={<ClientDetailPage />} />
                   <Route path="/settings" element={<SettingsPage />} />
-                  <Route path="/email-templates" element={<EmailTemplatesPage />} />
+                
                   <Route path="*" element={<Navigate to="/clients" replace />} />
                 </>
               ) : (
