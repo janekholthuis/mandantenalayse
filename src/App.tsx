@@ -14,7 +14,6 @@ import ClientsPage from './pages/ClientsPage';
 import NewClientPage from './pages/NewClientPage';
 import ClientDetailPage from './pages/ClientDetailPage';
 import SettingsPage from './pages/SettingsPage';
-import EmailTemplatesPage from './pages/EmailTemplatesPage';
 import { Toaster } from 'react-hot-toast';
 
 const App: React.FC = () => {
