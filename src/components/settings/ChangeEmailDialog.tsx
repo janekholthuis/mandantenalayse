@@ -16,18 +16,27 @@ const ChangeEmailDialog: React.FC = () => {
       setMessage(error.message);
     } else {
       setStatus('success');
-      setMessage('Bitte bestätigen Sie Ihre neue E-Mail-Adresse über den Link, den wir Ihnen geschickt haben.');
+      setMessage(
+        'Bitte bestätigen Sie Ihre neue E-Mail-Adresse über den Link, den wir Ihnen geschickt haben.'
+      );
     }
   };
 
+  const reset = () => {
+    setOpen(false);
+    setNewEmail('');
+    setStatus('idle');
+    setMessage('');
+  };
+
   return (
-    <div className="mt-4">
+    <div className="mt-2">
       {!open ? (
         <Button variant="secondary" onClick={() => setOpen(true)}>
           E-Mail-Adresse ändern
         </Button>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-2 max-w-md">
           <input
             type="email"
             placeholder="Neue E-Mail-Adresse"
@@ -37,10 +46,10 @@ const ChangeEmailDialog: React.FC = () => {
           />
           <div className="flex gap-2">
             <Button variant="primary" onClick={handleEmailChange}>Ändern</Button>
-            <Button variant="secondary" onClick={() => setOpen(false)}>Abbrechen</Button>
+            <Button variant="secondary" onClick={reset}>Abbrechen</Button>
           </div>
-          {status === 'success' && <p className="text-green-600">{message}</p>}
-          {status === 'error' && <p className="text-red-600">{message}</p>}
+          {status === 'success' && <p className="text-sm text-green-600">{message}</p>}
+          {status === 'error' && <p className="text-sm text-red-600">{message}</p>}
         </div>
       )}
     </div>
