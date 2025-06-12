@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Users, UserPlus, Settings, Mail } from 'lucide-react';
+import { Users, UserPlus, Settings } from 'lucide-react';
 
 const Sidebar = () => {
   const location = useLocation();
@@ -8,7 +8,6 @@ const Sidebar = () => {
   const navItems = [
     { path: '/clients', label: 'Mandanten', icon: <Users size={20} /> },
     { path: '/clients/new', label: 'Mandanten hinzufügen', icon: <UserPlus size={20} /> },
-    { path: '/email-templates', label: 'E-Mail-Vorlagen', icon: <Mail size={20} /> },
     { path: '/settings', label: 'Einstellungen', icon: <Settings size={20} /> },
   ];
   
