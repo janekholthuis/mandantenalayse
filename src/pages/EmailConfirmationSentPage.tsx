@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Mail, RefreshCw } from 'lucide-react';
 import { supabase } from '../lib/supabase';
-import { EmailService } from '../services/emailService';
 import Button from '../components/ui/Button';
 
 const EmailConfirmationSentPage: React.FC = () => {
