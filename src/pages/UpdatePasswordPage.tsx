@@ -10,26 +10,49 @@ const UpdatePasswordPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const checkSession = async () => {
+    const handlePasswordReset = async () => {
       try {
-        const { data, error } = await supabase.auth.getSession();
+        // First, check if there's a token in the URL
+        const token = searchParams.get('token');
         
-        if (error) {
-          setErrorMessage('Der Link ist ungültig oder abgelaufen. Bitte fordern Sie einen neuen Passwort-Reset an.');
-        } else if (data.session) {
-          setSessionReady(true);
+        if (token) {
+          // If there's a token, verify it with Supabase
+          const { data, error } = await supabase.auth.verifyOtp({
+            token_hash: token,
+            type: 'recovery'
+          });
+          
+          if (error) {
+            console.error('Token verification error:', error);
+            setErrorMessage('Der Link ist ungültig oder abgelaufen. Bitte fordern Sie einen neuen Passwort-Reset an.');
+          } else if (data.session) {
+            // Token is valid and session is established
+            setSessionReady(true);
+          } else {
+            setErrorMessage('Der Link ist ungültig oder abgelaufen. Bitte fordern Sie einen neuen Passwort-Reset an.');
+          }
         } else {
-          setErrorMessage('Der Link ist ungültig oder abgelaufen. Bitte fordern Sie einen neuen Passwort-Reset an.');
+          // No token in URL, check if there's already an active session
+          const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+          
+          if (sessionError) {
+            setErrorMessage('Der Link ist ungültig oder abgelaufen. Bitte fordern Sie einen neuen Passwort-Reset an.');
+          } else if (sessionData.session) {
+            setSessionReady(true);
+          } else {
+            setErrorMessage('Der Link ist ungültig oder abgelaufen. Bitte fordern Sie einen neuen Passwort-Reset an.');
+          }
         }
       } catch (err) {
+        console.error('Password reset error:', err);
         setErrorMessage('Der Link ist ungültig oder abgelaufen. Bitte fordern Sie einen neuen Passwort-Reset an.');
       } finally {
         setIsLoading(false);
       }
     };
 
-    checkSession();
-  }, []);
+    handlePasswordReset();
+  }, [searchParams]);
 
   if (isLoading) {
     return (

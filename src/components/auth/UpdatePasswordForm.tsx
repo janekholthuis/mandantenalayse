@@ -30,15 +30,28 @@ const UpdatePasswordForm: React.FC<Props> = ({ sessionReady, errorMessage }) => 
       return;
     }
 
+    if (password.length < 8) {
+      setError('Das Passwort muss mindestens 8 Zeichen lang sein');
+      setIsLoading(false);
+      return;
+    }
+
     try {
       const { error: updateError } = await supabase.auth.updateUser({ password });
 
       if (updateError) throw updateError;
 
-      showSuccess('Passwort erfolgreich geändert 🔐');
+      showSuccess('Passwort erfolgreich geändert! 🔐');
+      
+      // Sign out the user after password change to force re-login with new password
+      await supabase.auth.signOut();
+      
       navigate('/login?passwordUpdated=true');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Passwort konnte nicht aktualisiert werden');
+      console.error('Password update error:', err);
+      const errorMessage = err instanceof Error ? err.message : 'Passwort konnte nicht aktualisiert werden';
+      setError(errorMessage);
+      showError(errorMessage);
     } finally {
       setIsLoading(false);
     }
