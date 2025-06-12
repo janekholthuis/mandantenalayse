@@ -1,47 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Lock } from 'lucide-react';
+import { Lock, AlertCircle } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import Button from '../ui/Button';
 import { showSuccess, showError } from '../../lib/toast';
 
 interface Props {
-  code: string;
-  email: string;
+  sessionReady: boolean;
+  errorMessage: string | null;
 }
 
-const UpdatePasswordForm: React.FC<Props> = ({ code, email }) => {
+const UpdatePasswordForm: React.FC<Props> = ({ sessionReady, errorMessage }) => {
   const navigate = useNavigate();
-  const [verified, setVerified] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const verify = async () => {
-      if (!code || !email) {
-        setError('Ungültiger oder unvollständiger Link.');
-        return;
-      }
-
-      try {
-        const { data, error: verifyError } = await supabase.auth.verifyOtp({
-          type: 'recovery',
-          token_hash: code,
-          email: email,
-        });
-
-        if (verifyError) {
-          setError('Verifizierung fehlgeschlagen. Bitte überprüfen Sie den Link oder fordern Sie einen neuen Passwort-Reset an.');
-        } else if (data?.user) {
-          setVerified(true);
-        }
-      } catch (err) {
-        setError('Verifizierung fehlgeschlagen. Bitte überprüfen Sie den Link oder fordern Sie einen neuen Passwort-Reset an.');
-      }
-    };
-
-    verify();
-  }, [code, email]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -72,27 +44,67 @@ const UpdatePasswordForm: React.FC<Props> = ({ code, email }) => {
     }
   };
 
-  if (!verified) {
+  // Show error state if there's an error message
+  if (errorMessage) {
     return (
-      <div className="min-h-screen flex items-center justify-center text-center px-4">
-        <div className="max-w-md">
-          <h2 className="text-xl font-semibold text-red-600">Verifizierung fehlgeschlagen</h2>
-          <p className="text-sm text-gray-600 mt-2">
-            {error || 'Bitte überprüfen Sie den Link oder fordern Sie einen neuen Passwort-Reset an.'}
-          </p>
-          <div className="mt-4 space-y-2">
-            <Button variant="primary" onClick={() => navigate('/reset-password')}>
-              Neuen Reset-Link anfordern
-            </Button>
-            <Button variant="secondary" onClick={() => navigate('/login')}>
-              Zur Anmeldung
-            </Button>
+      <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+        <div className="sm:mx-auto sm:w-full sm:max-w-md">
+          <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+            <div className="text-center">
+              <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
+                <AlertCircle className="h-6 w-6 text-red-600" />
+              </div>
+              <h2 className="text-xl font-medium text-gray-900 mb-2">
+                Verifizierung fehlgeschlagen
+              </h2>
+              <p className="text-sm text-gray-600 mb-6">
+                {errorMessage}
+              </p>
+              <div className="space-y-3">
+                <Button
+                  variant="primary"
+                  onClick={() => navigate('/reset-password')}
+                  className="w-full"
+                >
+                  Neuen Reset-Link anfordern
+                </Button>
+                <Button
+                  variant="secondary"
+                  onClick={() => navigate('/login')}
+                  className="w-full"
+                >
+                  Zur Anmeldung
+                </Button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     );
   }
 
+  // Show loading state if session is not ready yet
+  if (!sessionReady) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+        <div className="sm:mx-auto sm:w-full sm:max-w-md">
+          <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mx-auto mb-4"></div>
+              <h2 className="text-xl font-medium text-gray-900 mb-2">
+                Link wird überprüft...
+              </h2>
+              <p className="text-sm text-gray-600">
+                Bitte warten Sie einen Moment.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Show the password update form when session is ready
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
@@ -101,7 +113,9 @@ const UpdatePasswordForm: React.FC<Props> = ({ code, email }) => {
           <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
             Neues Passwort festlegen
           </h2>
-          <p className="mt-2 text-sm text-gray-600">Bitte geben Sie Ihr neues Passwort ein.</p>
+          <p className="mt-2 text-sm text-gray-600">
+            Bitte geben Sie Ihr neues Passwort ein.
+          </p>
         </div>
       </div>
 
@@ -112,35 +126,52 @@ const UpdatePasswordForm: React.FC<Props> = ({ code, email }) => {
               <label htmlFor="password" className="block text-sm font-medium text-gray-700">
                 Neues Passwort
               </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                required
-                className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                placeholder="••••••••"
-                minLength={8}
-              />
+              <div className="mt-1 relative rounded-md shadow-sm">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Lock className="h-5 w-5 text-gray-400" />
+                </div>
+                <input
+                  id="password"
+                  name="password"
+                  type="password"
+                  required
+                  className="block w-full pl-10 pr-3 py-2 sm:text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="••••••••"
+                  minLength={8}
+                />
+              </div>
             </div>
 
             <div>
               <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
                 Passwort bestätigen
               </label>
-              <input
-                id="confirmPassword"
-                name="confirmPassword"
-                type="password"
-                required
-                className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                placeholder="••••••••"
-                minLength={8}
-              />
+              <div className="mt-1 relative rounded-md shadow-sm">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Lock className="h-5 w-5 text-gray-400" />
+                </div>
+                <input
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  type="password"
+                  required
+                  className="block w-full pl-10 pr-3 py-2 sm:text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="••••••••"
+                  minLength={8}
+                />
+              </div>
             </div>
 
             {error && (
               <div className="rounded-md bg-red-50 p-4">
-                <div className="text-sm text-red-700">{error}</div>
+                <div className="flex">
+                  <div className="flex-shrink-0">
+                    <AlertCircle className="h-5 w-5 text-red-400" />
+                  </div>
+                  <div className="ml-3">
+                    <div className="text-sm text-red-700">{error}</div>
+                  </div>
+                </div>
               </div>
             )}
 
