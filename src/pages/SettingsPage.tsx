@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { Save, Lock } from 'lucide-react';
+import { Lock } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import Button from '../components/ui/Button';
 import ChangeEmailDialog from '../components/settings/ChangeEmailDialog';
-import toast from 'react-hot-toast';
+import { showSuccess, showError } from '../lib/toast';
 
 const SettingsPage: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -23,12 +23,22 @@ const SettingsPage: React.FC = () => {
 
   const handleMetaChange = async () => {
     const { error } = await supabase.auth.updateUser({ data: { name, company } });
-    error ? toast.error('📛 ' + error.message) : toast.success('✅ Profil erfolgreich aktualisiert');
+    error ? showError('Fehler beim Aktualisieren des Profils: ' + error.message) : showSuccess('Profil erfolgreich aktualisiert');
   };
 
   const handlePasswordChange = async () => {
+    if (!password.trim()) {
+      showError('Bitte geben Sie ein neues Passwort ein');
+      return;
+    }
+    
     const { error } = await supabase.auth.updateUser({ password });
-    error ? toast.error('📛 ' + error.message) : toast.success('🔒 Passwort erfolgreich geändert');
+    if (error) {
+      showError('Fehler beim Ändern des Passworts: ' + error.message);
+    } else {
+      showSuccess('Passwort erfolgreich geändert');
+      setPassword(''); // Clear password field after successful change
+    }
   };
 
   return (
@@ -44,19 +54,19 @@ const SettingsPage: React.FC = () => {
           <h2 className="text-lg font-medium">Profil</h2>
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
             <div>
-              <label className="block text-sm font-medium">Name</label>
+              <label className="block text-sm font-medium text-gray-700">Name</label>
               <input
                 type="text"
-                className="mt-1 w-full rounded border-gray-300 shadow-sm focus:ring-blue-500"
+                className="mt-1 w-full rounded border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
               />
             </div>
             <div>
-              <label className="block text-sm font-medium">Unternehmen</label>
+              <label className="block text-sm font-medium text-gray-700">Unternehmen</label>
               <input
                 type="text"
-                className="mt-1 w-full rounded border-gray-300 shadow-sm focus:ring-blue-500"
+                className="mt-1 w-full rounded border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500"
                 value={company}
                 onChange={(e) => setCompany(e.target.value)}
               />
@@ -65,21 +75,20 @@ const SettingsPage: React.FC = () => {
           <Button variant="primary" onClick={handleMetaChange}>Profil speichern</Button>
         </div>
 
-      {/* E-Mail */}
-<div className="p-6">
-  <input
-    type="email"
-    disabled
-    className="w-full rounded-md border border-gray-300 bg-gray-100 px-3 py-2 shadow-sm text-gray-700"
-    value={email}
-  />
-  <p className="mt-1 text-sm text-gray-500">Diese E-Mail-Adresse ist aktuell aktiv.</p>
-  <div className="flex items-center justify-between mb-2">
-    <label className="text-sm font-medium text-gray-700">E-Mail-Adresse</label>
-    <ChangeEmailDialog />
-  </div>
-</div>
-
+        {/* E-Mail */}
+        <div className="p-6">
+          <div className="flex items-center justify-between mb-2">
+            <label className="text-sm font-medium text-gray-700">E-Mail-Adresse</label>
+            <ChangeEmailDialog />
+          </div>
+          <input
+            type="email"
+            disabled
+            className="w-full rounded-md border border-gray-300 bg-gray-100 px-3 py-2 shadow-sm text-gray-700"
+            value={email}
+          />
+          <p className="mt-1 text-sm text-gray-500">Diese E-Mail-Adresse ist aktuell aktiv.</p>
+        </div>
 
         {/* Passwort ändern */}
         <div className="p-6">
@@ -91,19 +100,14 @@ const SettingsPage: React.FC = () => {
             <input
               type="password"
               placeholder="Neues Passwort"
-              className="w-full rounded border-gray-300 px-3 py-2 shadow-sm focus:ring-blue-500"
+              className="w-full rounded border-gray-300 px-3 py-2 shadow-sm focus:ring-blue-500 focus:border-blue-500"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              minLength={8}
             />
             <Button variant="primary" onClick={handlePasswordChange}>Passwort ändern</Button>
           </div>
         </div>
-      </div>
-
-      <div className="flex justify-end">
-        <Button variant="primary" icon={<Save size={16} />}>
-          Speichern
-        </Button>
       </div>
     </div>
   );
