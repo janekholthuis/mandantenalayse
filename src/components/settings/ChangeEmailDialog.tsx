@@ -20,7 +20,7 @@ const ChangeEmailDialog: React.FC = () => {
   return (
     <div className="mt-2">
       {!open ? (
-        <Button variant="secondary" onClick={() => setOpen(true)}>
+        <Button variant="primary" onClick={() => setOpen(true)}>
           E-Mail ändern
         </Button>
       ) : (
