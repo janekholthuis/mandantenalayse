@@ -15,7 +15,7 @@ const PasswordResetForm: React.FC = () => {
     
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email, { 
-        redirectTo: `${window.location.origin}/update-password` 
+        redirectTo: `https://app.mandantenanalyse.com/update-password` 
       });
       if (error) throw error;
       showSuccess('Passwort-Reset-Link gesendet 📧');

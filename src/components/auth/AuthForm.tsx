@@ -46,7 +46,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ mode }) => {
           password,
           options: {
             data: { name, company },
-            emailRedirectTo: `${window.location.origin}/confirm-email`,
+            emailRedirectTo: `https://app.mandantenanalyse.com/confirm-email`,
           },
         });
         if (signError) throw signError;
