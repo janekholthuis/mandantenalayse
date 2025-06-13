@@ -13,6 +13,8 @@ export type Client = {
   plannedRevenue?: number;
   plannedProfit?: number;
   tradeTaxMultiplier?: number;
+  city?: string;
+  postalCode?: number;
 };
 
 export type Employee = {
