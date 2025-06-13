@@ -7,19 +7,37 @@ import { showError, showSuccess } from '../../lib/toast';
 
 const NewPasswordForm: React.FC = () => {
   const navigate = useNavigate();
-
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [verifying, setVerifying] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // 🔁 Restore session using access_token in URL hash
   useEffect(() => {
+    const hash = window.location.hash;
+
+    // Fehler aus URL-Hash prüfen
+    if (hash.includes('error=access_denied')) {
+      const params = new URLSearchParams(hash.replace('#', ''));
+      const errorCode = params.get('error_code');
+      const errorDescription = params.get('error_description');
+
+      if (errorCode === 'otp_expired') {
+        setError('Der Link ist abgelaufen oder wurde bereits verwendet.');
+      } else {
+        setError(errorDescription || 'Ungültiger oder abgelaufener Link.');
+      }
+
+      setVerifying(false);
+      return;
+    }
+
+    // Session aus URL wiederherstellen
     const restoreSession = async () => {
       const { error } = await supabase.auth.getSessionFromUrl();
 
       if (error) {
-        showError('Link abgelaufen oder ungültig. Bitte erneut anfordern.');
+        setError('Link ungültig oder Sitzung konnte nicht wiederhergestellt werden.');
         navigate('/reset-password');
       } else {
         setVerifying(false);
@@ -41,12 +59,13 @@ const NewPasswordForm: React.FC = () => {
 
     try {
       const { error } = await supabase.auth.updateUser({ password });
+
       if (error) throw error;
 
       showSuccess('Passwort erfolgreich geändert 🔐');
       navigate('/login?passwordUpdated=true');
     } catch (err: any) {
-      showError(err.message || 'Passwortänderung fehlgeschlagen');
+      showError(err.message || 'Fehler beim Zurücksetzen des Passworts');
     } finally {
       setLoading(false);
     }
@@ -58,6 +77,20 @@ const NewPasswordForm: React.FC = () => {
         <div className="text-center text-gray-700">
           <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-blue-500 border-b-2 mb-4 mx-auto" />
           Verifiziere Link...
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <h2 className="text-xl text-red-600 font-semibold mb-4">Passwort-Link ungültig</h2>
+          <p className="text-gray-700">{error}</p>
+          <Button className="mt-6" onClick={() => navigate('/reset-password')} variant="secondary">
+            Neuen Link anfordern
+          </Button>
         </div>
       </div>
     );
