@@ -5,7 +5,7 @@ import { supabase } from '../../lib/supabase';
 import Button from '../ui/Button';
 import { showError, showSuccess } from '../../lib/toast';
 
-const UpdatePasswordForm: React.FC = () => {
+const NewPasswordForm: React.FC = () => {
   const navigate = useNavigate();
 
   const [password, setPassword] = useState('');
