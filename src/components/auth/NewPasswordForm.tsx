@@ -63,7 +63,7 @@ const NewPasswordForm: React.FC = () => {
       if (error) throw error;
 
       showSuccess('Passwort erfolgreich geändert 🔐');
-      navigate('/login?passwordUpdated=true');
+      navigate('/settings?toast=passwordUpdated');
     } catch (err: any) {
       showError(err.message || 'Fehler beim Zurücksetzen des Passworts');
     } finally {

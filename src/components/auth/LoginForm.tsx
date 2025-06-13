@@ -15,8 +15,6 @@ const LoginForm: React.FC = () => {
     // Check for success messages from URL params
     if (searchParams.get('confirmed')) {
       setSuccess('E-Mail-Adresse erfolgreich bestätigt! Sie können sich jetzt anmelden.');
-    } else if (searchParams.get('passwordUpdated')) {
-      setSuccess('Passwort erfolgreich aktualisiert! Bitte melden Sie sich mit Ihrem neuen Passwort an.');
     }
   }, [searchParams]);
 

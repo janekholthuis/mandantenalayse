@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
+import { useSearchParams, useNavigate, useLocation } from 'react-router-dom';
 import { Lock } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import Button from '../components/ui/Button';
@@ -6,12 +7,28 @@ import ChangeEmailDialog from '../components/settings/ChangeEmailDialog';
 import { showSuccess, showError } from '../lib/toast';
 
 const SettingsPage: React.FC = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [searchParams] = useSearchParams();
+  const passwordSectionRef = useRef<HTMLDivElement>(null);
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
   const [company, setCompany] = useState('');
   const [password, setPassword] = useState('');
 
   useEffect(() => {
+    // Check for toast parameter and show success message
+    const toastParam = searchParams.get('toast');
+    if (toastParam === 'passwordUpdated') {
+      showSuccess('Ihr Passwort wurde erfolgreich aktualisiert.');
+      // Clear the toast parameter from URL
+      navigate(location.pathname, { replace: true });
+      // Scroll to password section
+      setTimeout(() => {
+        passwordSectionRef.current?.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
+    }
+
     supabase.auth.getUser().then(({ data }) => {
       if (data?.user) {
         setEmail(data.user.email ?? '');
@@ -19,7 +36,7 @@ const SettingsPage: React.FC = () => {
         setCompany(data.user.user_metadata?.company ?? '');
       }
     });
-  }, []);
+  }, [searchParams, navigate, location.pathname]);
 
   const handleMetaChange = async () => {
     const { error } = await supabase.auth.updateUser({ data: { name, company } });
@@ -99,7 +116,7 @@ const SettingsPage: React.FC = () => {
 
 
         {/* Passwort ändern */}
-        <div className="p-6">
+        <div className="p-6" ref={passwordSectionRef}>
           <div className="flex items-center mb-4">
             <Lock size={20} className="text-gray-400 mr-2" />
             <h2 className="text-lg font-medium">Passwort ändern</h2>
