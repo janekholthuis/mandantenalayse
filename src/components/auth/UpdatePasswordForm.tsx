@@ -13,19 +13,17 @@ const UpdatePasswordForm: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [verifying, setVerifying] = useState(true);
 
- useEffect(() => {
-  const restoreSession = async () => {
-    const { error } = await supabase.auth.getSessionFromUrl();
-
-    if (error) {
-      showError('Link abgelaufen oder ungültig. Bitte erneut anfordern.');
-      navigate('/reset-password');
-    } else {
+  useEffect(() => {
+   const restoreSession = async () => {
+   const { error } = await supabase.auth.getSessionFromUrl();
+     if (error) {
+             showError('Link abgelaufen oder ungültig. Bitte erneut anfordern.');
+             navigate('/reset-password');
+         } else {
       setVerifying(false);
     }
   };
-
-  restoreSession();
+     restoreSession();
 }, [navigate]);
 
 
