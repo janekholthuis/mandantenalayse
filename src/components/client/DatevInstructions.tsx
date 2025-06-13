@@ -175,6 +175,45 @@ const DatevInstructions: React.FC = () => {
             </div>
           </div>
 
+          {/* Weitere Hilfe */}
+          <div className="mb-6">
+            <div className="flex items-center mb-3">
+              <FileText className="h-5 w-5 text-purple-600 mr-2" />
+              <h4 className="text-lg font-semibold text-gray-900">📚 Weitere Hilfe & Detaillierte Erklärungen</h4>
+            </div>
+            <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
+              <div className="flex items-start space-x-3">
+                <div className="flex-shrink-0">
+                  <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
+                    <FileText className="h-4 w-4 text-purple-600" />
+                  </div>
+                </div>
+                <div className="flex-1">
+                  <h5 className="font-medium text-purple-900 mb-2">DATEV Help Center</h5>
+                  <p className="text-purple-800 text-sm mb-3">
+                    Für detaillierte Erklärungen und weitere Informationen zum Export von Mandantendaten 
+                    aus DATEV Arbeitsplatz pro besuchen Sie das offizielle DATEV Help Center.
+                  </p>
+                  <a
+                    href="https://apps.datev.de/help-center/documents/1029145"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center px-4 py-2 bg-purple-600 text-white text-sm font-medium rounded-md hover:bg-purple-700 transition-colors"
+                  >
+                    <FileText className="h-4 w-4 mr-2" />
+                    DATEV Help Center öffnen
+                    <svg className="h-4 w-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                    </svg>
+                  </a>
+                  <p className="text-purple-700 text-xs mt-2">
+                    ℹ️ Der Link öffnet sich in einem neuen Tab und führt zur offiziellen DATEV-Dokumentation
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
           {/* Datenschutz */}
           <div className="mb-6">
             <div className="flex items-center mb-3">
