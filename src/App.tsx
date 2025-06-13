@@ -20,6 +20,9 @@ const AppContent: React.FC = () => {
   const loc = useLocation()
   const authPaths = ['/login', '/signup', '/reset-password', '/new-password', '/confirm-email', '/auth-callback', '/email-confirmation-sent']
   const isAuth = authPaths.includes(loc.pathname)
+  
+  // Show navbar only when user is logged in AND not on auth pages
+  const showNavbar = user && !isAuth
 
   if (loading)
     return (
@@ -30,11 +33,11 @@ const AppContent: React.FC = () => {
 
   return (
     <div className="h-screen flex flex-col">
-      {!isAuth && <Navbar />}
+      {showNavbar && <Navbar />}
       <div className="flex flex-1 overflow-hidden">
-        {!isAuth && user && <Sidebar />}
+        {showNavbar && <Sidebar />}
         <main className="flex-1 overflow-y-auto bg-gray-50">
-          <div className={`max-w-7xl mx-auto px-4 lg:px-8 py-8 ${!isAuth ? 'pt-4' : ''}`}>
+          <div className={`max-w-7xl mx-auto px-4 lg:px-8 py-8 ${showNavbar ? 'pt-4' : ''}`}>
             <Routes>
               {/* Public/Auth */}
               <Route path="/login" element={<LoginForm />} />
