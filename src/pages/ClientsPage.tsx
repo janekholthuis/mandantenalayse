@@ -93,13 +93,13 @@ const ClientsPage: React.FC = () => {
             >
               Mandanten hochladen
             </Button>
-            <Link to="/clients/new">
+            <Link to="/clients/add">
               <Button
                 variant="primary"
                 icon={<UserPlus size={16} />}
                 className="bg-blue-600 hover:bg-blue-700"
               >
-                Neuen Mandanten hinzufügen
+                Mandanten hinzufügen
               </Button>
             </Link>
           </div>

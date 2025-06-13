@@ -13,7 +13,7 @@ const Sidebar = () => {
 
   const navItems = [
     { path: '/clients', label: 'Mandanten', icon: <Users size={20} /> },
-    { path: '/clients/new', label: 'Mandanten hinzufügen', icon: <UserPlus size={20} /> },
+    { path: '/clients/add', label: 'Mandanten hinzufügen', icon: <UserPlus size={20} /> },
     { path: '/settings', label: 'Einstellungen', icon: <Settings size={20} /> },
   ]
 

@@ -7,7 +7,9 @@ import PasswordResetPage from './pages/PasswordResetPage'
 import ConfirmEmailPage from './pages/ConfirmEmailPage'
 import EmailConfirmationSentPage from './pages/EmailConfirmationSentPage'
 import ClientsPage from './pages/ClientsPage'
+import ClientAddPage from './pages/ClientAddPage'
 import NewClientPage from './pages/NewClientPage'
+import ClientUploadPage from './pages/ClientUploadPage'
 import ClientDetailPage from './pages/ClientDetailPage'
 import SettingsPage from './pages/SettingsPage'
 import Navbar from './components/layout/Navbar'
@@ -51,7 +53,9 @@ const AppContent: React.FC = () => {
                 <>
                   <Route path="/" element={<Navigate to="/clients" replace />} />
                   <Route path="/clients" element={<ClientsPage />} />
+                  <Route path="/clients/add" element={<ClientAddPage />} />
                   <Route path="/clients/new" element={<NewClientPage />} />
+                  <Route path="/clients/upload" element={<ClientUploadPage />} />
                   <Route path="/clients/:id" element={<ClientDetailPage />} />
                   <Route path="/settings" element={<SettingsPage />} />
 
