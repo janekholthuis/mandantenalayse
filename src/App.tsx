@@ -42,6 +42,7 @@ const AppContent: React.FC = () => {
               <Route path="/signup" element={<SignupForm />} />
               <Route path="/reset-password" element={<PasswordResetPage />} />
               <Route path="/update-password" element={<UpdatePasswordPage />} />
+             <Route path="/debug" element={<Debug />} />
               <Route path="/confirm-email" element={<ConfirmEmailPage />} />
               <Route path="/email-confirmation-sent" element={<EmailConfirmationSentPage />} />
 
@@ -53,7 +54,7 @@ const AppContent: React.FC = () => {
                   <Route path="/clients/new" element={<NewClientPage />} />
                   <Route path="/clients/:id" element={<ClientDetailPage />} />
                   <Route path="/settings" element={<SettingsPage />} />
-                  <Route path="/debug" element={<Debug />} />
+
                   <Route path="*" element={<Navigate to="/clients" replace />} />
                 </>
               ) : (
