@@ -126,4 +126,4 @@ const UpdatePasswordForm: React.FC = () => {
   );
 };
 
-export default UpdatePasswordForm;
+export default NewPasswordForm;
