@@ -91,7 +91,7 @@ const ClientsPage: React.FC = () => {
               icon={<Upload size={16} />}
               className="bg-white text-blue-700 border border-blue-200 hover:bg-blue-50"
             >
-              CSV Import
+              Mandanten hochladen
             </Button>
             <Link to="/clients/new">
               <Button

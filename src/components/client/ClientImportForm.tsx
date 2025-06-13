@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Upload, X, FileText, CheckCircle, AlertTriangle, Download } from 'lucide-react';
+import * as XLSX from 'xlsx';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../hooks/useAuth';
 import Button from '../ui/Button';
@@ -44,6 +45,27 @@ const ClientImportForm: React.FC<ClientImportFormProps> = ({ onImportComplete, o
     document.body.removeChild(link);
   };
 
+  const downloadExcelTemplate = () => {
+    const data = [
+      ['Firmenname', 'PLZ', 'Stadt'],
+      ['Musterfirma GmbH', 12345, 'Berlin'],
+      ['Beispiel AG', 54321, 'München']
+    ];
+    
+    const ws = XLSX.utils.aoa_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Mandanten');
+    
+    // Set column widths
+    ws['!cols'] = [
+      { width: 25 }, // Firmenname
+      { width: 10 }, // PLZ
+      { width: 20 }  // Stadt
+    ];
+    
+    XLSX.writeFile(wb, 'mandanten_vorlage.xlsx');
+  };
+
   const parseCSV = (csvText: string): ParsedClient[] => {
     const lines = csvText.trim().split('\n');
     if (lines.length < 2) return [];
@@ -72,6 +94,66 @@ const ClientImportForm: React.FC<ClientImportFormProps> = ({ onImportComplete, o
     }
 
     return data;
+  };
+
+  const parseExcel = (file: File): Promise<ParsedClient[]> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      
+      reader.onload = (e) => {
+        try {
+          const data = new Uint8Array(e.target?.result as ArrayBuffer);
+          const workbook = XLSX.read(data, { type: 'array' });
+          
+          // Get the first worksheet
+          const firstSheetName = workbook.SheetNames[0];
+          const worksheet = workbook.Sheets[firstSheetName];
+          
+          // Convert to JSON
+          const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 }) as any[][];
+          
+          if (jsonData.length < 2) {
+            resolve([]);
+            return;
+          }
+          
+          const headers = jsonData[0];
+          const parsedData: ParsedClient[] = [];
+          
+          for (let i = 1; i < jsonData.length; i++) {
+            const row: ParsedClient = { Firmenname: '' };
+            
+            headers.forEach((header: string, index: number) => {
+              const value = jsonData[i][index];
+              if (value !== undefined && value !== null && value !== '') {
+                if (header === 'PLZ' && typeof value === 'number') {
+                  row[header] = value;
+                } else if (header === 'PLZ' && typeof value === 'string') {
+                  const plz = parseInt(value);
+                  if (!isNaN(plz)) {
+                    row[header] = plz;
+                  }
+                } else {
+                  row[header] = String(value);
+                }
+              }
+            });
+            
+            // Only add rows that have at least a company name
+            if (row.Firmenname && row.Firmenname.trim() !== '') {
+              parsedData.push(row);
+            }
+          }
+          
+          resolve(parsedData);
+        } catch (error) {
+          reject(error);
+        }
+      };
+      
+      reader.onerror = () => reject(new Error('Fehler beim Lesen der Datei'));
+      reader.readAsArrayBuffer(file);
+    });
   };
 
   const validateData = (data: ParsedClient[]): ValidationError[] => {
@@ -118,11 +200,21 @@ const ClientImportForm: React.FC<ClientImportFormProps> = ({ onImportComplete, o
     return errors;
   };
 
+  const isExcelFile = (file: File): boolean => {
+    return file.name.endsWith('.xlsx') || file.name.endsWith('.xls') || 
+           file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' ||
+           file.type === 'application/vnd.ms-excel';
+  };
+
+  const isCsvFile = (file: File): boolean => {
+    return file.name.endsWith('.csv') || file.type === 'text/csv';
+  };
+
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = event.target.files?.[0];
     if (selectedFile) {
-      if (selectedFile.type !== 'text/csv' && !selectedFile.name.endsWith('.csv')) {
-        showError('Bitte wählen Sie eine CSV-Datei aus');
+      if (!isCsvFile(selectedFile) && !isExcelFile(selectedFile)) {
+        showError('Bitte wählen Sie eine CSV- oder Excel-Datei aus');
         return;
       }
       setFile(selectedFile);
@@ -132,41 +224,49 @@ const ClientImportForm: React.FC<ClientImportFormProps> = ({ onImportComplete, o
     }
   };
 
-  const handlePreview = () => {
+  const handlePreview = async () => {
     if (!file) return;
 
     setIsProcessing(true);
-    const reader = new FileReader();
     
-    reader.onload = (e) => {
-      try {
-        const csvText = e.target?.result as string;
-        const parsed = parseCSV(csvText);
-        const errors = validateData(parsed);
-        
-        setParsedData(parsed);
-        setValidationErrors(errors);
-        setShowPreview(true);
-        
-        if (errors.length > 0) {
-          showError(`${errors.length} Validierungsfehler gefunden. Bitte korrigieren Sie diese vor dem Import.`);
-        } else {
-          showSuccess(`${parsed.length} Datensätze erfolgreich validiert`);
-        }
-      } catch (error) {
-        showError('Fehler beim Parsen der CSV-Datei');
-        console.error('CSV parsing error:', error);
-      } finally {
-        setIsProcessing(false);
+    try {
+      let parsed: ParsedClient[] = [];
+      
+      if (isExcelFile(file)) {
+        parsed = await parseExcel(file);
+      } else if (isCsvFile(file)) {
+        const reader = new FileReader();
+        parsed = await new Promise((resolve, reject) => {
+          reader.onload = (e) => {
+            try {
+              const csvText = e.target?.result as string;
+              resolve(parseCSV(csvText));
+            } catch (error) {
+              reject(error);
+            }
+          };
+          reader.onerror = () => reject(new Error('Fehler beim Lesen der Datei'));
+          reader.readAsText(file, 'UTF-8');
+        });
       }
-    };
-
-    reader.onerror = () => {
-      showError('Fehler beim Lesen der Datei');
+      
+      const errors = validateData(parsed);
+      
+      setParsedData(parsed);
+      setValidationErrors(errors);
+      setShowPreview(true);
+      
+      if (errors.length > 0) {
+        showError(`${errors.length} Validierungsfehler gefunden. Bitte korrigieren Sie diese vor dem Import.`);
+      } else {
+        showSuccess(`${parsed.length} Datensätze erfolgreich validiert`);
+      }
+    } catch (error) {
+      showError('Fehler beim Parsen der Datei');
+      console.error('File parsing error:', error);
+    } finally {
       setIsProcessing(false);
-    };
-
-    reader.readAsText(file, 'UTF-8');
+    }
   };
 
   const handleImport = async () => {
@@ -211,9 +311,9 @@ const ClientImportForm: React.FC<ClientImportFormProps> = ({ onImportComplete, o
       <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-hidden">
         <div className="flex justify-between items-center p-6 border-b">
           <div>
-            <h2 className="text-xl font-semibold text-gray-900">Mandanten aus CSV importieren</h2>
+            <h2 className="text-xl font-semibold text-gray-900">Mandanten hochladen</h2>
             <p className="text-sm text-gray-600 mt-1">
-              Laden Sie eine CSV-Datei mit Mandantendaten hoch
+              Laden Sie eine CSV- oder Excel-Datei mit Mandantendaten hoch
             </p>
           </div>
           <button
@@ -229,43 +329,53 @@ const ClientImportForm: React.FC<ClientImportFormProps> = ({ onImportComplete, o
           <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-sm font-medium text-blue-800">CSV-Vorlage herunterladen</h3>
+                <h3 className="text-sm font-medium text-blue-800">Vorlage herunterladen</h3>
                 <p className="text-sm text-blue-600 mt-1">
-                  Laden Sie eine Beispiel-CSV-Datei herunter, um das richtige Format zu sehen
+                  Laden Sie eine Beispieldatei herunter, um das richtige Format zu sehen
                 </p>
               </div>
-              <Button
-                variant="secondary"
-                onClick={downloadTemplate}
-                icon={<Download size={16} />}
-                className="bg-white text-blue-700 border-blue-300 hover:bg-blue-50"
-              >
-                Vorlage herunterladen
-              </Button>
+              <div className="flex space-x-2">
+                <Button
+                  variant="secondary"
+                  onClick={downloadTemplate}
+                  icon={<Download size={16} />}
+                  className="bg-white text-blue-700 border-blue-300 hover:bg-blue-50"
+                >
+                  CSV-Vorlage
+                </Button>
+                <Button
+                  variant="secondary"
+                  onClick={downloadExcelTemplate}
+                  icon={<Download size={16} />}
+                  className="bg-white text-green-700 border-green-300 hover:bg-green-50"
+                >
+                  Excel-Vorlage
+                </Button>
+              </div>
             </div>
           </div>
 
           {/* File Upload */}
           <div className="mb-6">
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              CSV-Datei auswählen
+              Datei auswählen (CSV oder Excel)
             </label>
             <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 transition-colors">
               <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
               <div className="space-y-2">
                 <p className="text-gray-600">
-                  Klicken Sie hier oder ziehen Sie eine CSV-Datei hierher
+                  Klicken Sie hier oder ziehen Sie eine CSV- oder Excel-Datei hierher
                 </p>
                 <input
                   type="file"
-                  accept=".csv"
+                  accept=".csv,.xlsx,.xls"
                   onChange={handleFileChange}
                   className="hidden"
-                  id="csv-upload"
+                  id="file-upload"
                 />
                 <Button
                   variant="secondary"
-                  onClick={() => document.getElementById('csv-upload')?.click()}
+                  onClick={() => document.getElementById('file-upload')?.click()}
                   icon={<Upload size={16} />}
                 >
                   Datei auswählen
@@ -281,6 +391,9 @@ const ClientImportForm: React.FC<ClientImportFormProps> = ({ onImportComplete, o
                     <span className="text-sm text-gray-900">{file.name}</span>
                     <span className="text-sm text-gray-500 ml-2">
                       ({(file.size / 1024).toFixed(1)} KB)
+                    </span>
+                    <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full ml-2">
+                      {isExcelFile(file) ? 'Excel' : 'CSV'}
                     </span>
                   </div>
                   <button
@@ -299,9 +412,9 @@ const ClientImportForm: React.FC<ClientImportFormProps> = ({ onImportComplete, o
             )}
           </div>
 
-          {/* CSV Format Info */}
+          {/* File Format Info */}
           <div className="mb-6 p-4 bg-gray-50 rounded-lg">
-            <h3 className="text-sm font-medium text-gray-900 mb-2">CSV-Format</h3>
+            <h3 className="text-sm font-medium text-gray-900 mb-2">Dateiformat</h3>
             <div className="text-sm text-gray-600 space-y-1">
               <p><strong>Erforderliche Spalten:</strong></p>
               <ul className="list-disc list-inside ml-4 space-y-1">
@@ -315,6 +428,9 @@ const ClientImportForm: React.FC<ClientImportFormProps> = ({ onImportComplete, o
                 "Musterfirma GmbH",12345,"Berlin"<br/>
                 "Beispiel AG",54321,"München"
               </code>
+              <p className="mt-2 text-xs text-gray-500">
+                <strong>Unterstützte Formate:</strong> CSV (.csv), Excel (.xlsx, .xls)
+              </p>
             </div>
           </div>
 
