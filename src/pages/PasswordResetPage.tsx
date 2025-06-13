@@ -17,7 +17,7 @@ const PasswordResetPage: React.FC = () => {
     
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email, { 
-        redirectTo: `${window.location.origin}/new-password` 
+        redirectTo: `${window.location.origin}/Pas` 
       });
       
       if (error) throw error;
