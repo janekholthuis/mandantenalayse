@@ -43,7 +43,7 @@ const AppContent: React.FC = () => {
               <Route path="/signup" element={<SignupForm />} />
               <Route path="/reset-password" element={<PasswordResetPage />} />
               <Route path="/new-password" element={<NewPasswordPage />} />
-             <Route path="/debug" element={<Debug />} />
+            
                <Route path="/auth-callback" element={<Callback />} />
               <Route path="/confirm-email" element={<ConfirmEmailPage />} />
               <Route path="/email-confirmation-sent" element={<EmailConfirmationSentPage />} />
