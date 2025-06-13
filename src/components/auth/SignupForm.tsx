@@ -25,7 +25,7 @@ const SignupForm: React.FC = () => {
         password,
         options: { 
           data: { name, company }, 
-          emailRedirectTo: `${window.location.origin}/auth/callback` 
+          emailRedirectTo: `${window.location.origin}/auth-callback` 
         }
       });
       
