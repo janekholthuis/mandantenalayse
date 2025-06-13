@@ -52,7 +52,7 @@ const ConfirmEmailPage: React.FC = () => {
           }
         } else if (data?.user) {
           setIsConfirmed(true);
-          showSuccess('E‑Mail erfolgreich bestätigt! 🎉');
+          showSuccess('E-Mail erfolgreich verifiziert! 🎉');
           
           // Redirect to login after a short delay
           setTimeout(() => {
