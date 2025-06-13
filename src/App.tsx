@@ -6,6 +6,7 @@ import SignupForm from './components/auth/SignupForm'
 import PasswordResetPage from './pages/PasswordResetPage'
 import UpdatePasswordPage from './pages/UpdatePasswordPage'
 import ConfirmEmailPage from './pages/ConfirmEmailPage'
+import Debug from './pages/Debug'
 import EmailConfirmationSentPage from './pages/EmailConfirmationSentPage'
 import ClientsPage from './pages/ClientsPage'
 import NewClientPage from './pages/NewClientPage'
@@ -52,6 +53,7 @@ const AppContent: React.FC = () => {
                   <Route path="/clients/new" element={<NewClientPage />} />
                   <Route path="/clients/:id" element={<ClientDetailPage />} />
                   <Route path="/settings" element={<SettingsPage />} />
+                  <Route path="/debug" element={<Debug />} />
                   <Route path="*" element={<Navigate to="/clients" replace />} />
                 </>
               ) : (
