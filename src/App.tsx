@@ -4,7 +4,6 @@ import { useAuth } from './hooks/useAuth'
 import LoginForm from './components/auth/LoginForm'
 import SignupForm from './components/auth/SignupForm'
 import PasswordResetPage from './pages/PasswordResetPage'
-import NewPasswordPage from './pages/NewPasswordPage'
 import ConfirmEmailPage from './pages/ConfirmEmailPage'
 import EmailConfirmationSentPage from './pages/EmailConfirmationSentPage'
 import ClientsPage from './pages/ClientsPage'
@@ -18,7 +17,7 @@ import { Toaster } from 'react-hot-toast'
 const AppContent: React.FC = () => {
   const { user, loading } = useAuth()
   const loc = useLocation()
-  const authPaths = ['/login', '/signup', '/reset-password', '/new-password', '/confirm-email', '/auth-callback', '/email-confirmation-sent']
+  const authPaths = ['/login', '/signup', '/reset-password', '/confirm-email', '/auth-callback', '/email-confirmation-sent']
   const isAuth = authPaths.includes(loc.pathname)
   
   // Show navbar only when user is logged in AND not on auth pages
@@ -43,7 +42,6 @@ const AppContent: React.FC = () => {
               <Route path="/login" element={<LoginForm />} />
               <Route path="/signup" element={<SignupForm />} />
               <Route path="/reset-password" element={<PasswordResetPage />} />
-              <Route path="/new-password" element={<NewPasswordPage />} />
               <Route path="/confirm-email" element={<ConfirmEmailPage />} />
               <Route path="/auth-callback" element={<ConfirmEmailPage />} />
               <Route path="/email-confirmation-sent" element={<EmailConfirmationSentPage />} />
