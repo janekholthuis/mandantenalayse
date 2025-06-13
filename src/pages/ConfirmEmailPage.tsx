@@ -13,8 +13,18 @@ const ConfirmEmailPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const confirmEmail = async () => {
+    const handleAuthCallback = async () => {
       try {
+        // First, try to handle auth callback (from login/signup redirects)
+        const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+        
+        if (sessionData?.session && !sessionError) {
+          // User is already authenticated, redirect to clients
+          navigate('/clients');
+          return;
+        }
+
+        // If no session, try to handle email confirmation
         const token_hash = searchParams.get('token_hash');
         const type = searchParams.get('type');
         
@@ -52,14 +62,14 @@ const ConfirmEmailPage: React.FC = () => {
           setError('Bestätigung fehlgeschlagen. Bitte versuchen Sie es erneut.');
         }
       } catch (err) {
-        console.error('Unexpected error during email confirmation:', err);
+        console.error('Unexpected error during auth callback:', err);
         setError('Ein unerwarteter Fehler ist aufgetreten. Bitte versuchen Sie es erneut.');
       } finally {
         setIsLoading(false);
       }
     };
 
-    confirmEmail();
+    handleAuthCallback();
   }, [searchParams, navigate]);
 
   if (isLoading) {
@@ -67,7 +77,7 @@ const ConfirmEmailPage: React.FC = () => {
       <div className="min-h-screen flex flex-col justify-center items-center bg-gray-50 px-6">
         <div className="bg-white rounded-lg shadow p-8 text-center max-w-md w-full">
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mx-auto mb-4"></div>
-          <h2 className="text-xl font-medium text-gray-900 mb-2">E-Mail wird bestätigt...</h2>
+          <h2 className="text-xl font-medium text-gray-900 mb-2">Verarbeite Anfrage...</h2>
           <p className="text-sm text-gray-600">Bitte einen Moment Geduld.</p>
         </div>
       </div>

@@ -4,13 +4,11 @@ import { useAuth } from './hooks/useAuth'
 import LoginForm from './components/auth/LoginForm'
 import SignupForm from './components/auth/SignupForm'
 import PasswordResetPage from './pages/PasswordResetPage'
-import UpdatePasswordPage from './pages/UpdatePasswordPage'
+import NewPasswordPage from './pages/NewPasswordPage'
 import ConfirmEmailPage from './pages/ConfirmEmailPage'
 import EmailConfirmationSentPage from './pages/EmailConfirmationSentPage'
-import Debug from './pages/Debug'
 import ClientsPage from './pages/ClientsPage'
 import NewClientPage from './pages/NewClientPage'
-import AuthCallbackPage from './pages/AuthCallbackPage'
 import ClientDetailPage from './pages/ClientDetailPage'
 import SettingsPage from './pages/SettingsPage'
 import Navbar from './components/layout/Navbar'
@@ -20,7 +18,7 @@ import { Toaster } from 'react-hot-toast'
 const AppContent: React.FC = () => {
   const { user, loading } = useAuth()
   const loc = useLocation()
-  const authPaths = ['/login', '/signup', '/auth-callback' , '/reset-password', '/new-password', '/confirm-email', '/email-confirmation-sent']
+  const authPaths = ['/login', '/signup', '/reset-password', '/new-password', '/confirm-email', '/auth-callback', '/email-confirmation-sent']
   const isAuth = authPaths.includes(loc.pathname)
 
   if (loading)
@@ -43,8 +41,8 @@ const AppContent: React.FC = () => {
               <Route path="/signup" element={<SignupForm />} />
               <Route path="/reset-password" element={<PasswordResetPage />} />
               <Route path="/new-password" element={<NewPasswordPage />} />
-              <Route path="/auth-callback" element={<AuthCallbackPage />} />
               <Route path="/confirm-email" element={<ConfirmEmailPage />} />
+              <Route path="/auth-callback" element={<ConfirmEmailPage />} />
               <Route path="/email-confirmation-sent" element={<EmailConfirmationSentPage />} />
 
               {/* Protected */}
