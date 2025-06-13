@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useSearchParams, useNavigate, useLocation } from 'react-router-dom';
-import { Lock } from 'lucide-react';
+import { Lock, CheckCircle, Info } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import Button from '../components/ui/Button';
 import ChangeEmailDialog from '../components/settings/ChangeEmailDialog';
@@ -15,9 +15,23 @@ const SettingsPage: React.FC = () => {
   const [name, setName] = useState('');
   const [company, setCompany] = useState('');
   const [password, setPassword] = useState('');
+  const [showResetSuccess, setShowResetSuccess] = useState(false);
 
   useEffect(() => {
-    // Check for toast parameter and show success message
+    // Check if user came from password reset
+    const fromReset = searchParams.get('from');
+    if (fromReset === 'reset') {
+      setShowResetSuccess(true);
+      showSuccess('Sie sind erfolgreich angemeldet! Sie können jetzt Ihr Passwort ändern. 🔐');
+      // Clear the parameter from URL
+      navigate(location.pathname, { replace: true });
+      // Scroll to password section
+      setTimeout(() => {
+        passwordSectionRef.current?.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
+    }
+
+    // Check for other toast parameters
     const toastParam = searchParams.get('toast');
     if (toastParam === 'passwordUpdated') {
       showSuccess('Ihr Passwort wurde erfolgreich aktualisiert.');
@@ -55,6 +69,7 @@ const SettingsPage: React.FC = () => {
     } else {
       showSuccess('Passwort erfolgreich geändert');
       setPassword(''); // Clear password field after successful change
+      setShowResetSuccess(false); // Hide reset success message
     }
   };
 
@@ -64,6 +79,30 @@ const SettingsPage: React.FC = () => {
         <h1 className="text-2xl font-bold">Einstellungen</h1>
         <p className="text-sm text-gray-500">Verwalten Sie Ihre Konto-Einstellungen</p>
       </div>
+
+      {/* Password Reset Success Banner */}
+      {showResetSuccess && (
+        <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+          <div className="flex items-center">
+            <CheckCircle className="h-5 w-5 text-green-600 mr-3" />
+            <div className="flex-1">
+              <h3 className="text-sm font-medium text-green-800">
+                Erfolgreich über Passwort-Reset angemeldet
+              </h3>
+              <p className="text-sm text-green-700 mt-1">
+                Sie können jetzt Ihr Passwort im Abschnitt unten sicher ändern.
+              </p>
+            </div>
+            <button
+              onClick={() => setShowResetSuccess(false)}
+              className="text-green-400 hover:text-green-600"
+            >
+              <span className="sr-only">Schließen</span>
+              ×
+            </button>
+          </div>
+        </div>
+      )}
 
       <div className="bg-white shadow rounded-lg divide-y divide-gray-200">
         {/* Profil */}
@@ -93,27 +132,21 @@ const SettingsPage: React.FC = () => {
         </div>
 
         {/* E-Mail */}
-  
-       <div className="p-6 bg-white rounded-lg shadow border border-gray-200">
-   <label className="text-sm font-semibold text-gray-700">E-Mail-Adresse</label>
-
-
-  <input
-    type="email"
-    disabled
-    className="w-full rounded-md border border-gray-300 bg-gray-100 px-4 py-2 text-sm text-gray-700 shadow-sm cursor-not-allowed"
-    value={email}
-  />
-
-  <p className="mt-2 text-sm text-gray-500">
-    Diese E-Mail-Adresse ist derzeit mit Ihrem Konto verknüpft. Änderungen sind über den Button möglich.
-  </p>
-         <div className="flex items-center justify-between mb-2">
-   
-    <ChangeEmailDialog />
-  </div>
-</div>
-
+        <div className="p-6 bg-white rounded-lg shadow border border-gray-200">
+          <label className="text-sm font-semibold text-gray-700">E-Mail-Adresse</label>
+          <input
+            type="email"
+            disabled
+            className="w-full rounded-md border border-gray-300 bg-gray-100 px-4 py-2 text-sm text-gray-700 shadow-sm cursor-not-allowed"
+            value={email}
+          />
+          <p className="mt-2 text-sm text-gray-500">
+            Diese E-Mail-Adresse ist derzeit mit Ihrem Konto verknüpft. Änderungen sind über den Button möglich.
+          </p>
+          <div className="flex items-center justify-between mb-2">
+            <ChangeEmailDialog />
+          </div>
+        </div>
 
         {/* Passwort ändern */}
         <div className="p-6" ref={passwordSectionRef}>
@@ -121,6 +154,21 @@ const SettingsPage: React.FC = () => {
             <Lock size={20} className="text-gray-400 mr-2" />
             <h2 className="text-lg font-medium">Passwort ändern</h2>
           </div>
+          
+          {showResetSuccess && (
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+              <div className="flex items-center">
+                <Info className="h-5 w-5 text-blue-600 mr-2" />
+                <div>
+                  <h4 className="text-sm font-medium text-blue-800">Passwort zurücksetzen</h4>
+                  <p className="text-sm text-blue-700 mt-1">
+                    Geben Sie unten Ihr neues Passwort ein und klicken Sie auf "Passwort ändern".
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+          
           <div className="space-y-4 max-w-sm">
             <input
               type="password"
