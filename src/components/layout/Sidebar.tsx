@@ -25,8 +25,8 @@ const Sidebar = () => {
   }
 
   return (
-    <div className="hidden md:block w-64 bg-gray-50 border-r border-gray-200">
-      <div className="h-full flex flex-col justify-between">
+    <div className="hidden md:flex md:flex-col w-64 bg-gray-50 border-r border-gray-200 h-full">
+      <div className="flex flex-col justify-between h-full">
         <nav className="pt-5 px-2 space-y-1">
           {navItems.map(item => (
             <Link
@@ -42,7 +42,7 @@ const Sidebar = () => {
           ))}
         </nav>
 
-        <div className="border-t border-gray-200 p-4 flex items-center justify-between">
+        <div className="border-t border-gray-200 p-4 flex items-center justify-between flex-shrink-0">
           <div className="flex items-center">
             <div className="h-8 w-8 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold">
               {name.charAt(0).toUpperCase()}
