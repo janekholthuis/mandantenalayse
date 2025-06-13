@@ -41,7 +41,7 @@ const AppContent: React.FC = () => {
               <Route path="/login" element={<LoginForm />} />
               <Route path="/signup" element={<SignupForm />} />
               <Route path="/reset-password" element={<PasswordResetPage />} />
-              <Route path="/update-password" element={<UpdatePasswordPage />} />
+              <Route path="/new-password" element={<NewPasswordPage />} />
              <Route path="/debug" element={<Debug />} />
               <Route path="/confirm-email" element={<ConfirmEmailPage />} />
               <Route path="/email-confirmation-sent" element={<EmailConfirmationSentPage />} />
