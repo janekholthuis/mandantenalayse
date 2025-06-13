@@ -1,8 +1,8 @@
 import React from 'react';
-import UpdatePasswordForm from '../components/auth/UpdatePasswordForm';
+import UpdatePasswordForm from '../components/auth/NewPasswordForm';
 
 const UpdatePasswordPage: React.FC = () => {
-  return <UpdatePasswordForm />;
+  return <NewPasswordForm />;
 };
 
-export default UpdatePasswordPage;
+export default NewPasswordPage;
