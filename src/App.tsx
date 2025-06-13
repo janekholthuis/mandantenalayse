@@ -19,7 +19,7 @@ import { Toaster } from 'react-hot-toast'
 const AppContent: React.FC = () => {
   const { user, loading } = useAuth()
   const loc = useLocation()
-  const authPaths = ['/login', '/signup', '/debug', '/reset-password', '/update-password', '/confirm-email', '/email-confirmation-sent']
+  const authPaths = ['/login', '/signup', '/debug', '/reset-password', '/new-password', '/confirm-email', '/email-confirmation-sent']
   const isAuth = authPaths.includes(loc.pathname)
 
   if (loading)
