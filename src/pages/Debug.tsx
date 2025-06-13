@@ -1,6 +1,5 @@
-import { useEffect } from 'react';
-
-const DebugTokenPage = () => {
+// ✅ Rename the component to match the file (best practice)
+const Debug = () => {
   useEffect(() => {
     console.log('[DEBUG] Hash:', window.location.hash);
   }, []);
@@ -14,4 +13,4 @@ const DebugTokenPage = () => {
   );
 };
 
-export default DebugTokenPage;
+export default Debug;
