@@ -10,7 +10,7 @@ import Debug from './pages/Debug'
 import EmailConfirmationSentPage from './pages/EmailConfirmationSentPage'
 import ClientsPage from './pages/ClientsPage'
 import NewClientPage from './pages/NewClientPage'
-import Callback from './pages/Callback'
+import AuthCallbackPage from './pages/Callback'
 import ClientDetailPage from './pages/ClientDetailPage'
 import SettingsPage from './pages/SettingsPage'
 import Navbar from './components/layout/Navbar'
@@ -43,8 +43,7 @@ const AppContent: React.FC = () => {
               <Route path="/signup" element={<SignupForm />} />
               <Route path="/reset-password" element={<PasswordResetPage />} />
               <Route path="/new-password" element={<NewPasswordPage />} />
-            
-               <Route path="/auth-callback" element={<Callback />} />
+              <Route path="/auth-callback" element={<AuthCallbackPage />} />
               <Route path="/confirm-email" element={<ConfirmEmailPage />} />
               <Route path="/email-confirmation-sent" element={<EmailConfirmationSentPage />} />
 
