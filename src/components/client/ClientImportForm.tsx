@@ -38,7 +38,7 @@ const ClientImportForm: React.FC<ClientImportFormProps> = ({ onImportComplete, o
     const link = document.createElement('a');
     const url = URL.createObjectURL(blob);
     link.setAttribute('href', url);
-    link.setAttribute('download', 'mandanten_vorlage.csv');
+    link.setAttribute('download', 'mandanten_standard_vorlage.csv');
     link.style.visibility = 'hidden';
     document.body.appendChild(link);
     link.click();
@@ -64,6 +64,19 @@ const ClientImportForm: React.FC<ClientImportFormProps> = ({ onImportComplete, o
     ];
     
     XLSX.writeFile(wb, 'mandanten_vorlage.xlsx');
+  };
+
+  const downloadDatevTemplate = () => {
+    const csvContent = 'Mandantennummer,Mandantenname,Beraternummer,Branche,Ansprechpartner,Status\n"12345","Musterfirma GmbH","001","IT-Dienstleistungen","Max Mustermann","aktiv"\n"67890","Beispiel AG","001","Handel","Anna Schmidt","aktiv"';
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', 'datev_mandanten_vorlage.csv');
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   const parseCSV = (csvText: string): ParsedClient[] => {
@@ -329,19 +342,27 @@ const ClientImportForm: React.FC<ClientImportFormProps> = ({ onImportComplete, o
           <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-sm font-medium text-blue-800">Vorlage herunterladen</h3>
+                <h3 className="text-sm font-medium text-blue-800">Vorlagen herunterladen</h3>
                 <p className="text-sm text-blue-600 mt-1">
-                  Laden Sie eine Beispieldatei herunter, um das richtige Format zu sehen
+                  Laden Sie eine Beispieldatei herunter oder nutzen Sie die DATEV-kompatible Vorlage
                 </p>
               </div>
-              <div className="flex space-x-2">
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  variant="secondary"
+                  onClick={downloadDatevTemplate}
+                  icon={<Download size={16} />}
+                  className="bg-white text-blue-700 border-blue-300 hover:bg-blue-50"
+                >
+                  DATEV-Vorlage
+                </Button>
                 <Button
                   variant="secondary"
                   onClick={downloadTemplate}
                   icon={<Download size={16} />}
                   className="bg-white text-blue-700 border-blue-300 hover:bg-blue-50"
                 >
-                  CSV-Vorlage
+                  Standard CSV
                 </Button>
                 <Button
                   variant="secondary"
@@ -349,7 +370,7 @@ const ClientImportForm: React.FC<ClientImportFormProps> = ({ onImportComplete, o
                   icon={<Download size={16} />}
                   className="bg-white text-green-700 border-green-300 hover:bg-green-50"
                 >
-                  Excel-Vorlage
+                  Standard Excel
                 </Button>
               </div>
             </div>
@@ -416,20 +437,29 @@ const ClientImportForm: React.FC<ClientImportFormProps> = ({ onImportComplete, o
           <div className="mb-6 p-4 bg-gray-50 rounded-lg">
             <h3 className="text-sm font-medium text-gray-900 mb-2">Dateiformat</h3>
             <div className="text-sm text-gray-600 space-y-1">
-              <p><strong>Erforderliche Spalten:</strong></p>
-              <ul className="list-disc list-inside ml-4 space-y-1">
-                <li><code>Firmenname</code> - Name des Unternehmens (erforderlich)</li>
-                <li><code>PLZ</code> - Postleitzahl (optional, 5-stellig)</li>
-                <li><code>Stadt</code> - Stadt (optional)</li>
-              </ul>
-              <p className="mt-2"><strong>Beispiel:</strong></p>
-              <code className="block bg-white p-2 rounded border text-xs">
-                Firmenname,PLZ,Stadt<br/>
-                "Musterfirma GmbH",12345,"Berlin"<br/>
-                "Beispiel AG",54321,"München"
-              </code>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <p><strong>Standard-Format:</strong></p>
+                  <ul className="list-disc list-inside ml-4 space-y-1 text-xs">
+                    <li><code>Firmenname</code> - Name des Unternehmens (erforderlich)</li>
+                    <li><code>PLZ</code> - Postleitzahl (optional, 5-stellig)</li>
+                    <li><code>Stadt</code> - Stadt (optional)</li>
+                  </ul>
+                </div>
+                <div>
+                  <p><strong>DATEV-Format (unterstützt):</strong></p>
+                  <ul className="list-disc list-inside ml-4 space-y-1 text-xs">
+                    <li><code>Mandantenname</code> oder <code>Firmenname</code></li>
+                    <li><code>Mandantennummer</code> (optional)</li>
+                    <li><code>Beraternummer</code> (optional)</li>
+                    <li><code>Branche</code> (optional)</li>
+                    <li><code>Status</code> (optional)</li>
+                  </ul>
+                </div>
+              </div>
               <p className="mt-2 text-xs text-gray-500">
-                <strong>Unterstützte Formate:</strong> CSV (.csv), Excel (.xlsx, .xls)
+                <strong>Unterstützte Formate:</strong> CSV (.csv), Excel (.xlsx, .xls) | 
+                <strong> DATEV-Export:</strong> Direkt aus DATEV Arbeitsplatz pro exportierte Dateien werden automatisch erkannt
               </p>
             </div>
           </div>

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import ClientImportForm from '../components/client/ClientImportForm';
+import DatevInstructions from '../components/client/DatevInstructions';
 
 const ClientUploadPage: React.FC = () => {
   const navigate = useNavigate();
@@ -26,6 +27,11 @@ const ClientUploadPage: React.FC = () => {
         <p className="mt-1 text-sm text-gray-500">
           Laden Sie eine CSV- oder Excel-Datei mit Mandantendaten hoch
         </p>
+      </div>
+
+      {/* DATEV Instructions */}
+      <div className="mb-8">
+        <DatevInstructions />
       </div>
 
       {showImportForm && (

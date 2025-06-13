@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Upload, Edit, FileText, Users } from 'lucide-react';
+import { ArrowLeft, Upload, Edit, FileText, Users, Database } from 'lucide-react';
 import Button from '../components/ui/Button';
 
 const ClientAddPage: React.FC = () => {
@@ -69,8 +69,8 @@ const ClientAddPage: React.FC = () => {
               </p>
               <div className="space-y-2 text-sm text-gray-500">
                 <div className="flex items-center justify-center">
-                  <Upload className="h-4 w-4 mr-2" />
-                  <span>CSV & Excel Dateien</span>
+                  <Database className="h-4 w-4 mr-2" />
+                  <span>DATEV-Export unterstützt</span>
                 </div>
                 <div className="flex items-center justify-center">
                   <Users className="h-4 w-4 mr-2" />
@@ -106,11 +106,27 @@ const ClientAddPage: React.FC = () => {
             <div>
               <h5 className="font-medium text-blue-800 mb-2">Datei hochladen wählen, wenn:</h5>
               <ul className="space-y-1 text-blue-700">
+                <li>• Sie Mandanten aus DATEV exportieren möchten</li>
                 <li>• Sie viele Mandanten gleichzeitig importieren möchten</li>
-                <li>• Sie bereits eine Excel- oder CSV-Datei haben</li>
                 <li>• Sie Zeit sparen möchten</li>
-                <li>• Sie Daten aus anderen Systemen übertragen</li>
+                <li>• Sie bereits eine Excel- oder CSV-Datei haben</li>
               </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* DATEV Hinweis */}
+      <div className="mt-8 max-w-4xl">
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <div className="flex items-center">
+            <Database className="h-6 w-6 text-blue-600 mr-3" />
+            <div>
+              <h4 className="text-lg font-medium text-blue-900">DATEV-Integration</h4>
+              <p className="text-blue-700 text-sm mt-1">
+                Exportieren Sie Ihre Mandantenliste direkt aus DATEV Arbeitsplatz pro. 
+                Eine detaillierte Anleitung finden Sie auf der Upload-Seite.
+              </p>
             </div>
           </div>
         </div>
