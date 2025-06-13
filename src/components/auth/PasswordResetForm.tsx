@@ -1,84 +1,53 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Mail } from 'lucide-react';
-import { supabase } from '../../lib/supabase';
+import { Settings, ArrowRight } from 'lucide-react';
 import Button from '../ui/Button';
-import toast from 'react-hot-toast';
+import { showSuccess } from '../../lib/toast';
 
 const PasswordResetForm: React.FC = () => {
   const navigate = useNavigate();
-  const [isLoading, setIsLoading] = useState(false);
-  const [email, setEmail] = useState('');
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setIsLoading(true);
-
-    try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/new-password`,
-      });
-
-      if (error) throw error;
-
-      showSuccess('📧 Bestätigungs-E-Mail gesendet');
-      navigate('/email-confirmation-sent');
-    } catch (err) {
-      showError(
-        err instanceof Error
-          ? err.message
-          : 'Passwort-Reset fehlgeschlagen'
-      );
-    } finally {
-      setIsLoading(false);
-    }
+  const handleRedirectToSettings = () => {
+    showSuccess('Sie können Ihr Passwort in den Einstellungen ändern 🔐');
+    navigate('/settings');
   };
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="text-center">
-          <Mail className="mx-auto h-12 w-12 text-blue-600" />
+          <Settings className="mx-auto h-12 w-12 text-blue-600" />
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
             Passwort zurücksetzen
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
-            Gib deine E-Mail-Adresse ein, um einen Link zum Zurücksetzen deines Passworts zu erhalten.
+            Sie können Ihr Passwort in den Kontoeinstellungen ändern.
           </p>
         </div>
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
-          <form className="space-y-6" onSubmit={handleSubmit}>
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                E-Mail-Adresse
-              </label>
-              <div className="mt-1 relative rounded-md shadow-sm">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Mail className="h-5 w-5 text-gray-400" />
-                </div>
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="block w-full pl-10 sm:text-sm border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="max@beispiel.de"
-                />
+          <div className="text-center space-y-6">
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <div className="flex items-center justify-center mb-2">
+                <Settings className="h-5 w-5 text-blue-600 mr-2" />
+                <h3 className="text-sm font-medium text-blue-800">
+                  Passwort in Einstellungen ändern
+                </h3>
               </div>
+              <p className="text-sm text-blue-700">
+                Melden Sie sich an und gehen Sie zu den Einstellungen, um Ihr Passwort zu ändern.
+              </p>
             </div>
 
             <Button
-              type="submit"
               variant="primary"
-              fullWidth
-              isLoading={isLoading}
+              onClick={handleRedirectToSettings}
+              icon={<ArrowRight size={16} />}
+              className="w-full bg-blue-600 hover:bg-blue-700"
             >
-              Link senden
+              Zu den Einstellungen
             </Button>
 
             <div className="text-sm text-center">
@@ -90,7 +59,7 @@ const PasswordResetForm: React.FC = () => {
                 Zurück zur Anmeldung
               </button>
             </div>
-          </form>
+          </div>
         </div>
       </div>
     </div>
