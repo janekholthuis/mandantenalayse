@@ -91,6 +91,7 @@ const ClientDetailPage: React.FC = () => {
   const [showSettings, setShowSettings] = useState(false);
   const [activeOptimizations, setActiveOptimizations] = useState<Set<string>>(new Set());
   const [activeTab, setActiveTab] = useState<'optimizations' | 'transactions'>('optimizations');
+  const [activeTab, setActiveTab] = useState<'optimizations' | 'transactions'>('transactions');
   const [bankConnected, setBankConnected] = useState(false);
   const [documentsUploaded, setDocumentsUploaded] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
@@ -362,32 +363,37 @@ const ClientDetailPage: React.FC = () => {
         description={`${client.industry} | ${client.legalForm}`}
         actions={
           <div className="flex space-x-3">
-            <Button
-              variant="secondary"
-              icon={<RefreshCw size={16} />}
-              onClick={() => setIsAnalyzing(true)}
-              className="bg-white text-blue-700 border border-blue-200 hover:bg-blue-50"
-            >
-              {client.lastAnalyzed ? 'Neu analysieren' : 'Analysieren'}
-            </Button>
-            {client.lastAnalyzed && (
-              <div className="relative">
-                <input
-                  type="file"
-                  id="document-upload"
-                  className="hidden"
-                  onChange={handleFileUpload}
-                  accept=".pdf,.doc,.docx,.xls,.xlsx"
-                />
+            {/* Hide MA-Benefits analysis buttons for now */}
+            {false && (
+              <>
                 <Button
-                  variant="primary"
-                  icon={<Upload size={16} />}
-                  onClick={() => document.getElementById('document-upload')?.click()}
-                  className="bg-blue-600 hover:bg-blue-700 text-white"
+                  variant="secondary"
+                  icon={<RefreshCw size={16} />}
+                  onClick={() => setIsAnalyzing(true)}
+                  className="bg-white text-blue-700 border border-blue-200 hover:bg-blue-50"
                 >
-                  Dokumente hochladen
+                  {client.lastAnalyzed ? 'Neu analysieren' : 'Analysieren'}
                 </Button>
-              </div>
+                {client.lastAnalyzed && (
+                  <div className="relative">
+                    <input
+                      type="file"
+                      id="document-upload"
+                      className="hidden"
+                      onChange={handleFileUpload}
+                      accept=".pdf,.doc,.docx,.xls,.xlsx"
+                    />
+                    <Button
+                      variant="primary"
+                      icon={<Upload size={16} />}
+                      onClick={() => document.getElementById('document-upload')?.click()}
+                      className="bg-blue-600 hover:bg-blue-700 text-white"
+                    >
+                      Dokumente hochladen
+                    </Button>
+                  </div>
+                )}
+              </>
             )}
           </div>
         }
@@ -397,19 +403,22 @@ const ClientDetailPage: React.FC = () => {
         {/* Tab Navigation */}
         <div className="border-b border-gray-200">
           <nav className="-mb-px flex space-x-8 px-6">
-            <button
-              onClick={() => setActiveTab('optimizations')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                activeTab === 'optimizations'
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
-            >
-              <div className="flex items-center">
-                <List className="h-5 w-5 mr-2" />
-                MA-Benefits
-              </div>
-            </button>
+            {/* MA-Benefits Tab - Hidden for now, can be re-enabled later */}
+            {false && (
+              <button
+                onClick={() => setActiveTab('optimizations')}
+                className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'optimizations'
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                <div className="flex items-center">
+                  <List className="h-5 w-5 mr-2" />
+                  MA-Benefits
+                </div>
+              </button>
+            )}
             <button
               onClick={() => setActiveTab('transactions')}
               className={`py-4 px-1 border-b-2 font-medium text-sm ${
@@ -430,79 +439,51 @@ const ClientDetailPage: React.FC = () => {
           <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
             Mandanteninformationen
           </h3>
-          {/* Different content based on active tab */}
-          {activeTab === 'optimizations' ? (
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <p className="text-sm font-medium text-gray-500">Mitarbeiter</p>
-                <p className="mt-1 text-2xl font-semibold text-gray-900">{client.employeeCount || 0}</p>
-              </div>
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <p className="text-sm font-medium text-gray-500">Genutzte Optimierungen</p>
-                <p className="mt-1 text-2xl font-semibold text-gray-900">
-                  {client.lastAnalyzed ? `${optimizationStats.used}/${optimizationStats.total}` : '/'}
-                </p>
-              </div>
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <p className="text-sm font-medium text-gray-500">Bereits optimiert</p>
-                <p className="mt-1 text-2xl font-semibold text-gray-900">
-                  {client.lastAnalyzed ? (
-                    <span>
-                      {formatCurrency(calculateImplementedSavings())}
-                      <span className="text-sm font-normal text-gray-500 ml-1">p.a.</span>
-                    </span>
-                  ) : '/'}
-                </p>
-              </div>
-              <div className="bg-blue-50 p-4 rounded-lg">
-                <p className="text-sm font-medium text-blue-700">Optimierungspotential</p>
-                <p className="mt-1 text-2xl font-semibold text-blue-900">
-                  {client.lastAnalyzed ? (
-                    <span>
-                      {formatCurrency(calculateTotalSavings())}
-                      <span className="text-sm font-normal text-blue-500 ml-1">p.a.</span>
-                    </span>
-                  ) : '/'}
-                </p>
-              </div>
+          {/* Focus on Kostenoptimierung metrics */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <p className="text-sm font-medium text-gray-500">Mitarbeiter</p>
+              <p className="mt-1 text-2xl font-semibold text-gray-900">{client.employeeCount || 0}</p>
             </div>
-          ) : (
-            /* Kosten Tab - Different metrics */
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <p className="text-sm font-medium text-gray-500">Mitarbeiter</p>
-                <p className="mt-1 text-2xl font-semibold text-gray-900">{client.employeeCount || 0}</p>
-              </div>
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <p className="text-sm font-medium text-gray-500">Potenzielle Einsparungen</p>
-                <p className="mt-1 text-2xl font-semibold text-gray-900">
-                  {bankConnected ? '2' : '/'}
-                </p>
-              </div>
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <p className="text-sm font-medium text-gray-500">Bereits eingespart</p>
-                <p className="mt-1 text-2xl font-semibold text-gray-900">
-                  {bankConnected ? (
-                    <span>
-                      {formatCurrency(0)}
-                      <span className="text-sm font-normal text-gray-500 ml-1">p.a.</span>
-                    </span>
-                  ) : '/'}
-                </p>
-              </div>
-              <div className="bg-blue-50 p-4 rounded-lg">
-                <p className="text-sm font-medium text-blue-700">Einsparungspotential</p>
-                <p className="mt-1 text-2xl font-semibold text-blue-900">
-                  {bankConnected ? (
-                    <span>
-                      {formatCurrency(calculateCostOptimizationPotential())}
-                      <span className="text-sm font-normal text-blue-500 ml-1">p.a.</span>
-                    </span>
-                  ) : '/'}
-                </p>
-              </div>
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <p className="text-sm font-medium text-gray-500">Analysierte Verträge</p>
+              <p className="mt-1 text-2xl font-semibold text-gray-900">
+                {bankConnected ? '3' : '0'}
+              </p>
             </div>
-          )}
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <p className="text-sm font-medium text-gray-500">Bereits eingespart</p>
+              <p className="mt-1 text-2xl font-semibold text-gray-900">
+                {bankConnected ? (
+                  <span>
+                    {formatCurrency(0)}
+                    <span className="text-sm font-normal text-gray-500 ml-1">p.a.</span>
+                  </span>
+                ) : (
+                  <span>
+                    {formatCurrency(0)}
+                    <span className="text-sm font-normal text-gray-500 ml-1">p.a.</span>
+                  </span>
+                )}
+              </p>
+            </div>
+            <div className="bg-blue-50 p-4 rounded-lg">
+              <p className="text-sm font-medium text-blue-700">Einsparungspotential</p>
+              <p className="mt-1 text-2xl font-semibold text-blue-900">
+                {bankConnected ? (
+                  <span>
+                    {formatCurrency(calculateCostOptimizationPotential())}
+                    <span className="text-sm font-normal text-blue-500 ml-1">p.a.</span>
+                  </span>
+                ) : (
+                  <span>
+                    {formatCurrency(0)}
+                    <span className="text-sm font-normal text-blue-500 ml-1">p.a.</span>
+                  </span>
+                )}
+              </p>
+            </div>
+          </div>
 
           <div className="mt-6">
             <button
@@ -550,7 +531,8 @@ const ClientDetailPage: React.FC = () => {
       
       {/* Tab Content */}
       <div className="mb-8" ref={optimizationsRef}>
-        {activeTab === 'optimizations' && (
+        {/* MA-Benefits content - Hidden for now, can be re-enabled later */}
+        {false && activeTab === 'optimizations' && (
           <div>
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-semibold text-gray-900">Optimierungen</h2>
@@ -632,34 +614,40 @@ const ClientDetailPage: React.FC = () => {
           </div>
         )}
 
-        {activeTab === 'transactions' && (
+        {/* Always show Kostenoptimierung content */}
+        <div>
           <CostAnalysisTab 
             onBankConnection={handleBankConnection}
             onDocumentUploaded={handleDocumentUploaded}
             onEmailSent={handleEmailSent}
             onOptimizationStatusChange={handleOptimizationStatusChange}
           />
-        )}
+        </div>
       </div>
 
-      <OptimizationSettings
-        optimizations={OPTIMIZATIONS.map(opt => ({
-          id: opt.id,
-          title: opt.title,
-          description: opt.description,
-          isActive: activeOptimizations.has(opt.title)
-        }))}
-        onToggle={handleToggleOptimization}
-        isOpen={showSettings}
-        onClose={() => setShowSettings(false)}
-      />
+      {/* Hide MA-Benefits components for now */}
+      {false && (
+        <>
+          <OptimizationSettings
+            optimizations={OPTIMIZATIONS.map(opt => ({
+              id: opt.id,
+              title: opt.title,
+              description: opt.description,
+              isActive: activeOptimizations.has(opt.title)
+            }))}
+            onToggle={handleToggleOptimization}
+            isOpen={showSettings}
+            onClose={() => setShowSettings(false)}
+          />
 
-      {isAnalyzing && (
-        <ClientAnalysis
-          client={client}
-          onComplete={handleAnalysisComplete}
-          onClose={() => setIsAnalyzing(false)}
-        />
+          {isAnalyzing && (
+            <ClientAnalysis
+              client={client}
+              onComplete={handleAnalysisComplete}
+              onClose={() => setIsAnalyzing(false)}
+            />
+          )}
+        </>
       )}
     </div>
   );
