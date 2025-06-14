@@ -3,10 +3,11 @@ import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft, Upload, RefreshCw, BarChart3, FileText, Settings } from 'lucide-react';
 import PageHeader from '../components/layout/PageHeader';
 import CostAnalysisTab from '../components/cost-analysis/CostAnalysisTab';
+import ContractsList from '../components/contracts/ContractsList';
 import Button from '../components/ui/Button';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../hooks/useAuth';
-import { Client } from '../types';
+import { Client, Contract } from '../types';
 import { formatCurrency } from '../utils/formatters';
 import { showSuccess, showError } from '../lib/toast';
 
@@ -45,6 +46,7 @@ const ClientDetailPage: React.FC = () => {
   const [bankConnected, setBankConnected] = useState(false);
   const [documentsUploaded, setDocumentsUploaded] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
+  const [contracts, setContracts] = useState<Contract[]>([]);
   const [costOptimizations, setCostOptimizations] = useState([
     {
       id: 'stromvertrag',
@@ -109,6 +111,16 @@ const ClientDetailPage: React.FC = () => {
           return;
         }
 
+        // Fetch contracts
+        const { data: contractsData, error: contractsError } = await supabase
+          .from('contracts')
+          .select('*')
+          .eq('mandant_id', id);
+
+        if (contractsError) {
+          console.error('Error fetching contracts:', contractsError);
+        }
+
         // Transform Supabase data to Client interface
         const transformedClient: Client = {
           id: clientData.id.toString(),
@@ -144,6 +156,11 @@ const ClientDetailPage: React.FC = () => {
         };
 
         setClient(transformedClient);
+        
+        // Set contracts
+        if (contractsData) {
+          setContracts(contractsData);
+        }
         
         // Initialize edit form with current client data
         setEditForm({
@@ -237,11 +254,15 @@ const ClientDetailPage: React.FC = () => {
   };
 
   const calculateTotalSavings = () => {
-    return 0;
+    return contracts
+      .filter(contract => contract.wechsel_empfohlen)
+      .reduce((sum, contract) => sum + (contract.optimizationPotential || 0), 0);
   };
 
   const calculateImplementedSavings = () => {
-    return 0;
+    return contracts
+      .filter(contract => contract.status === 'optimiert')
+      .reduce((sum, contract) => sum + (contract.optimizationPotential || 0), 0);
   };
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -266,26 +287,7 @@ const ClientDetailPage: React.FC = () => {
       case 'contracts':
         return (
           <div className="space-y-6">
-            <div className="bg-white rounded-lg shadow p-6">
-              <div className="flex items-center mb-4">
-                <FileText className="h-6 w-6 text-blue-600 mr-2" />
-                <h3 className="text-lg font-medium text-gray-900">Vertragsmanagement</h3>
-              </div>
-              <div className="text-center py-12">
-                <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">Verträge verwalten</h3>
-                <p className="text-gray-500 mb-6">
-                  Hier können Sie alle Verträge des Mandanten einsehen und verwalten.
-                </p>
-                <Button
-                  variant="primary"
-                  icon={<Upload size={16} />}
-                  className="bg-blue-600 hover:bg-blue-700"
-                >
-                  Vertrag hochladen
-                </Button>
-              </div>
-            </div>
+            <ContractsList contracts={contracts} />
           </div>
         );
       
