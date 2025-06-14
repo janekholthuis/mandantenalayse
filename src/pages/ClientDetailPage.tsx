@@ -144,6 +144,12 @@ const ClientDetailPage: React.FC = () => {
         };
 
         setClient(transformedClient);
+        
+        // Initialize edit form with current client data
+        setEditForm({
+          name: transformedClient.name,
+          legalForm: transformedClient.legalForm || ''
+        });
       } catch (error) {
         console.error('Error fetching client:', error);
         setClient(null);
@@ -155,6 +161,51 @@ const ClientDetailPage: React.FC = () => {
     fetchClient();
   }, [id, user]);
 
+  const handleSaveSettings = async () => {
+    if (!client || !user) return;
+    
+    setIsSaving(true);
+    try {
+      const { error } = await supabase
+        .from('Mandanten')
+        .update({
+          name: editForm.name,
+          unternehmensform: editForm.legalForm,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', client.id)
+        .eq('user_id', user.id);
+
+      if (error) {
+        throw error;
+      }
+
+      // Update local client state
+      setClient(prev => prev ? {
+        ...prev,
+        name: editForm.name,
+        legalForm: editForm.legalForm
+      } : null);
+
+      setIsEditing(false);
+      showSuccess('Mandanten-Einstellungen erfolgreich gespeichert');
+    } catch (error) {
+      console.error('Error saving client settings:', error);
+      showError('Fehler beim Speichern der Einstellungen');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleCancelEdit = () => {
+    if (client) {
+      setEditForm({
+        name: client.name,
+        legalForm: client.legalForm || ''
+      });
+    }
+    setIsEditing(false);
+  };
   const handleBankConnection = () => {
     setBankConnected(true);
   };
@@ -245,6 +296,15 @@ const ClientDetailPage: React.FC = () => {
               <div className="flex items-center mb-4">
                 <Settings className="h-6 w-6 text-blue-600 mr-2" />
                 <h3 className="text-lg font-medium text-gray-900">Mandanten-Einstellungen</h3>
+                {!isEditing && (
+                  <Button
+                    variant="secondary"
+                    onClick={() => setIsEditing(true)}
+                    className="bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  >
+                    Bearbeiten
+                  </Button>
+                )}
               </div>
               
               {/* Client Information */}
@@ -258,33 +318,64 @@ const ClientDetailPage: React.FC = () => {
                       </label>
                       <input
                         type="text"
-                        value={client?.name || ''}
+                        value={isEditing ? editForm.name : (client?.name || '')}
+                        onChange={(e) => isEditing && setEditForm(prev => ({ ...prev, name: e.target.value }))}
                         className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        readOnly
+                        readOnly={!isEditing}
+                        disabled={!isEditing}
                       />
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
                         Rechtsform
                       </label>
-                      <input
-                        type="text"
-                        value={client?.legalForm || ''}
-                        className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        readOnly
-                      />
+                      {isEditing ? (
+                        <select
+                          value={editForm.legalForm}
+                          onChange={(e) => setEditForm(prev => ({ ...prev, legalForm: e.target.value }))}
+                          className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        >
+                          <option value="">Rechtsform auswählen</option>
+                          {LEGAL_FORMS.map(form => (
+                            <option key={form} value={form}>{form}</option>
+                          ))}
+                        </select>
+                      ) : (
+                        <input
+                          type="text"
+                          value={client?.legalForm || 'Nicht angegeben'}
+                          className="w-full border border-gray-300 rounded-md px-3 py-2 bg-gray-50"
+                          readOnly
+                          disabled
+                        />
+                      )}
                     </div>
                   </div>
                 </div>
 
 
                 <div className="pt-4 border-t border-gray-200">
-                  <Button
-                    variant="primary"
-                    className="bg-blue-600 hover:bg-blue-700"
-                  >
-                    Einstellungen speichern
-                  </Button>
+                  {isEditing ? (
+                    <div className="flex space-x-3">
+                      <Button
+                        variant="secondary"
+                        onClick={handleCancelEdit}
+                        disabled={isSaving}
+                        className="bg-gray-100 text-gray-700 hover:bg-gray-200"
+                      >
+                        Abbrechen
+                      </Button>
+                      <Button
+                        variant="primary"
+                        onClick={handleSaveSettings}
+                        isLoading={isSaving}
+                        disabled={!editForm.name.trim()}
+                        className="bg-blue-600 hover:bg-blue-700"
+                      >
+                        {isSaving ? 'Speichere...' : 'Einstellungen speichern'}
+                      </Button>
+                    </div>
+                  ) : null}
                 </div>
               </div>
             </div>
