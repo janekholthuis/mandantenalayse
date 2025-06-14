@@ -142,60 +142,16 @@ const CostAnalysisTab: React.FC<CostAnalysisTabProps> = ({
   // After bank connection, show the tabs
   return (
     <div className="space-y-6">
-      {/* Tab Navigation */}
-      <div className="bg-white rounded-lg shadow">
-        <div className="border-b border-gray-200">
-          <nav className="-mb-px flex space-x-8 px-6">
-            <button
-              onClick={() => setActiveTab('optimization')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                activeTab === 'optimization'
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
-            >
-              <div className="flex items-center">
-                <TrendingDown className="h-5 w-5 mr-2" />
-                Transaktionen
-              </div>
-            </button>
-            <button
-              onClick={() => setActiveTab('calculator')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                activeTab === 'calculator'
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
-            >
-              <div className="flex items-center">
-                <Calculator className="h-5 w-5 mr-2" />
-                Optimierungen
-              </div>
-            </button>
-          </nav>
-        </div>
-
-        <div className="p-6">
-          {/* Kostenoptimierung Tab */}
-          {activeTab === 'optimization' && (
-            <CostOptimizationTab
-              connectedBank={connectedBank}
-              transactionsImported={transactionsImported}
-              acceptedRecommendation={acceptedRecommendation}
-              showProviderComparison={showProviderComparison}
-              onBankConnection={handleBankConnection}
-              onOptimizationFound={handleOptimizationFound}
-              onRecommendationAccepted={handleRecommendationAccepted}
-              onEmailSent={handleEmailSent}
-            />
-          )}
-
-          {/* Kostenrechner Tab */}
-          {activeTab === 'calculator' && (
-            <CostCalculatorTab onOptimizationStatusChange={onOptimizationStatusChange} />
-          )}
-        </div>
+      {/* Header */}
+      <div className="mb-6">
+        <h2 className="text-xl font-semibold text-gray-900 mb-2">Kostenoptimierung</h2>
+        <p className="text-gray-600">
+          Analysieren Sie Ihre Ausgaben und identifizieren Sie Einsparpotenziale.
+        </p>
       </div>
+
+      {/* Main Content - Show Calculator Tab by default */}
+      <CostCalculatorTab onOptimizationStatusChange={onOptimizationStatusChange} />
 
       {/* Optimization Popup */}
       {showOptimizationPopup && optimizationTransaction && (
