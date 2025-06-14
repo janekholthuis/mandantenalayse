@@ -9,7 +9,7 @@ import CostAnalysisTab from '../components/cost-analysis/CostAnalysisTab';
 import Button from '../components/ui/Button';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../hooks/useAuth';
-import { ClientDetail, OptimizationItem } from '../types';
+import { ClientDetail, OptimizationItem, Employee } from '../types';
 import { formatCurrency } from '../utils/formatters';
 
 const OPTIMIZATIONS = [
@@ -113,40 +113,88 @@ const ClientDetailPage: React.FC = () => {
       
       setIsLoading(true);
       try {
-        const { data: clientData, error } = await supabase
+        // Fetch client data
+        const { data: clientData, error: clientError } = await supabase
           .from('Mandanten')
           .select('*')
           .eq('id', id)
           .eq('user_id', user.id)
           .single();
 
-        if (error) {
-          console.error('Error fetching client:', error);
+        if (clientError) {
+          console.error('Error fetching client:', clientError);
           setClient(null);
           return;
         }
 
-        if (clientData) {
-          // Transform Supabase data to ClientDetail interface
-          const transformedClient: ClientDetail = {
-            id: clientData.id.toString(),
-            name: clientData.name || clientData.Firmenname || 'Unbekannt',
-            industry: clientData.branchenschluessel_bezeichnung || 'Nicht angegeben',
-            revenue: 0, // Default since not in schema
-            profit: 0, // Default since not in schema
-            legalForm: clientData.unternehmensform || 'Nicht angegeben',
-            status: clientData.status === 'aktiv' ? 'active' : 'inactive',
-            lastAnalyzed: undefined, // Will be set when analysis is performed
-            employeeCount: clientData.Mitarbeiter_Anzahl || 0,
-            city: clientData.ort || undefined,
-            postalCode: clientData.plz ? parseInt(clientData.plz) : undefined,
-            optimizations: [], // Empty array since optimization data is not stored in Mandanten table
-            employees: [], // Empty array since employee data is not stored in Mandanten table
-            totalEmployeesAnalyzed: undefined
-          };
-
-          setClient(transformedClient);
+        if (!clientData) {
+          setClient(null);
+          return;
         }
+
+        // Fetch employees
+        const { data: employeesData, error: employeesError } = await supabase
+          .from('employees')
+          .select('*')
+          .eq('mandant_id', id)
+          .eq('user_id', user.id);
+
+        if (employeesError) {
+          console.error('Error fetching employees:', employeesError);
+        }
+
+        // Fetch optimizations
+        const { data: optimizationsData, error: optimizationsError } = await supabase
+          .from('optimizations')
+          .select('*')
+          .eq('mandant_id', id)
+          .eq('user_id', user.id);
+
+        if (optimizationsError) {
+          console.error('Error fetching optimizations:', optimizationsError);
+        }
+
+        // Transform Supabase data to ClientDetail interface
+        const transformedClient: ClientDetail = {
+          id: clientData.id.toString(),
+          name: clientData.name || 'Unbekannt',
+          industry: clientData.branchenschluessel_bezeichnung || 'Nicht angegeben',
+          revenue: 0,
+          profit: 0,
+          legalForm: clientData.unternehmensform || 'Nicht angegeben',
+          status: clientData.status === 'aktiv' ? 'active' : 'inactive',
+          lastAnalyzed: optimizationsData && optimizationsData.length > 0 ? clientData.updated_at : undefined,
+          employeeCount: clientData.Mitarbeiter_Anzahl || 0,
+          city: clientData.ort || undefined,
+          postalCode: clientData.plz ? parseInt(clientData.plz) : undefined,
+          optimizations: (optimizationsData || []).map(opt => ({
+            id: opt.id,
+            title: opt.title,
+            description: opt.description || '',
+            potentialSavings: opt.potential_savings || 0,
+            status: opt.status as any,
+            category: opt.category as any,
+            requirements: opt.requirements || [],
+            employeeCount: opt.employee_count || 0,
+            employeesAnalyzed: opt.employees_analyzed || 0,
+            employeesBenefiting: opt.employees_benefiting || 0,
+            netBenefitEmployee: opt.net_benefit_employee || 0,
+            employerCost: opt.employer_cost || 0,
+            mandant_id: opt.mandant_id,
+            user_id: opt.user_id
+          })),
+          employees: (employeesData || []).map(emp => ({
+            id: emp.id,
+            name: emp.name,
+            position: emp.position || '',
+            department: emp.department || '',
+            mandant_id: emp.mandant_id,
+            user_id: emp.user_id
+          })),
+          totalEmployeesAnalyzed: employeesData?.length || 0
+        };
+
+        setClient(transformedClient);
       } catch (error) {
         console.error('Error fetching client:', error);
         setClient(null);
@@ -223,19 +271,52 @@ const ClientDetailPage: React.FC = () => {
     });
   };
 
-  const handleAnalysisComplete = (newOptimizations: OptimizationItem[]) => {
-    if (!client) return;
-    setClient({
-      ...client,
-      lastAnalyzed: new Date().toISOString(),
-      optimizations: newOptimizations
-    });
-    setIsAnalyzing(false);
-    setShowOptimizations(true);
+  const handleAnalysisComplete = async (newOptimizations: OptimizationItem[]) => {
+    if (!client || !user) return;
     
-    setTimeout(() => {
-      optimizationsRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }, 100);
+    try {
+      // Save optimizations to database
+      const optimizationsToInsert = newOptimizations.map(opt => ({
+        title: opt.title,
+        description: opt.description,
+        status: opt.status,
+        category: opt.category,
+        potential_savings: opt.potentialSavings,
+        mandant_id: client.id,
+        user_id: user.id,
+        employee_count: opt.employeeCount,
+        employees_analyzed: opt.employeesAnalyzed || 0,
+        employees_benefiting: opt.employeesBenefiting || 0,
+        net_benefit_employee: opt.netBenefitEmployee || 0,
+        employer_cost: opt.employerCost || 0,
+        requirements: opt.requirements
+      }));
+
+      const { error } = await supabase
+        .from('optimizations')
+        .insert(optimizationsToInsert);
+
+      if (error) {
+        console.error('Error saving optimizations:', error);
+      }
+
+      // Update client state
+      setClient({
+        ...client,
+        lastAnalyzed: new Date().toISOString(),
+        optimizations: newOptimizations
+      });
+      
+      setIsAnalyzing(false);
+      setShowOptimizations(true);
+      
+      setTimeout(() => {
+        optimizationsRef.current?.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
+    } catch (error) {
+      console.error('Error in analysis complete:', error);
+      setIsAnalyzing(false);
+    }
   };
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -441,7 +522,6 @@ const ClientDetailPage: React.FC = () => {
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Position</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Abteilung</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Optimierungen</th>
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
@@ -450,15 +530,6 @@ const ClientDetailPage: React.FC = () => {
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{employee.name}</td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{employee.position}</td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{employee.department}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          <div className="flex gap-1">
-                            {employee.optimizations.map((opt, index) => (
-                              <span key={index} className="px-2 py-1 bg-blue-50 text-blue-700 rounded-full text-xs">
-                                {opt}
-                              </span>
-                            ))}
-                          </div>
-                        </td>
                       </tr>
                     ))}
                   </tbody>

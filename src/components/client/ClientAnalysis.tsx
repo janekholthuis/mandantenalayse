@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Wand2, FileText, X } from 'lucide-react';
 import Button from '../ui/Button';
+import { OptimizationItem } from '../../types';
 
 interface UploadedFile {
   name: string;
@@ -11,7 +12,7 @@ interface UploadedFile {
 
 interface ClientAnalysisProps {
   client: any;
-  onComplete: (optimizations: any[]) => void;
+  onComplete: (optimizations: OptimizationItem[]) => void;
   onClose: () => void;
 }
 
@@ -47,90 +48,76 @@ const ClientAnalysis: React.FC<ClientAnalysisProps> = ({ client, onComplete, onC
     
     await new Promise(resolve => setTimeout(resolve, 2000));
     
-    if (client.id === '6') {
-      const mockOptimizations = [
-        {
-          id: 'sachbezug',
-          title: 'Sachbezug',
-          description: 'Steuerfreier oder pauschalversteuerter geldwerter Vorteil bis zu 50 € pro Monat, z. B. als Gutschein.',
-          potentialSavings: 1800,
-          status: 'implemented' as const,
-          category: 'structure' as const,
-          details: 'Durch die Implementierung von Sachbezügen wie Gutscheinen oder Prepaidkarten können Sie Ihren Mitarbeitern steuerfreie Zusatzleistungen gewähren.',
-          requirements: ['Dokumentation der Sachbezüge', 'Einhaltung der monatlichen Grenze von 50€', 'Keine Bargeldauszahlung'],
-          employeeCount: 12,
-          employeesAnalyzed: 12,
-          employeesBenefiting: 3,
-          netBenefitEmployee: 600,
-          employerCost: 720
-        },
-        {
-          id: 'fahrtkostenzuschuss',
-          title: 'Fahrtkostenzuschuss',
-          description: 'Zuschuss für Fahrten zwischen Wohnung und Arbeitsstätte',
-          potentialSavings: 4440,
-          status: 'potential' as const,
-          category: 'cost' as const,
-          details: 'Zuschuss für Fahrten zwischen Wohnung und Arbeitsstätte.',
-          requirements: ['Nachweis der Fahrtkosten', 'Einhaltung der Höchstgrenzen', 'Dokumentation der Entfernung'],
-          employeeCount: 12,
-          employeesAnalyzed: 12,
-          employeesBenefiting: 0,
-          netBenefitEmployee: 900,
-          employerCost: 1080
-        },
-        {
-          id: 'internetpauschale',
-          title: 'Internetpauschale',
-          description: 'Steuerfreier Zuschuss bis 50 € monatlich für private Internetnutzung',
-          potentialSavings: 4440,
-          status: 'potential' as const,
-          category: 'tax' as const,
-          details: 'Steuerfreier Zuschuss bis 50 € monatlich für private Internetnutzung.',
-          requirements: ['Nachweis der Internetkosten', 'Einhaltung der Höchstgrenzen', 'Dokumentation der beruflichen Nutzung'],
-          employeeCount: 12,
-          employeesAnalyzed: 12,
-          employeesBenefiting: 0,
-          netBenefitEmployee: 450,
-          employerCost: 600
-        }
-      ];
-      onComplete(mockOptimizations);
-    } else {
-      const mockOptimizations = [
-        {
-          id: crypto.randomUUID(),
-          title: 'Sachbezüge optimieren',
-          description: 'Einführung von steuerfreien Sachbezügen bis 50€ pro Monat pro Mitarbeiter',
-          potentialSavings: 25200,
-          status: 'unused' as const,
-          category: 'structure' as const,
-          details: 'Durch die Implementierung von Sachbezügen wie Gutscheinen oder Prepaidkarten können Sie Ihren Mitarbeitern steuerfreie Zusatzleistungen gewähren.',
-          requirements: ['Dokumentation der Sachbezüge', 'Einhaltung der monatlichen Grenze von 50€', 'Keine Bargeldauszahlung'],
-          employeeCount: Math.floor(client.employeeCount * 0.8),
-          employeesAnalyzed: client.employeeCount,
-          employeesBenefiting: Math.floor(client.employeeCount * 0.3),
-          netBenefitEmployee: 600,
-          employerCost: 720
-        },
-        {
-          id: crypto.randomUUID(),
-          title: 'Betriebliche Altersvorsorge (bAV)',
-          description: 'Einführung oder Optimierung der betrieblichen Altersvorsorge',
-          potentialSavings: 42800,
-          status: 'potential' as const,
-          category: 'tax' as const,
-          details: 'Die bAV bietet sowohl für Arbeitgeber als auch Arbeitnehmer steuerliche Vorteile und kann zur Mitarbeiterbindung beitragen.',
-          requirements: ['Auswahl eines geeigneten bAV-Systems', 'Dokumentation der Vereinbarungen', 'Information der Mitarbeiter'],
-          employeeCount: Math.floor(client.employeeCount * 0.6),
-          employeesAnalyzed: client.employeeCount,
-          employeesBenefiting: 0,
-          netBenefitEmployee: 900,
-          employerCost: 1080
-        }
-      ];
-      onComplete(mockOptimizations);
+    // Generate realistic optimizations based on employee count
+    const employeeCount = client.employeeCount || 0;
+    const mockOptimizations: OptimizationItem[] = [
+      {
+        id: crypto.randomUUID(),
+        title: 'Sachbezüge optimieren',
+        description: 'Einführung von steuerfreien Sachbezügen bis 50€ pro Monat pro Mitarbeiter',
+        potentialSavings: employeeCount * 600, // 600€ per employee per year
+        status: 'potential',
+        category: 'tax',
+        requirements: [
+          'Dokumentation der Sachbezüge',
+          'Einhaltung der monatlichen Grenze von 50€',
+          'Keine Bargeldauszahlung'
+        ],
+        employeeCount: Math.floor(employeeCount * 0.8),
+        employeesAnalyzed: employeeCount,
+        employeesBenefiting: Math.floor(employeeCount * 0.2),
+        netBenefitEmployee: 600,
+        employerCost: 720,
+        mandant_id: client.id,
+        user_id: ''
+      },
+      {
+        id: crypto.randomUUID(),
+        title: 'Betriebliche Altersvorsorge (bAV)',
+        description: 'Einführung oder Optimierung der betrieblichen Altersvorsorge',
+        potentialSavings: employeeCount * 800,
+        status: 'potential',
+        category: 'structure',
+        requirements: [
+          'Auswahl eines geeigneten bAV-Systems',
+          'Dokumentation der Vereinbarungen',
+          'Information der Mitarbeiter'
+        ],
+        employeeCount: Math.floor(employeeCount * 0.6),
+        employeesAnalyzed: employeeCount,
+        employeesBenefiting: 0,
+        netBenefitEmployee: 800,
+        employerCost: 960,
+        mandant_id: client.id,
+        user_id: ''
+      }
+    ];
+
+    // Add more optimizations for larger companies
+    if (employeeCount > 10) {
+      mockOptimizations.push({
+        id: crypto.randomUUID(),
+        title: 'Jobticket',
+        description: 'Steuerfreies oder pauschalbesteuertes Ticket für den ÖPNV',
+        potentialSavings: employeeCount * 400,
+        status: 'potential',
+        category: 'cost',
+        requirements: [
+          'Vereinbarung mit ÖPNV-Anbieter',
+          'Dokumentation der Nutzung',
+          'Steuerliche Behandlung klären'
+        ],
+        employeeCount: Math.floor(employeeCount * 0.5),
+        employeesAnalyzed: employeeCount,
+        employeesBenefiting: 0,
+        netBenefitEmployee: 400,
+        employerCost: 480,
+        mandant_id: client.id,
+        user_id: ''
+      });
     }
+
+    onComplete(mockOptimizations);
   };
 
   const removeFile = (index: number) => {

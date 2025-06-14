@@ -1,8 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, CheckCircle, Clock, Building2, Users, TrendingUp, Wallet } from 'lucide-react';
+import { ArrowRight, CheckCircle, Clock, Building2, Users, MapPin } from 'lucide-react';
 import { Client } from '../../types';
-import { formatCurrency } from '../../utils/formatters';
 
 interface ClientCardProps {
   client: Client;
@@ -24,15 +23,33 @@ const ClientCard: React.FC<ClientCardProps> = ({ client }) => {
         </div>
 
         <div className="space-y-3">
-          <div className="flex items-center text-sm">
-            <Building2 className="h-5 w-5 text-gray-400 mr-3" />
-            <span className="text-gray-900">{client.legalForm}</span>
-          </div>
+          {client.industry && (
+            <div className="flex items-center text-sm">
+              <Building2 className="h-5 w-5 text-gray-400 mr-3" />
+              <span className="text-gray-900">{client.industry}</span>
+            </div>
+          )}
+
+          {client.legalForm && (
+            <div className="flex items-center text-sm">
+              <Building2 className="h-5 w-5 text-gray-400 mr-3" />
+              <span className="text-gray-900">{client.legalForm}</span>
+            </div>
+          )}
 
           <div className="flex items-center text-sm">
             <Users className="h-5 w-5 text-gray-400 mr-3" />
-            <span className="text-gray-900">{client.employeeCount || 'Keine Angabe'} Mitarbeiter</span>
+            <span className="text-gray-900">{client.employeeCount || 0} Mitarbeiter</span>
           </div>
+
+          {(client.city || client.postalCode) && (
+            <div className="flex items-center text-sm">
+              <MapPin className="h-5 w-5 text-gray-400 mr-3" />
+              <span className="text-gray-900">
+                {client.postalCode && `${client.postalCode} `}{client.city}
+              </span>
+            </div>
+          )}
         </div>
 
         <div className="mt-4 pt-4 border-t border-gray-100">

@@ -31,7 +31,7 @@ const ClientsPage: React.FC = () => {
     
     setIsLoading(true);
     try {
-      const { data: Mandanten, error } = await supabase
+      const { data: mandantenData, error } = await supabase
         .from('Mandanten')
         .select('*')
         .eq('user_id', user.id)
@@ -40,19 +40,54 @@ const ClientsPage: React.FC = () => {
       if (error) throw error;
 
       // Transform Supabase data to match our Client interface
-      const transformedClients: Client[] = (Mandanten || []).map(client => ({
+      const transformedClients: Client[] = (mandantenData || []).map(client => ({
         id: client.id.toString(),
-        name: client.name || client.Firmenname || 'Unbekannt',
-        industry: client.branchenschluessel_bezeichnung || 'Nicht angegeben',
-        revenue: 0, // Default since not in schema
-        profit: 0, // Default since not in schema
-        legalForm: client.unternehmensform || 'Nicht angegeben',
+        name: client.name || 'Unbekannt',
+        industry: client.branchenschluessel_bezeichnung || undefined,
+        revenue: 0,
+        profit: 0,
+        legalForm: client.unternehmensform || undefined,
         status: client.status === 'aktiv' ? 'active' : 'inactive',
-        lastAnalyzed: undefined,
+        lastAnalyzed: undefined, // Will be determined by checking optimizations
         employeeCount: client.Mitarbeiter_Anzahl || 0,
         city: client.ort || undefined,
-        postalCode: client.plz ? parseInt(client.plz) : undefined
+        postalCode: client.plz ? parseInt(client.plz) : undefined,
+        // Include Supabase specific fields
+        mandanten_id: client.Mandanten_ID,
+        beraternummer: client.beraternummer,
+        branchenschluessel: client.branchenschluessel,
+        branchenschluessel_bezeichnung: client.branchenschluessel_bezeichnung,
+        unternehmensform: client.unternehmensform,
+        unternehmensgegenstand: client.unternehmensgegenstand,
+        typ: client.typ,
+        typbezeichnung: client.typbezeichnung,
+        vdb_info: client.vdb_info,
+        vdb_info_textuell: client.vdb_info_textuell,
+        plz: client.plz,
+        ort: client.ort,
+        land: client.land,
+        strasse: client.strasse,
+        postfach: client.postfach,
+        telefon: client.telefon,
+        sepa: client.sepa,
+        created_at: client.created_at,
+        updated_at: client.updated_at
       }));
+
+      // Check for optimizations to determine lastAnalyzed
+      for (const client of transformedClients) {
+        const { data: optimizations } = await supabase
+          .from('optimizations')
+          .select('created_at')
+          .eq('mandant_id', client.id)
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false })
+          .limit(1);
+
+        if (optimizations && optimizations.length > 0) {
+          client.lastAnalyzed = optimizations[0].created_at;
+        }
+      }
 
       setClients(transformedClients);
     } catch (error) {
