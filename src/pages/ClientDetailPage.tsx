@@ -399,31 +399,24 @@ const ClientDetailPage: React.FC = () => {
       />
       
       <div className="bg-white rounded-lg shadow mb-8">
-        {/* Tab Navigation */}
-        <div className="border-b border-gray-200">
-          <div className="px-6 py-4">
-            <h3 className="text-lg font-medium text-gray-900 flex items-center">
-              <BarChart3 className="h-5 w-5 mr-2 text-blue-600" />
-              Kostenoptimierung
-            </h3>
-          </div>
-        </div>
-
         <div className="px-4 py-5 sm:p-6">
-          <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
-            Mandanteninformationen
+          <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4 flex items-center">
+            <BarChart3 className="h-5 w-5 mr-2 text-blue-600" />
+            KI-gestützte Kostenanalyse
           </h3>
-          {/* Kostenoptimierung metrics */}
+          {/* Unified analysis metrics */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             <div className="bg-gray-50 p-4 rounded-lg">
               <p className="text-sm font-medium text-gray-500">Mitarbeiter</p>
               <p className="mt-1 text-2xl font-semibold text-gray-900">{client.employeeCount || 0}</p>
+              <p className="text-xs text-gray-500 mt-1">Unternehmensgröße</p>
             </div>
             <div className="bg-gray-50 p-4 rounded-lg">
               <p className="text-sm font-medium text-gray-500">Analysierte Verträge</p>
               <p className="mt-1 text-2xl font-semibold text-gray-900">
                 {bankConnected ? '3' : '0'}
               </p>
+              <p className="text-xs text-gray-500 mt-1">KI-Analyse durchgeführt</p>
             </div>
             <div className="bg-gray-50 p-4 rounded-lg">
               <p className="text-sm font-medium text-gray-500">Bereits eingespart</p>
@@ -440,6 +433,7 @@ const ClientDetailPage: React.FC = () => {
                   </span>
                 )}
               </p>
+              <p className="text-xs text-gray-500 mt-1">Umgesetzte Optimierungen</p>
             </div>
             <div className="bg-blue-50 p-4 rounded-lg">
               <p className="text-sm font-medium text-blue-700">Einsparungspotential</p>
@@ -456,8 +450,24 @@ const ClientDetailPage: React.FC = () => {
                   </span>
                 )}
               </p>
+              <p className="text-xs text-blue-600 mt-1">KI-identifizierte Potentiale</p>
             </div>
           </div>
+
+          {/* Analysis Status */}
+          {!bankConnected && (
+            <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <div className="flex items-center">
+                <BarChart3 className="h-5 w-5 text-blue-600 mr-2" />
+                <div>
+                  <h4 className="text-sm font-medium text-blue-900">Bereit für KI-Analyse</h4>
+                  <p className="text-sm text-blue-700 mt-1">
+                    Laden Sie Buchungsdaten hoch, um automatisch Optimierungspotenziale zu identifizieren.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
 
           <div className="mt-6">
             <button
@@ -496,24 +506,21 @@ const ClientDetailPage: React.FC = () => {
               <div className="mt-4 text-center py-8 text-gray-500">
                 <Users className="h-8 w-8 mx-auto mb-2 text-gray-400" />
                 <p>Keine Mitarbeiterdaten verfügbar</p>
-                <p className="text-sm">Führen Sie eine Analyse durch, um Mitarbeiterdaten zu erfassen</p>
+                <p className="text-sm">Mitarbeiterdaten werden bei der ersten Analyse erfasst</p>
               </div>
             )}
           </div>
         </div>
       </div>
       
-      {/* Tab Content */}
+      {/* KI-gestützte Kostenanalyse */}
       <div className="mb-8" ref={optimizationsRef}>
-        {/* Kostenoptimierung content */}
-        <div>
-          <CostAnalysisTab 
-            onBankConnection={handleBankConnection}
-            onDocumentUploaded={handleDocumentUploaded}
-            onEmailSent={handleEmailSent}
-            onOptimizationStatusChange={handleOptimizationStatusChange}
-          />
-        </div>
+        <CostAnalysisTab 
+          onBankConnection={handleBankConnection}
+          onDocumentUploaded={handleDocumentUploaded}
+          onEmailSent={handleEmailSent}
+          onOptimizationStatusChange={handleOptimizationStatusChange}
+        />
       </div>
 
     </div>
