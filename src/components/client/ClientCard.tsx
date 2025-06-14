@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, CheckCircle, Clock, Settings } from 'lucide-react';
+import { ArrowRight, CheckCircle, Clock, Settings, Building2, Scale } from 'lucide-react';
 import { Client } from '../../types';
 
 interface ClientCardProps {
@@ -35,6 +35,25 @@ const ClientCard: React.FC<ClientCardProps> = ({ client }) => {
           >
             <Settings size={16} />
           </Link>
+        </div>
+
+        {/* Client Information */}
+        <div className="space-y-2 mb-4">
+          {client.industry && (
+            <div className="flex items-center text-sm text-gray-600">
+              <Building2 className="h-4 w-4 mr-2 text-gray-400" />
+              <span className="font-medium">Branche:</span>
+              <span className="ml-1">{client.industry}</span>
+            </div>
+          )}
+          
+          {client.legalForm && (
+            <div className="flex items-center text-sm text-gray-600">
+              <Scale className="h-4 w-4 mr-2 text-gray-400" />
+              <span className="font-medium">Rechtsform:</span>
+              <span className="ml-1">{client.legalForm}</span>
+            </div>
+          )}
         </div>
 
         {/* Footer */}
