@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, CheckCircle, Clock, Building2, MapPin, Settings, TrendingUp, Zap } from 'lucide-react';
+import { ArrowRight, CheckCircle, Clock, Settings, TrendingUp } from 'lucide-react';
 import { Client } from '../../types';
 import { formatCurrency } from '../../utils/formatters';
 
@@ -44,25 +44,6 @@ const ClientCard: React.FC<ClientCardProps> = ({ client }) => {
           >
             <Settings size={16} />
           </Link>
-        </div>
-
-        {/* Client Info */}
-        <div className="space-y-2 mb-4">
-          {client.industry && (
-            <div className="flex items-center text-sm text-gray-600">
-              <Building2 className="h-4 w-4 text-gray-400 mr-2 flex-shrink-0" />
-              <span className="truncate">{client.industry}</span>
-            </div>
-          )}
-
-          {(client.city || client.postalCode) && (
-            <div className="flex items-center text-sm text-gray-600">
-              <MapPin className="h-4 w-4 text-gray-400 mr-2 flex-shrink-0" />
-              <span className="truncate">
-                {client.postalCode && `${client.postalCode} `}{client.city}
-              </span>
-            </div>
-          )}
         </div>
 
         {/* Optimization KPIs */}
