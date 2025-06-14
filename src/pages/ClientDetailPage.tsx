@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, Upload, RefreshCw, ChevronDown, ChevronUp, Users, Settings, AlertCircle, BarChart3, List, Wand2 } from 'lucide-react';
+import { ArrowLeft, Upload, RefreshCw, BarChart3, FileText, Settings, Zap, AlertCircle, Wand2 } from 'lucide-react';
 import PageHeader from '../components/layout/PageHeader';
 import OptimizationCard from '../components/optimization/OptimizationCard';
 import OptimizationSettings from '../components/optimization/OptimizationSettings';
 import ClientAnalysis from '../components/client/ClientAnalysis';
 import CostAnalysisTab from '../components/cost-analysis/CostAnalysisTab';
+import OptimizationsList from '../components/optimization/OptimizationsList';
 import Button from '../components/ui/Button';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../hooks/useAuth';
@@ -80,17 +81,18 @@ const OPTIMIZATIONS = [
   }
 ];
 
+type TabType = 'transactions' | 'contracts' | 'optimizations' | 'settings';
+
 const ClientDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
   const [client, setClient] = useState<ClientDetail | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [showEmployees, setShowEmployees] = useState(false);
   const [showOptimizations, setShowOptimizations] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [activeOptimizations, setActiveOptimizations] = useState<Set<string>>(new Set());
-  const [activeTab, setActiveTab] = useState<'optimizations' | 'transactions'>('transactions');
+  const [activeTab, setActiveTab] = useState<TabType>('transactions');
   const [bankConnected, setBankConnected] = useState(false);
   const [documentsUploaded, setDocumentsUploaded] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
@@ -325,6 +327,221 @@ const ClientDetailPage: React.FC = () => {
       console.log('File selected:', file.name);
     }
   };
+
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case 'transactions':
+        return (
+          <CostAnalysisTab 
+            onBankConnection={handleBankConnection}
+            onDocumentUploaded={handleDocumentUploaded}
+            onEmailSent={handleEmailSent}
+            onOptimizationStatusChange={handleOptimizationStatusChange}
+          />
+        );
+      
+      case 'contracts':
+        return (
+          <div className="space-y-6">
+            <div className="bg-white rounded-lg shadow p-6">
+              <div className="flex items-center mb-4">
+                <FileText className="h-6 w-6 text-blue-600 mr-2" />
+                <h3 className="text-lg font-medium text-gray-900">Vertragsmanagement</h3>
+              </div>
+              <div className="text-center py-12">
+                <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">Verträge verwalten</h3>
+                <p className="text-gray-500 mb-6">
+                  Hier können Sie alle Verträge des Mandanten einsehen und verwalten.
+                </p>
+                <Button
+                  variant="primary"
+                  icon={<Upload size={16} />}
+                  className="bg-blue-600 hover:bg-blue-700"
+                >
+                  Vertrag hochladen
+                </Button>
+              </div>
+            </div>
+          </div>
+        );
+      
+      case 'optimizations':
+        return (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-semibold text-gray-900">MA-Benefits Optimierungen</h2>
+              <div className="flex items-center space-x-2">
+                <button
+                  onClick={() => setShowSettings(true)}
+                  className="p-2 text-gray-600 hover:text-gray-900 rounded-full hover:bg-gray-100"
+                  title="Optimierungen konfigurieren"
+                >
+                  <Settings size={20} />
+                </button>
+              </div>
+            </div>
+
+            {!client?.lastAnalyzed ? (
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-6 text-center">
+                <AlertCircle className="h-8 w-8 text-amber-500 mx-auto mb-3" />
+                <h3 className="text-lg font-medium text-amber-800 mb-2">
+                  Noch keine Analyse durchgeführt
+                </h3>
+                <p className="text-amber-700 mb-4">
+                  Führen Sie eine Analyse durch, um Optimierungspotenziale zu identifizieren.
+                </p>
+                <Button
+                  variant="secondary"
+                  onClick={() => setIsAnalyzing(true)}
+                  className="bg-white text-amber-700 border border-amber-300 hover:bg-amber-50"
+                  icon={<Wand2 size={16} />}
+                >
+                  Jetzt analysieren
+                </Button>
+              </div>
+            ) : client.optimizations.length > 0 ? (
+              <div className="space-y-4">
+                {client.optimizations.map(opt => (
+                  <OptimizationCard
+                    key={opt.id}
+                    title={opt.title}
+                    description={opt.description}
+                    isActive={activeOptimizations.has(opt.title)}
+                    onToggle={() => handleToggleOptimization(opt.id, opt.title)}
+                    employeeCount={opt.employeeCount}
+                    totalEmployees={client.employeeCount}
+                    employeesAnalyzed={opt.employeesAnalyzed}
+                    employeesBenefiting={opt.employeesBenefiting}
+                    requirements={opt.requirements}
+                    netBenefitEmployee={opt.netBenefitEmployee}
+                    employerCost={opt.employerCost}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 text-center">
+                <AlertCircle className="h-8 w-8 text-gray-400 mx-auto mb-3" />
+                <h3 className="text-lg font-medium text-gray-700 mb-2">
+                  Keine Optimierungen gefunden
+                </h3>
+                <p className="text-gray-600">
+                  Für diesen Mandanten wurden noch keine Optimierungen identifiziert.
+                </p>
+              </div>
+            )}
+          </div>
+        );
+      
+      case 'settings':
+        return (
+          <div className="space-y-6">
+            <div className="bg-white rounded-lg shadow p-6">
+              <div className="flex items-center mb-4">
+                <Settings className="h-6 w-6 text-blue-600 mr-2" />
+                <h3 className="text-lg font-medium text-gray-900">Mandanten-Einstellungen</h3>
+              </div>
+              
+              {/* Client Information */}
+              <div className="space-y-6">
+                <div>
+                  <h4 className="text-lg font-medium text-gray-900 mb-4">Grunddaten</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Firmenname
+                      </label>
+                      <input
+                        type="text"
+                        value={client?.name || ''}
+                        className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        readOnly
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Rechtsform
+                      </label>
+                      <input
+                        type="text"
+                        value={client?.legalForm || ''}
+                        className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        readOnly
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Branche
+                      </label>
+                      <input
+                        type="text"
+                        value={client?.industry || ''}
+                        className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        readOnly
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Mitarbeiteranzahl
+                      </label>
+                      <input
+                        type="number"
+                        value={client?.employeeCount || 0}
+                        className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        readOnly
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h4 className="text-lg font-medium text-gray-900 mb-4">Analyse-Einstellungen</h4>
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                      <div>
+                        <h5 className="font-medium text-gray-900">Automatische Analysen</h5>
+                        <p className="text-sm text-gray-600">
+                          Führe monatlich automatische Optimierungsanalysen durch
+                        </p>
+                      </div>
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" className="sr-only peer" />
+                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                      </label>
+                    </div>
+                    
+                    <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                      <div>
+                        <h5 className="font-medium text-gray-900">E-Mail-Benachrichtigungen</h5>
+                        <p className="text-sm text-gray-600">
+                          Sende Benachrichtigungen bei neuen Optimierungen
+                        </p>
+                      </div>
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" className="sr-only peer" defaultChecked />
+                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="pt-4 border-t border-gray-200">
+                  <Button
+                    variant="primary"
+                    className="bg-blue-600 hover:bg-blue-700"
+                  >
+                    Einstellungen speichern
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      
+      default:
+        return null;
+    }
+  };
   
   if (isLoading) {
     return (
@@ -362,49 +579,42 @@ const ClientDetailPage: React.FC = () => {
         description={`${client.industry} | ${client.legalForm}`}
         actions={
           <div className="flex space-x-3">
-            {/* Hide MA-Benefits analysis buttons for now */}
-            {false && (
-              <>
-                <Button
-                  variant="secondary"
-                  icon={<RefreshCw size={16} />}
-                  onClick={() => setIsAnalyzing(true)}
-                  className="bg-white text-blue-700 border border-blue-200 hover:bg-blue-50"
-                >
-                  {client.lastAnalyzed ? 'Neu analysieren' : 'Analysieren'}
-                </Button>
-                {client.lastAnalyzed && (
-                  <div className="relative">
-                    <input
-                      type="file"
-                      id="document-upload"
-                      className="hidden"
-                      onChange={handleFileUpload}
-                      accept=".pdf,.doc,.docx,.xls,.xlsx"
-                    />
-                    <Button
-                      variant="primary"
-                      icon={<Upload size={16} />}
-                      onClick={() => document.getElementById('document-upload')?.click()}
-                      className="bg-blue-600 hover:bg-blue-700 text-white"
-                    >
-                      Dokumente hochladen
-                    </Button>
-                  </div>
-                )}
-              </>
-            )}
+            <Button
+              variant="secondary"
+              icon={<RefreshCw size={16} />}
+              onClick={() => setIsAnalyzing(true)}
+              className="bg-white text-blue-700 border border-blue-200 hover:bg-blue-50"
+            >
+              Neu analysieren
+            </Button>
+            <div className="relative">
+              <input
+                type="file"
+                id="document-upload"
+                className="hidden"
+                onChange={handleFileUpload}
+                accept=".pdf,.doc,.docx,.xls,.xlsx"
+              />
+              <Button
+                variant="primary"
+                icon={<Upload size={16} />}
+                onClick={() => document.getElementById('document-upload')?.click()}
+                className="bg-blue-600 hover:bg-blue-700 text-white"
+              >
+                Dokumente hochladen
+              </Button>
+            </div>
           </div>
         }
       />
       
+      {/* Summary Cards */}
       <div className="bg-white rounded-lg shadow mb-8">
         <div className="px-4 py-5 sm:p-6">
           <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4 flex items-center">
             <BarChart3 className="h-5 w-5 mr-2 text-blue-600" />
-            KI-gestützte Kostenanalyse
+            Übersicht
           </h3>
-          {/* Unified analysis metrics */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             <div className="bg-gray-50 p-4 rounded-lg">
               <p className="text-sm font-medium text-gray-500">Analysierte Verträge</p>
@@ -416,77 +626,119 @@ const ClientDetailPage: React.FC = () => {
             <div className="bg-gray-50 p-4 rounded-lg">
               <p className="text-sm font-medium text-gray-500">Bereits eingespart</p>
               <p className="mt-1 text-2xl font-semibold text-gray-900">
-                {bankConnected ? (
-                  <span>
-                    {formatCurrency(0)}
-                    <span className="text-sm font-normal text-gray-500 ml-1">p.a.</span>
-                  </span>
-                ) : (
-                  <span>
-                    {formatCurrency(0)}
-                    <span className="text-sm font-normal text-gray-500 ml-1">p.a.</span>
-                  </span>
-                )}
+                <span>
+                  {formatCurrency(calculateImplementedSavings())}
+                  <span className="text-sm font-normal text-gray-500 ml-1">p.a.</span>
+                </span>
               </p>
               <p className="text-xs text-gray-500 mt-1">Umgesetzte Optimierungen</p>
             </div>
             <div className="bg-gray-50 p-4 rounded-lg">
               <p className="text-sm font-medium text-gray-500">Identifizierte Potentiale</p>
               <p className="mt-1 text-2xl font-semibold text-gray-900">
-                {bankConnected ? '2' : '0'}
+                {bankConnected ? '2' : optimizationStats.used}
               </p>
               <p className="text-xs text-gray-500 mt-1">Optimierungsmöglichkeiten</p>
             </div>
             <div className="bg-blue-50 p-4 rounded-lg">
               <p className="text-sm font-medium text-blue-700">Einsparungspotential</p>
               <p className="mt-1 text-2xl font-semibold text-blue-900">
-                {bankConnected ? (
-                  <span>
-                    {formatCurrency(calculateCostOptimizationPotential())}
-                    <span className="text-sm font-normal text-blue-500 ml-1">p.a.</span>
-                  </span>
-                ) : (
-                  <span>
-                    {formatCurrency(0)}
-                    <span className="text-sm font-normal text-blue-500 ml-1">p.a.</span>
-                  </span>
-                )}
+                <span>
+                  {formatCurrency(calculateTotalSavings() + calculateCostOptimizationPotential())}
+                  <span className="text-sm font-normal text-blue-500 ml-1">p.a.</span>
+                </span>
               </p>
-              <p className="text-xs text-blue-600 mt-1">KI-identifizierte Potentiale</p>
+              <p className="text-xs text-blue-600 mt-1">Gesamtpotential</p>
             </div>
-          </div>
-
-          {/* Analysis Status */}
-          {!bankConnected && (
-            <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <div className="flex items-center">
-                <BarChart3 className="h-5 w-5 text-blue-600 mr-2" />
-                <div>
-                  <h4 className="text-sm font-medium text-blue-900">Bereit für KI-Analyse</h4>
-                  <p className="text-sm text-blue-700 mt-1">
-                    Laden Sie Buchungsdaten hoch, um automatisch Optimierungspotenziale zu identifizieren.
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
-
-          <div className="mt-6">
-            {/* Mitarbeiterliste entfernt für mehr Simplizität */}
           </div>
         </div>
       </div>
-      
-      {/* KI-gestützte Kostenanalyse */}
-      <div className="mb-8" ref={optimizationsRef}>
-        <CostAnalysisTab 
-          onBankConnection={handleBankConnection}
-          onDocumentUploaded={handleDocumentUploaded}
-          onEmailSent={handleEmailSent}
-          onOptimizationStatusChange={handleOptimizationStatusChange}
-        />
+
+      {/* Tab Navigation */}
+      <div className="bg-white rounded-lg shadow mb-8">
+        <div className="border-b border-gray-200">
+          <nav className="-mb-px flex space-x-8 px-6">
+            <button
+              onClick={() => setActiveTab('transactions')}
+              className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                activeTab === 'transactions'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              <div className="flex items-center">
+                <BarChart3 className="h-5 w-5 mr-2" />
+                Transaktionen
+              </div>
+            </button>
+            <button
+              onClick={() => setActiveTab('contracts')}
+              className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                activeTab === 'contracts'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              <div className="flex items-center">
+                <FileText className="h-5 w-5 mr-2" />
+                Verträge
+              </div>
+            </button>
+            <button
+              onClick={() => setActiveTab('optimizations')}
+              className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                activeTab === 'optimizations'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              <div className="flex items-center">
+                <Zap className="h-5 w-5 mr-2" />
+                Optimierungen
+              </div>
+            </button>
+            <button
+              onClick={() => setActiveTab('settings')}
+              className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                activeTab === 'settings'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              <div className="flex items-center">
+                <Settings className="h-5 w-5 mr-2" />
+                Einstellungen
+              </div>
+            </button>
+          </nav>
+        </div>
+
+        {/* Tab Content */}
+        <div className="p-6">
+          {renderTabContent()}
+        </div>
       </div>
 
+      {/* Modals and Popups */}
+      <OptimizationSettings
+        optimizations={OPTIMIZATIONS.map(opt => ({
+          id: opt.id,
+          title: opt.title,
+          description: opt.description,
+          isActive: activeOptimizations.has(opt.title)
+        }))}
+        onToggle={handleToggleOptimization}
+        isOpen={showSettings}
+        onClose={() => setShowSettings(false)}
+      />
+
+      {isAnalyzing && (
+        <ClientAnalysis
+          client={client}
+          onComplete={handleAnalysisComplete}
+          onClose={() => setIsAnalyzing(false)}
+        />
+      )}
     </div>
   );
 };
