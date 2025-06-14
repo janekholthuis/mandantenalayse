@@ -770,6 +770,4 @@ const TransactionUpload: React.FC<TransactionUploadProps> = ({ onUploadComplete 
   );
 };
 
-export default TransactionUpload;
-
 export default TransactionUpload
