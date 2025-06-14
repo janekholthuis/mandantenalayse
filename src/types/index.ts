@@ -1,13 +1,13 @@
 export type Client = {
   id: string;
   name: string;
-  industry: string;
-  revenue: number;
-  profit: number;
-  legalForm: string;
+  industry?: string;
+  revenue?: number;
+  profit?: number;
+  legalForm?: string;
   status: 'active' | 'inactive';
   lastAnalyzed?: string;
-  employeeCount: number;
+  employeeCount?: number;
   expectedRevenue?: number;
   expectedProfit?: number;
   plannedRevenue?: number;

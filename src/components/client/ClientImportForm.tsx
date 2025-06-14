@@ -304,9 +304,9 @@ const ClientImportForm: React.FC<ClientImportFormProps> = ({ onImportComplete, o
     
     try {
       const dataToInsert = parsedData.map(row => ({
-        Firmenname: row.Firmenname,
-        PLZ: row.PLZ || null,
-        Stadt: row.Stadt || null,
+        name: row.Firmenname,
+        plz: row.PLZ ? row.PLZ.toString() : null,
+        ort: row.Stadt || null,
         user_id: user.id
       }));
 

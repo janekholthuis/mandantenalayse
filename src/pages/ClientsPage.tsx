@@ -1,59 +1,60 @@
 import React, { useState, useMemo } from 'react';
 import { UserPlus, Upload } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import MainLayout from '../components/layout/MainLayout';
-import PageHeader from '../components/layout/PageHeader';
 import ClientCard from '../components/client/ClientCard';
-import ClientSearch from '../components/client/ClientSearch';
 import ClientImportForm from '../components/client/ClientImportForm';
 import Button from '../components/ui/Button';
-import { mockClients } from '../data/mockData';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../hooks/useAuth';
+import { Client } from '../types';
 
 const ClientsPage: React.FC = () => {
   const { user } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
   const [showImportForm, setShowImportForm] = useState(false);
-  const [clients, setClients] = useState(mockClients);
+  const [clients, setClients] = useState<Client[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   
   const filteredClients = useMemo(() => {
-    if (!searchTerm) return mockClients;
+    if (!searchTerm) return clients;
     
     const term = searchTerm.toLowerCase();
     return clients.filter(client => 
       client.name.toLowerCase().includes(term) ||
-      client.industry.toLowerCase().includes(term) ||
-      client.legalForm.toLowerCase().includes(term)
+      (client.industry && client.industry.toLowerCase().includes(term)) ||
+      (client.legalForm && client.legalForm.toLowerCase().includes(term))
     );
   }, [searchTerm, clients]);
 
   const fetchClients = async () => {
+    if (!user) return;
+    
     setIsLoading(true);
     try {
-      let { data: Mandanten, error } = await supabase
+      const { data: Mandanten, error } = await supabase
         .from('Mandanten')
-        .select('*');
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
 
       if (error) throw error;
 
       // Transform Supabase data to match our Client interface
-      const transformedClients = (Mandanten || []).map(client => ({
+      const transformedClients: Client[] = (Mandanten || []).map(client => ({
         id: client.id.toString(),
-        name: client.Firmenname || 'Unbekannt',
-        industry: 'Nicht angegeben', // Default since not in schema
+        name: client.name || client.Firmenname || 'Unbekannt',
+        industry: client.branchenschluessel_bezeichnung || 'Nicht angegeben',
         revenue: 0, // Default since not in schema
         profit: 0, // Default since not in schema
-        legalForm: 'Nicht angegeben', // Default since not in schema
-        status: 'active' as const,
+        legalForm: client.unternehmensform || 'Nicht angegeben',
+        status: client.status === 'aktiv' ? 'active' : 'inactive',
         lastAnalyzed: undefined,
         employeeCount: 0,
-        city: client.Stadt || undefined,
-        postalCode: client.PLZ
+        city: client.ort || undefined,
+        postalCode: client.plz ? parseInt(client.plz) : undefined
       }));
 
-      setClients([...mockClients, ...transformedClients]);
+      setClients(transformedClients);
     } catch (error) {
       console.error('Error fetching clients:', error);
     } finally {
@@ -131,16 +132,33 @@ const ClientsPage: React.FC = () => {
               <ClientCard key={client.id} client={client} />
             ))}
             
-            {filteredClients.length === 0 && (
+            {filteredClients.length === 0 && !isLoading && (
               <div className="col-span-full text-center py-12">
-                <p className="text-gray-500">Keine Mandanten gefunden für "{searchTerm}"</p>
-                <Button
-                  variant="secondary"
-                  className="mt-4"
-                  onClick={() => setSearchTerm('')}
-                >
-                  Suche zurücksetzen
-                </Button>
+                {searchTerm ? (
+                  <>
+                    <p className="text-gray-500">Keine Mandanten gefunden für "{searchTerm}"</p>
+                    <Button
+                      variant="secondary"
+                      className="mt-4"
+                      onClick={() => setSearchTerm('')}
+                    >
+                      Suche zurücksetzen
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-gray-500 mb-4">Noch keine Mandanten vorhanden</p>
+                    <Link to="/clients/add">
+                      <Button
+                        variant="primary"
+                        icon={<UserPlus size={16} />}
+                        className="bg-blue-600 hover:bg-blue-700"
+                      >
+                        Ersten Mandanten hinzufügen
+                      </Button>
+                    </Link>
+                  </>
+                )}
               </div>
             )}
           </div>

@@ -7,8 +7,9 @@ import OptimizationSettings from '../components/optimization/OptimizationSetting
 import ClientAnalysis from '../components/client/ClientAnalysis';
 import CostAnalysisTab from '../components/cost-analysis/CostAnalysisTab';
 import Button from '../components/ui/Button';
-import { getClientDetail } from '../data/mockData';
-import { ClientDetail } from '../types';
+import { supabase } from '../lib/supabase';
+import { useAuth } from '../hooks/useAuth';
+import { ClientDetail, OptimizationItem } from '../types';
 import { formatCurrency } from '../utils/formatters';
 
 const OPTIMIZATIONS = [
@@ -81,6 +82,7 @@ const OPTIMIZATIONS = [
 
 const ClientDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
+  const { user } = useAuth();
   const [client, setClient] = useState<ClientDetail | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -89,7 +91,7 @@ const ClientDetailPage: React.FC = () => {
   const [showSettings, setShowSettings] = useState(false);
   const [activeOptimizations, setActiveOptimizations] = useState<Set<string>>(new Set());
   const [activeTab, setActiveTab] = useState<'optimizations' | 'transactions'>('optimizations');
- const [bankConnected, setBankConnected] = useState(false);
+  const [bankConnected, setBankConnected] = useState(false);
   const [documentsUploaded, setDocumentsUploaded] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
   const [costOptimizations, setCostOptimizations] = useState([
@@ -106,23 +108,59 @@ const ClientDetailPage: React.FC = () => {
   const optimizationsRef = useRef<HTMLDivElement>(null);
   
   useEffect(() => {
-    if (id) {
-      const clientData = getClientDetail(id);
-      setClient(clientData || null);
-      if (clientData?.employees) {
-        const activeOpts = new Set<string>();
-        clientData.employees.forEach(emp => {
-          emp.optimizations.forEach(opt => activeOpts.add(opt));
-        });
-        setActiveOptimizations(activeOpts);
-      }
-      setIsLoading(false);
-    }
-  }, [id]);
+    const fetchClient = async () => {
+      if (!id || !user) return;
+      
+      setIsLoading(true);
+      try {
+        const { data: clientData, error } = await supabase
+          .from('Mandanten')
+          .select('*')
+          .eq('id', id)
+          .eq('user_id', user.id)
+          .single();
 
- const handleBankConnection = () => {
-   setBankConnected(true);
- };
+        if (error) {
+          console.error('Error fetching client:', error);
+          setClient(null);
+          return;
+        }
+
+        if (clientData) {
+          // Transform Supabase data to ClientDetail interface
+          const transformedClient: ClientDetail = {
+            id: clientData.id.toString(),
+            name: clientData.name || clientData.Firmenname || 'Unbekannt',
+            industry: clientData.branchenschluessel_bezeichnung || 'Nicht angegeben',
+            revenue: 0, // Default since not in schema
+            profit: 0, // Default since not in schema
+            legalForm: clientData.unternehmensform || 'Nicht angegeben',
+            status: clientData.status === 'aktiv' ? 'active' : 'inactive',
+            lastAnalyzed: undefined, // Will be set when analysis is performed
+            employeeCount: 0, // Default since not in schema
+            city: clientData.ort || undefined,
+            postalCode: clientData.plz ? parseInt(clientData.plz) : undefined,
+            optimizations: [], // Empty array since optimization data is not stored in Mandanten table
+            employees: [], // Empty array since employee data is not stored in Mandanten table
+            totalEmployeesAnalyzed: undefined
+          };
+
+          setClient(transformedClient);
+        }
+      } catch (error) {
+        console.error('Error fetching client:', error);
+        setClient(null);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchClient();
+  }, [id, user]);
+
+  const handleBankConnection = () => {
+    setBankConnected(true);
+  };
 
   const handleDocumentUploaded = () => {
     setDocumentsUploaded(true);
@@ -152,13 +190,11 @@ const ClientDetailPage: React.FC = () => {
 
   const calculateTotalSavings = () => {
     if (!client?.optimizations) return 0;
-    if (client.id === '6') return 10680;
     return client.optimizations.reduce((sum, opt) => sum + opt.potentialSavings, 0);
   };
 
   const calculateImplementedSavings = () => {
     if (!client?.optimizations) return 0;
-    if (client.id === '6') return 1800;
     return client.optimizations
       .filter(opt => opt.status === 'implemented' || opt.status === 'used')
       .reduce((sum, opt) => sum + opt.potentialSavings, 0);
@@ -166,7 +202,6 @@ const ClientDetailPage: React.FC = () => {
 
   const getOptimizationStats = () => {
     if (!client?.optimizations) return { used: 0, total: OPTIMIZATIONS.length };
-    if (client.id === '6') return { used: 3, total: 15 };
     const used = client.optimizations.filter(opt => 
       opt.status === 'implemented' || opt.status === 'used'
     ).length;
@@ -188,11 +223,12 @@ const ClientDetailPage: React.FC = () => {
     });
   };
 
-  const handleAnalysisComplete = (newOptimizations: any[]) => {
+  const handleAnalysisComplete = (newOptimizations: OptimizationItem[]) => {
     if (!client) return;
     setClient({
       ...client,
-      lastAnalyzed: new Date().toISOString()
+      lastAnalyzed: new Date().toISOString(),
+      optimizations: newOptimizations
     });
     setIsAnalyzing(false);
     setShowOptimizations(true);
@@ -397,7 +433,7 @@ const ClientDetailPage: React.FC = () => {
               {showEmployees ? <ChevronUp size={16} className="ml-2" /> : <ChevronDown size={16} className="ml-2" />}
             </button>
 
-            {showEmployees && client.employees && (
+            {showEmployees && client.employees && client.employees.length > 0 && (
               <div className="mt-4 overflow-x-auto">
                 <table className="min-w-full divide-y divide-gray-200">
                   <thead className="bg-gray-50">
@@ -427,6 +463,14 @@ const ClientDetailPage: React.FC = () => {
                     ))}
                   </tbody>
                 </table>
+              </div>
+            )}
+
+            {showEmployees && (!client.employees || client.employees.length === 0) && (
+              <div className="mt-4 text-center py-8 text-gray-500">
+                <Users className="h-8 w-8 mx-auto mb-2 text-gray-400" />
+                <p>Keine Mitarbeiterdaten verfügbar</p>
+                <p className="text-sm">Führen Sie eine Analyse durch, um Mitarbeiterdaten zu erfassen</p>
               </div>
             )}
           </div>
@@ -484,7 +528,7 @@ const ClientDetailPage: React.FC = () => {
                   Jetzt analysieren
                 </Button>
               </div>
-            ) : showOptimizations && (
+            ) : showOptimizations && client.optimizations.length > 0 ? (
               <div className="space-y-4">
                 {client.optimizations.map(opt => (
                   <OptimizationCard
@@ -502,6 +546,16 @@ const ClientDetailPage: React.FC = () => {
                     employerCost={opt.employerCost}
                   />
                 ))}
+              </div>
+            ) : showOptimizations && (
+              <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 text-center">
+                <AlertCircle className="h-8 w-8 text-gray-400 mx-auto mb-3" />
+                <h3 className="text-lg font-medium text-gray-700 mb-2">
+                  Keine Optimierungen gefunden
+                </h3>
+                <p className="text-gray-600">
+                  Für diesen Mandanten wurden noch keine Optimierungen identifiziert.
+                </p>
               </div>
             )}
           </div>
