@@ -77,13 +77,13 @@ const ClientsPage: React.FC = () => {
       for (const client of transformedClients) {
         const { data: contracts } = await supabase
           .from('contracts')
-          .select('created_at')
+          .select('erstellt_am')
           .eq('mandant_id', client.id)
-          .order('created_at', { ascending: false })
+          .order('erstellt_am', { ascending: false })
           .limit(1);
 
         if (contracts && contracts.length > 0) {
-          client.lastAnalyzed = contracts[0].created_at;
+          client.lastAnalyzed = contracts[0].erstellt_am;
         }
       }
 
