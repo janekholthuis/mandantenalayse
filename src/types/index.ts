@@ -74,3 +74,25 @@ export type TaxOptimization = {
   requirements: string[];
   implementation: string[];
 };
+
+export type Contract = {
+  id: string;
+  kategorie: string;
+  anbieter_name?: string;
+  kosten_monat?: number;
+  laufzeit_monate?: number;
+  vertragsbeginn?: string;
+  vertragsende?: string;
+  kuendigungsfrist_tage?: number;
+  erkannt_durch?: string;
+  status?: string;
+  wechsel_empfohlen?: boolean;
+  kommentar?: string;
+  mandant_id: string;
+  user_id?: string;
+  created_at?: string;
+  updated_at?: string;
+  // Calculated fields
+  optimizationPotential?: number;
+  requirements?: string[];
+};
