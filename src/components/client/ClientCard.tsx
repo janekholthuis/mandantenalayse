@@ -39,13 +39,11 @@ const ClientCard: React.FC<ClientCardProps> = ({ client }) => {
 
         {/* Client Information */}
         <div className="space-y-2 mb-4">
-          {client.legalForm && (
-            <div className="flex items-center text-sm text-gray-600">
-              <Scale className="h-4 w-4 mr-2 text-gray-400" />
-              <span className="font-medium">Rechtsform:</span>
-              <span className="ml-1">{client.legalForm}</span>
-            </div>
-          )}
+          <div className="flex items-center text-sm text-gray-600">
+            <Scale className="h-4 w-4 mr-2 text-gray-400" />
+            <span className="font-medium">Rechtsform:</span>
+            <span className="ml-1">{client.legalForm || 'nicht angegeben'}</span>
+          </div>
         </div>
 
         {/* Footer */}
