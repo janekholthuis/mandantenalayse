@@ -690,4 +690,87 @@ const ClientDetailPage: React.FC = () => {
                 <BarChart3 className="h-5 w-5 mr-2" />
                 Transaktionen
               </div>
-            
+            </button>
+            <button
+              onClick={() => setActiveTab('contracts')}
+              className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                activeTab === 'contracts'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              <div className="flex items-center">
+                <FileText className="h-5 w-5 mr-2" />
+                Verträge
+              </div>
+            </button>
+            <button
+              onClick={() => setActiveTab('optimizations')}
+              className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                activeTab === 'optimizations'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              <div className="flex items-center">
+                <Zap className="h-5 w-5 mr-2" />
+                MA-Benefits
+              </div>
+            </button>
+            <button
+              onClick={() => setActiveTab('settings')}
+              className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                activeTab === 'settings'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              <div className="flex items-center">
+                <Settings className="h-5 w-5 mr-2" />
+                Einstellungen
+              </div>
+            </button>
+          </nav>
+        </div>
+
+        {/* Tab Content */}
+        <div className="p-6">
+          {renderTabContent()}
+        </div>
+      </div>
+
+      {/* Analysis Modal */}
+      {isAnalyzing && (
+        <ClientAnalysis
+          client={client}
+          onComplete={handleAnalysisComplete}
+          onCancel={() => setIsAnalyzing(false)}
+        />
+      )}
+
+      {/* Optimization Settings Modal */}
+      {showSettings && (
+        <OptimizationSettings
+          onClose={() => setShowSettings(false)}
+          onSave={(settings) => {
+            console.log('Settings saved:', settings);
+            setShowSettings(false);
+          }}
+        />
+      )}
+
+      {/* Optimizations List */}
+      {showOptimizations && client && (
+        <div ref={optimizationsRef}>
+          <OptimizationsList
+            optimizations={client.optimizations}
+            onToggle={handleToggleOptimization}
+            activeOptimizations={activeOptimizations}
+          />
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default ClientDetailPage;
