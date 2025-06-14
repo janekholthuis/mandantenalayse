@@ -401,44 +401,19 @@ const ClientDetailPage: React.FC = () => {
       <div className="bg-white rounded-lg shadow mb-8">
         {/* Tab Navigation */}
         <div className="border-b border-gray-200">
-          <nav className="-mb-px flex space-x-8 px-6">
-            {/* MA-Benefits Tab - Hidden for now, can be re-enabled later */}
-            {false && (
-              <button
-                onClick={() => setActiveTab('optimizations')}
-                className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === 'optimizations'
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-              >
-                <div className="flex items-center">
-                  <List className="h-5 w-5 mr-2" />
-                  MA-Benefits
-                </div>
-              </button>
-            )}
-            <button
-              onClick={() => setActiveTab('transactions')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                activeTab === 'transactions'
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
-            >
-              <div className="flex items-center">
-                <BarChart3 className="h-5 w-5 mr-2" />
-                Kostenoptimierung
-              </div>
-            </button>
-          </nav>
+          <div className="px-6 py-4">
+            <h3 className="text-lg font-medium text-gray-900 flex items-center">
+              <BarChart3 className="h-5 w-5 mr-2 text-blue-600" />
+              Kostenoptimierung
+            </h3>
+          </div>
         </div>
 
         <div className="px-4 py-5 sm:p-6">
           <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
             Mandanteninformationen
           </h3>
-          {/* Focus on Kostenoptimierung metrics */}
+          {/* Kostenoptimierung metrics */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             <div className="bg-gray-50 p-4 rounded-lg">
               <p className="text-sm font-medium text-gray-500">Mitarbeiter</p>
@@ -530,90 +505,7 @@ const ClientDetailPage: React.FC = () => {
       
       {/* Tab Content */}
       <div className="mb-8" ref={optimizationsRef}>
-        {/* MA-Benefits content - Hidden for now, can be re-enabled later */}
-        {false && activeTab === 'optimizations' && (
-          <div>
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-semibold text-gray-900">Optimierungen</h2>
-              <div className="flex items-center space-x-2">
-                <button
-                  onClick={() => setShowSettings(true)}
-                  className="p-2 text-gray-600 hover:text-gray-900 rounded-full hover:bg-gray-100"
-                  title="Optimierungen konfigurieren"
-                >
-                  <Settings size={20} />
-                </button>
-                <button
-                  onClick={() => setShowOptimizations(!showOptimizations)}
-                  className="flex items-center text-sm text-gray-600 hover:text-gray-900"
-                >
-                  {showOptimizations ? (
-                    <>
-                      <ChevronUp size={16} className="mr-2" />
-                      Ausblenden
-                    </>
-                  ) : (
-                    <>
-                      <ChevronDown size={16} className="mr-2" />
-                      Einblenden
-                    </>
-                  )}
-                </button>
-              </div>
-            </div>
-
-            {!client.lastAnalyzed ? (
-              <div className="bg-amber-50 border border-amber-200 rounded-lg p-6 text-center">
-                <AlertCircle className="h-8 w-8 text-amber-500 mx-auto mb-3" />
-                <h3 className="text-lg font-medium text-amber-800 mb-2">
-                  Noch keine Analyse durchgeführt
-                </h3>
-                <p className="text-amber-700 mb-4">
-                  Führen Sie eine Analyse durch, um Optimierungspotenziale zu identifizieren.
-                </p>
-                <Button
-                  variant="secondary"
-                  onClick={() => setIsAnalyzing(true)}
-                  className="bg-white text-amber-700 border border-amber-300 hover:bg-amber-50"
-                  icon={<Wand2 size={16} />}
-                >
-                  Jetzt analysieren
-                </Button>
-              </div>
-            ) : showOptimizations && client.optimizations.length > 0 ? (
-              <div className="space-y-4">
-                {client.optimizations.map(opt => (
-                  <OptimizationCard
-                    key={opt.id}
-                    title={opt.title}
-                    description={opt.description}
-                    isActive={activeOptimizations.has(opt.title)}
-                    onToggle={() => handleToggleOptimization(opt.id, opt.title)}
-                    employeeCount={opt.employeeCount}
-                    totalEmployees={client.employeeCount}
-                    employeesAnalyzed={opt.employeesAnalyzed}
-                    employeesBenefiting={opt.employeesBenefiting}
-                    requirements={opt.requirements}
-                    netBenefitEmployee={opt.netBenefitEmployee}
-                    employerCost={opt.employerCost}
-                  />
-                ))}
-              </div>
-            ) : showOptimizations && (
-              <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 text-center">
-                <AlertCircle className="h-8 w-8 text-gray-400 mx-auto mb-3" />
-                <h3 className="text-lg font-medium text-gray-700 mb-2">
-                  Keine Optimierungen gefunden
-                </h3>
-                <p className="text-gray-600">
-                  Für diesen Mandanten wurden noch keine Optimierungen identifiziert.
-                </p>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Always show Kostenoptimierung content */}
+        {/* Kostenoptimierung content */}
         <div>
           <CostAnalysisTab 
             onBankConnection={handleBankConnection}
@@ -624,30 +516,6 @@ const ClientDetailPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Hide MA-Benefits components for now */}
-      {false && (
-        <>
-          <OptimizationSettings
-            optimizations={OPTIMIZATIONS.map(opt => ({
-              id: opt.id,
-              title: opt.title,
-              description: opt.description,
-              isActive: activeOptimizations.has(opt.title)
-            }))}
-            onToggle={handleToggleOptimization}
-            isOpen={showSettings}
-            onClose={() => setShowSettings(false)}
-          />
-
-          {isAnalyzing && (
-            <ClientAnalysis
-              client={client}
-              onComplete={handleAnalysisComplete}
-              onClose={() => setIsAnalyzing(false)}
-            />
-          )}
-        </>
-      )}
     </div>
   );
 };
