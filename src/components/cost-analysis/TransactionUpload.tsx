@@ -334,7 +334,7 @@ const TransactionUpload: React.FC<TransactionUploadProps> = ({ onUploadComplete 
             </h3>
             <p className="text-sm text-blue-800 mb-3">
               Diese Datei können Sie aus DATEV Kanzlei-Rechnungswesen exportieren – 
-              z. B. über 'Daten exportieren &gt; Buchungssätze &gt; ASCII/CSV'
+              z. B. über 'Daten exportieren > Buchungssätze > ASCII/CSV'
             </p>
             <button className="text-sm text-blue-700 hover:text-blue-800 font-medium underline">
               📖 Detaillierte Anleitung ansehen
@@ -690,4 +690,84 @@ const TransactionUpload: React.FC<TransactionUploadProps> = ({ onUploadComplete 
                 <div className="text-sm text-yellow-700">
                   Import abbrechen und Datei korrigieren.
                 </div>
-              
+              </div>
+            </label>
+          </div>
+        </div>
+      )}
+
+      {/* GDPR Consent */}
+      <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 mb-6">
+        <h4 className="text-lg font-medium text-gray-900 mb-4">🔒 Datenschutz & Einverständnis</h4>
+        <label className="flex items-start">
+          <input
+            type="checkbox"
+            checked={gdprConsent}
+            onChange={(e) => setGdprConsent(e.target.checked)}
+            className="mt-1 mr-3"
+          />
+          <div className="text-sm text-gray-700">
+            <div className="font-medium mb-1">
+              Ich bestätige die DSGVO-konforme Verarbeitung der Buchungsdaten
+            </div>
+            <div>
+              Die hochgeladenen Buchungsdaten werden ausschließlich zur Analyse von Einsparpotentialen 
+              verwendet und nach der Analyse automatisch gelöscht. Eine Weitergabe an Dritte erfolgt nicht.
+            </div>
+          </div>
+        </label>
+      </div>
+
+      {/* Action Buttons */}
+      <div className="flex justify-between">
+        <Button
+          variant="secondary"
+          onClick={() => setCurrentStep('preview')}
+          disabled={isProcessing}
+        >
+          ← Zurück
+        </Button>
+        <Button
+          variant="primary"
+          onClick={handleImportConfirm}
+          disabled={!gdprConsent || isProcessing}
+          icon={isProcessing ? undefined : <CheckCircle size={16} />}
+        >
+          {isProcessing ? 'Importiere...' : 'Import bestätigen'}
+        </Button>
+      </div>
+    </div>
+  );
+
+  const renderSuccess = () => (
+    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 text-center">
+      <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 mb-6">
+        <CheckCircle className="h-8 w-8 text-green-600" />
+      </div>
+      <h2 className="text-2xl font-bold text-gray-900 mb-3">
+        ✅ Import erfolgreich abgeschlossen
+      </h2>
+      <p className="text-gray-600 mb-6">
+        Ihre Buchungsdaten wurden erfolgreich importiert und stehen nun für die Analyse zur Verfügung.
+      </p>
+      <Button
+        variant="primary"
+        onClick={() => setCurrentStep('intro')}
+      >
+        Neuen Import starten
+      </Button>
+    </div>
+  );
+
+  return (
+    <div className="max-w-4xl mx-auto">
+      {currentStep === 'intro' && renderIntro()}
+      {currentStep === 'upload' && renderUpload()}
+      {currentStep === 'preview' && renderPreview()}
+      {currentStep === 'validation' && renderValidation()}
+      {currentStep === 'success' && renderSuccess()}
+    </div>
+  );
+};
+
+export default TransactionUpload;
