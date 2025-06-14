@@ -332,7 +332,7 @@ const TransactionUploadWithValidation: React.FC<TransactionUploadWithValidationP
               { key: 'soll_haben', label: 'Soll/Haben-Kennzeichen', required: false, description: '"S" oder "H"' },
               { key: 'belegnummer', label: 'Belegnummer', required: false, description: 'Für Matching mit Belegsystem' }
             ].map(field => (
-              <div key={targetField} className="border border-gray-200 rounded-lg p-4">
+              <div key={field.key} className="border border-gray-200 rounded-lg p-4">
                 <label className="text-sm font-medium text-gray-900 mb-2 block">
                   {field.label}
                   {field.required && <span className="text-red-500 ml-1">*</span>}
