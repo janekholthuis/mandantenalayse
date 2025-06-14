@@ -137,7 +137,7 @@ const ClientDetailPage: React.FC = () => {
             legalForm: clientData.unternehmensform || 'Nicht angegeben',
             status: clientData.status === 'aktiv' ? 'active' : 'inactive',
             lastAnalyzed: undefined, // Will be set when analysis is performed
-            employeeCount: 0, // Default since not in schema
+            employeeCount: clientData.Mitarbeiter_Anzahl || 0,
             city: clientData.ort || undefined,
             postalCode: clientData.plz ? parseInt(clientData.plz) : undefined,
             optimizations: [], // Empty array since optimization data is not stored in Mandanten table

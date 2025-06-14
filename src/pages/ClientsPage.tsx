@@ -49,7 +49,7 @@ const ClientsPage: React.FC = () => {
         legalForm: client.unternehmensform || 'Nicht angegeben',
         status: client.status === 'aktiv' ? 'active' : 'inactive',
         lastAnalyzed: undefined,
-        employeeCount: 0,
+        employeeCount: client.Mitarbeiter_Anzahl || 0,
         city: client.ort || undefined,
         postalCode: client.plz ? parseInt(client.plz) : undefined
       }));

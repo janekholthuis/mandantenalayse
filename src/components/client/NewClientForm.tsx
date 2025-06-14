@@ -1,14 +1,18 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { supabase } from '../../lib/supabase';
+import { useAuth } from '../../hooks/useAuth';
+import { showSuccess, showError } from '../../lib/toast';
 import { Building2, Users, TrendingUp, Wallet, Building } from 'lucide-react';
 import Button from '../ui/Button';
 
 const NewClientForm: React.FC = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [formData, setFormData] = useState({
     companyName: '',
     legalForm: '',
-    employeeCount: '',
+    employeeCount: '0',
     profit: '',
     revenue: ''
   });
@@ -17,11 +21,25 @@ const NewClientForm: React.FC = () => {
     e.preventDefault();
     
     try {
-      // Here would be the actual API call to create the client
-      console.log('Form submitted:', formData);
+      const { data, error } = await supabase
+        .from('Mandanten')
+        .insert([
+          {
+            name: formData.companyName,
+            unternehmensform: formData.legalForm,
+            Mitarbeiter_Anzahl: parseInt(formData.employeeCount) || 0,
+            user_id: user.id
+          }
+        ])
+        .select();
+
+      if (error) throw error;
+
+      showSuccess('Mandant erfolgreich angelegt');
       navigate('/clients');
     } catch (error) {
       console.error('Error creating client:', error);
+      showError('Fehler beim Anlegen des Mandanten');
     }
   };
 
@@ -97,10 +115,9 @@ const NewClientForm: React.FC = () => {
               type="number"
               name="employeeCount"
               id="employeeCount"
-              required
               min="0"
               className="block w-full pl-10 pr-3 py-2 sm:text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              placeholder="10"
+              placeholder="0"
               value={formData.employeeCount}
               onChange={handleChange}
             />

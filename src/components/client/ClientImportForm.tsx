@@ -15,6 +15,7 @@ interface ParsedClient {
   Firmenname: string;
   PLZ?: number;
   Stadt?: string;
+  Mitarbeiter_Anzahl?: number;
   [key: string]: any;
 }
 
@@ -33,7 +34,7 @@ const ClientImportForm: React.FC<ClientImportFormProps> = ({ onImportComplete, o
   const [showPreview, setShowPreview] = useState(false);
 
   const downloadTemplate = () => {
-    const csvContent = 'Firmenname,PLZ,Stadt\n"Musterfirma GmbH",12345,"Berlin"\n"Beispiel AG",54321,"München"';
+    const csvContent = 'Firmenname,PLZ,Stadt,Mitarbeiter_Anzahl\n"Musterfirma GmbH",12345,"Berlin",25\n"Beispiel AG",54321,"München",50';
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     const url = URL.createObjectURL(blob);
@@ -47,9 +48,9 @@ const ClientImportForm: React.FC<ClientImportFormProps> = ({ onImportComplete, o
 
   const downloadExcelTemplate = () => {
     const data = [
-      ['Firmenname', 'PLZ', 'Stadt'],
-      ['Musterfirma GmbH', 12345, 'Berlin'],
-      ['Beispiel AG', 54321, 'München']
+      ['Firmenname', 'PLZ', 'Stadt', 'Mitarbeiter_Anzahl'],
+      ['Musterfirma GmbH', 12345, 'Berlin', 25],
+      ['Beispiel AG', 54321, 'München', 50]
     ];
     
     const ws = XLSX.utils.aoa_to_sheet(data);
@@ -67,7 +68,7 @@ const ClientImportForm: React.FC<ClientImportFormProps> = ({ onImportComplete, o
   };
 
   const downloadDatevTemplate = () => {
-    const csvContent = 'Mandantennummer,Mandantenname,Beraternummer,Branche,Ansprechpartner,Status\n"12345","Musterfirma GmbH","001","IT-Dienstleistungen","Max Mustermann","aktiv"\n"67890","Beispiel AG","001","Handel","Anna Schmidt","aktiv"';
+    const csvContent = 'Mandantennummer,Mandantenname,Beraternummer,Branche,Ansprechpartner,Status,Mitarbeiter_Anzahl\n"12345","Musterfirma GmbH","001","IT-Dienstleistungen","Max Mustermann","aktiv",25\n"67890","Beispiel AG","001","Handel","Anna Schmidt","aktiv",50';
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     const url = URL.createObjectURL(blob);
@@ -102,6 +103,11 @@ const ClientImportForm: React.FC<ClientImportFormProps> = ({ onImportComplete, o
             const plz = parseInt(values[index]);
             if (!isNaN(plz)) {
               row[mappedHeader] = plz;
+            }
+          } else if (mappedHeader === 'Mitarbeiter_Anzahl' && values[index]) {
+            const mitarbeiterAnzahl = parseInt(values[index]);
+            if (!isNaN(mitarbeiterAnzahl) && mitarbeiterAnzahl >= 0) {
+              row[mappedHeader] = mitarbeiterAnzahl;
             }
           } else if (values[index]) {
             row[mappedHeader] = values[index];
@@ -161,6 +167,15 @@ const ClientImportForm: React.FC<ClientImportFormProps> = ({ onImportComplete, o
                   if (!isNaN(plz)) {
                     row[mappedHeader] = plz;
                   }
+                } else if (mappedHeader === 'Mitarbeiter_Anzahl' && typeof value === 'number') {
+                  if (value >= 0) {
+                    row[mappedHeader] = value;
+                  }
+                } else if (mappedHeader === 'Mitarbeiter_Anzahl' && typeof value === 'string') {
+                  const mitarbeiterAnzahl = parseInt(value);
+                  if (!isNaN(mitarbeiterAnzahl) && mitarbeiterAnzahl >= 0) {
+                    row[mappedHeader] = mitarbeiterAnzahl;
+                  }
                 } else {
                   row[mappedHeader] = String(value);
                 }
@@ -194,6 +209,14 @@ const ClientImportForm: React.FC<ClientImportFormProps> = ({ onImportComplete, o
           row: index + 2, // +2 because index starts at 0 and we skip header
           field: 'Firmenname',
           message: 'Firmenname ist erforderlich'
+        });
+      }
+
+      if (row.Mitarbeiter_Anzahl !== undefined && (row.Mitarbeiter_Anzahl < 0 || !Number.isInteger(row.Mitarbeiter_Anzahl))) {
+        errors.push({
+          row: index + 2,
+          field: 'Mitarbeiter_Anzahl',
+          message: 'Mitarbeiteranzahl muss eine positive ganze Zahl sein'
         });
       }
 
@@ -307,6 +330,7 @@ const ClientImportForm: React.FC<ClientImportFormProps> = ({ onImportComplete, o
         name: row.Firmenname,
         plz: row.PLZ ? row.PLZ.toString() : null,
         ort: row.Stadt || null,
+        Mitarbeiter_Anzahl: row.Mitarbeiter_Anzahl || 0,
         user_id: user.id
       }));
 
@@ -459,6 +483,7 @@ const ClientImportForm: React.FC<ClientImportFormProps> = ({ onImportComplete, o
                     <li><code>Firmenname</code> - Name des Unternehmens (erforderlich)</li>
                     <li><code>PLZ</code> - Postleitzahl (optional, 5-stellig)</li>
                     <li><code>Stadt</code> - Stadt (optional)</li>
+                    <li><code>Mitarbeiter_Anzahl</code> - Anzahl der Mitarbeiter (optional, positive Zahl)</li>
                   </ul>
                 </div>
                 <div>
@@ -469,6 +494,7 @@ const ClientImportForm: React.FC<ClientImportFormProps> = ({ onImportComplete, o
                     <li><code>Beraternummer</code> (wird ignoriert)</li>
                     <li><code>Branche</code> (wird ignoriert)</li>
                     <li><code>Status</code> (wird ignoriert)</li>
+                    <li><code>Mitarbeiter_Anzahl</code> - Anzahl der Mitarbeiter (optional)</li>
                   </ul>
                 </div>
               </div>
@@ -540,6 +566,9 @@ const ClientImportForm: React.FC<ClientImportFormProps> = ({ onImportComplete, o
                         <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
                           Stadt
                         </th>
+                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
+                          Mitarbeiter
+                        </th>
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
@@ -553,6 +582,9 @@ const ClientImportForm: React.FC<ClientImportFormProps> = ({ onImportComplete, o
                           </td>
                           <td className="px-4 py-2 text-sm text-gray-900">
                             {row.Stadt || '-'}
+                          </td>
+                          <td className="px-4 py-2 text-sm text-gray-900">
+                            {row.Mitarbeiter_Anzahl || '-'}
                           </td>
                         </tr>
                       ))}
