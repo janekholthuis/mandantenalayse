@@ -1,10 +1,15 @@
 import React, { useState } from 'react';
 import { BarChart3, CheckCircle, TrendingDown, Calculator, Building2, Upload, Brain } from 'lucide-react';
-import TransactionUpload from './TransactionUpload';
+import TransactionUploadWithValidation from './TransactionUploadWithValidation';
+import TransactionsList from './TransactionsList';
 import TransactionAnalysisEngine from './TransactionAnalysisEngine';
 import OptimizationPopup from './OptimizationPopup';
 import DocumentUploadPopup from './DocumentUploadPopup';
 import CostCalculatorTab from './CostCalculatorTab';
+import { supabase } from '../../lib/supabase';
+import { useAuth } from '../../hooks/useAuth';
+import { Transaction } from '../../types';
+import { showSuccess, showError } from '../../lib/toast';
 
 interface Transaction {
   id: string;
@@ -39,9 +44,10 @@ const CostAnalysisTab: React.FC<CostAnalysisTabProps> = ({
   onEmailSent,
   onOptimizationStatusChange 
 }) => {
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<'optimization' | 'calculator'>('optimization');
   const [transactionsUploaded, setTransactionsUploaded] = useState(false);
-  const [uploadedTransactions, setUploadedTransactions] = useState<any[]>([]);
+  const [uploadedTransactions, setUploadedTransactions] = useState<Transaction[]>([]);
   const [analysisCompleted, setAnalysisCompleted] = useState(false);
   const [analysisResults, setAnalysisResults] = useState<any[]>([]);
   const [optimizationTransaction, setOptimizationTransaction] = useState<Transaction | null>(null);
@@ -50,6 +56,7 @@ const CostAnalysisTab: React.FC<CostAnalysisTabProps> = ({
   const [uploadedDocument, setUploadedDocument] = useState<{ filename: string; type: string } | null>(null);
   const [showProviderComparison, setShowProviderComparison] = useState(false);
   const [acceptedRecommendation, setAcceptedRecommendation] = useState<Provider | null>(null);
+  const [isLoadingTransactions, setIsLoadingTransactions] = useState(false);
 
   const handleTransactionUpload = (transactions: any[]) => {
     setUploadedTransactions(transactions);
