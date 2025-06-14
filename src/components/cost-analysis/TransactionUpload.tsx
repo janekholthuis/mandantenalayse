@@ -334,7 +334,7 @@ const TransactionUpload: React.FC<TransactionUploadProps> = ({ onUploadComplete 
             </h3>
             <p className="text-sm text-blue-800 mb-3">
               Diese Datei können Sie aus DATEV Kanzlei-Rechnungswesen exportieren – 
-              z. B. über 'Daten exportieren > Buchungssätze > ASCII/CSV'
+              z. B. über 'Daten exportieren - Buchungssätze - ASCII/CSV'
             </p>
             <button className="text-sm text-blue-700 hover:text-blue-800 font-medium underline">
               📖 Detaillierte Anleitung ansehen
