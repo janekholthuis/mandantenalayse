@@ -1,12 +1,9 @@
 import React, { useState } from 'react';
-import { BarChart3, CheckCircle, TrendingDown, Calculator, Building2, Upload } from 'lucide-react';
+import { BarChart3, CheckCircle, TrendingDown, Calculator, Building2, Upload, Brain } from 'lucide-react';
 import TransactionUpload from './TransactionUpload';
-import TransactionImport from './TransactionImport';
+import TransactionAnalysisEngine from './TransactionAnalysisEngine';
 import OptimizationPopup from './OptimizationPopup';
 import DocumentUploadPopup from './DocumentUploadPopup';
-import DocumentUpload from './DocumentUpload';
-import ProviderComparison from './ProviderComparison';
-import CostOptimizationTab from './CostOptimizationTab';
 import CostCalculatorTab from './CostCalculatorTab';
 
 interface Transaction {
@@ -45,7 +42,8 @@ const CostAnalysisTab: React.FC<CostAnalysisTabProps> = ({
   const [activeTab, setActiveTab] = useState<'optimization' | 'calculator'>('optimization');
   const [transactionsUploaded, setTransactionsUploaded] = useState(false);
   const [uploadedTransactions, setUploadedTransactions] = useState<any[]>([]);
-  const [transactionsImported, setTransactionsImported] = useState(false);
+  const [analysisCompleted, setAnalysisCompleted] = useState(false);
+  const [analysisResults, setAnalysisResults] = useState<any[]>([]);
   const [optimizationTransaction, setOptimizationTransaction] = useState<Transaction | null>(null);
   const [showOptimizationPopup, setShowOptimizationPopup] = useState(false);
   const [showDocumentUploadPopup, setShowDocumentUploadPopup] = useState(false);
@@ -61,11 +59,26 @@ const CostAnalysisTab: React.FC<CostAnalysisTabProps> = ({
     if (onBankConnection) {
       onBankConnection();
     }
+  };
+
+  const handleAnalysisComplete = (results: any[]) => {
+    setAnalysisResults(results);
+    setAnalysisCompleted(true);
     
-    // Automatically start transaction analysis
-    setTimeout(() => {
-      setTransactionsImported(true);
-    }, 500);
+    // Update cost optimizations based on analysis results
+    const newOptimizations = results.map(result => ({
+      id: result.category.toLowerCase().replace(/\s+/g, '-'),
+      title: `${result.category} optimieren`,
+      description: `Optimierung für ${result.provider} - ${result.contractType}`,
+      status: 'send-offers',
+      potentialSavings: result.optimizationPotential,
+      requirements: result.recommendations,
+      currentProvider: result.provider
+    }));
+    
+    // This would update the parent component's optimization list
+    // For now, we'll just log the results
+    console.log('Analysis results:', results);
   };
 
   const handleOptimizationFound = (transaction: Transaction) => {
@@ -139,19 +152,35 @@ const CostAnalysisTab: React.FC<CostAnalysisTabProps> = ({
     );
   }
 
-  // After transaction upload, show the analysis results
+  // After transaction upload, show the AI analysis engine
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="mb-6">
-        <h2 className="text-xl font-semibold text-gray-900 mb-2">Kostenoptimierung</h2>
+        <div className="flex items-center mb-4">
+          <Brain className="h-6 w-6 text-blue-600 mr-2" />
+          <h2 className="text-xl font-semibold text-gray-900">KI-gestützte Kostenanalyse</h2>
+        </div>
         <p className="text-gray-600">
-          Basierend auf {uploadedTransactions.length} analysierten Buchungen wurden Optimierungspotenziale identifiziert.
+          {analysisCompleted 
+            ? `Analyse von ${uploadedTransactions.length} Buchungen abgeschlossen. ${analysisResults.length} Optimierungen gefunden.`
+            : `Analysiere ${uploadedTransactions.length} hochgeladene Buchungen mit künstlicher Intelligenz.`
+          }
         </p>
       </div>
 
-      {/* Main Content - Show Calculator Tab by default */}
-      <CostCalculatorTab onOptimizationStatusChange={onOptimizationStatusChange} />
+      {/* AI Analysis Engine */}
+      {!analysisCompleted && (
+        <TransactionAnalysisEngine 
+          transactions={uploadedTransactions}
+          onAnalysisComplete={handleAnalysisComplete}
+        />
+      )}
+
+      {/* Results - Show Calculator Tab after analysis */}
+      {analysisCompleted && (
+        <CostCalculatorTab onOptimizationStatusChange={onOptimizationStatusChange} />
+      )}
 
       {/* Optimization Popup */}
       {showOptimizationPopup && optimizationTransaction && (
