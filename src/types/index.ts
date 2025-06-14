@@ -1,7 +1,6 @@
 export type Client = {
   id: string;
   name: string;
-  industry?: string;
   revenue?: number;
   profit?: number;
   legalForm?: string;

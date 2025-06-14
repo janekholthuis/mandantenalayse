@@ -113,7 +113,6 @@ const ClientDetailPage: React.FC = () => {
         const transformedClient: Client = {
           id: clientData.id.toString(),
           name: clientData.name || 'Unbekannt',
-          industry: clientData.branchenschluessel_bezeichnung || 'Nicht angegeben',
           revenue: 0,
           profit: 0,
           legalForm: clientData.unternehmensform || 'Nicht angegeben',
@@ -277,17 +276,6 @@ const ClientDetailPage: React.FC = () => {
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Branche
-                      </label>
-                      <input
-                        type="text"
-                        value={client?.industry || ''}
-                        className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        readOnly
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
                         Mitarbeiteranzahl
                       </label>
                       <input
@@ -382,10 +370,6 @@ const ClientDetailPage: React.FC = () => {
         title={client.name}
         description={
           <div className="flex items-center space-x-4 text-sm text-gray-600">
-            <div className="flex items-center">
-              <span className="font-medium">Branche:</span>
-              <span className="ml-1">{client.industry || 'Nicht angegeben'}</span>
-            </div>
             <div className="flex items-center">
               <span className="font-medium">Rechtsform:</span>
               <span className="ml-1">{client.legalForm || 'Nicht angegeben'}</span>
