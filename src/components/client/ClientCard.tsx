@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, CheckCircle, Clock, Building2, Users, MapPin } from 'lucide-react';
+import { ArrowRight, CheckCircle, Clock, Building2, MapPin } from 'lucide-react';
 import { Client } from '../../types';
 
 interface ClientCardProps {
@@ -36,11 +36,6 @@ const ClientCard: React.FC<ClientCardProps> = ({ client }) => {
               <span className="text-gray-900">{client.legalForm}</span>
             </div>
           )}
-
-          <div className="flex items-center text-sm">
-            <Users className="h-5 w-5 text-gray-400 mr-3" />
-            <span className="text-gray-900">{client.employeeCount || 0} Mitarbeiter</span>
-          </div>
 
           {(client.city || client.postalCode) && (
             <div className="flex items-center text-sm">

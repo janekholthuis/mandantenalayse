@@ -407,11 +407,6 @@ const ClientDetailPage: React.FC = () => {
           {/* Unified analysis metrics */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             <div className="bg-gray-50 p-4 rounded-lg">
-              <p className="text-sm font-medium text-gray-500">Mitarbeiter</p>
-              <p className="mt-1 text-2xl font-semibold text-gray-900">{client.employeeCount || 0}</p>
-              <p className="text-xs text-gray-500 mt-1">Unternehmensgröße</p>
-            </div>
-            <div className="bg-gray-50 p-4 rounded-lg">
               <p className="text-sm font-medium text-gray-500">Analysierte Verträge</p>
               <p className="mt-1 text-2xl font-semibold text-gray-900">
                 {bankConnected ? '3' : '0'}
@@ -434,6 +429,13 @@ const ClientDetailPage: React.FC = () => {
                 )}
               </p>
               <p className="text-xs text-gray-500 mt-1">Umgesetzte Optimierungen</p>
+            </div>
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <p className="text-sm font-medium text-gray-500">Identifizierte Potentiale</p>
+              <p className="mt-1 text-2xl font-semibold text-gray-900">
+                {bankConnected ? '2' : '0'}
+              </p>
+              <p className="text-xs text-gray-500 mt-1">Optimierungsmöglichkeiten</p>
             </div>
             <div className="bg-blue-50 p-4 rounded-lg">
               <p className="text-sm font-medium text-blue-700">Einsparungspotential</p>
@@ -470,45 +472,7 @@ const ClientDetailPage: React.FC = () => {
           )}
 
           <div className="mt-6">
-            <button
-              onClick={() => setShowEmployees(!showEmployees)}
-              className="flex items-center text-sm text-gray-600 hover:text-gray-900"
-            >
-              <Users size={16} className="mr-2" />
-              Mitarbeiterliste
-              {showEmployees ? <ChevronUp size={16} className="ml-2" /> : <ChevronDown size={16} className="ml-2" />}
-            </button>
-
-            {showEmployees && client.employees && client.employees.length > 0 && (
-              <div className="mt-4 overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Position</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Abteilung</th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {client.employees.map((employee) => (
-                      <tr key={employee.id}>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{employee.name}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{employee.position}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{employee.department}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-
-            {showEmployees && (!client.employees || client.employees.length === 0) && (
-              <div className="mt-4 text-center py-8 text-gray-500">
-                <Users className="h-8 w-8 mx-auto mb-2 text-gray-400" />
-                <p>Keine Mitarbeiterdaten verfügbar</p>
-                <p className="text-sm">Mitarbeiterdaten werden bei der ersten Analyse erfasst</p>
-              </div>
-            )}
+            {/* Mitarbeiterliste entfernt für mehr Simplizität */}
           </div>
         </div>
       </div>
