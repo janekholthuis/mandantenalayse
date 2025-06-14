@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { BarChart3, CheckCircle, TrendingDown, Calculator, Building2 } from 'lucide-react';
-import BankConnection from './BankConnection';
+import { BarChart3, CheckCircle, TrendingDown, Calculator, Building2, Upload } from 'lucide-react';
+import TransactionUpload from './TransactionUpload';
 import TransactionImport from './TransactionImport';
 import OptimizationPopup from './OptimizationPopup';
 import DocumentUploadPopup from './DocumentUploadPopup';
@@ -43,9 +43,8 @@ const CostAnalysisTab: React.FC<CostAnalysisTabProps> = ({
   onOptimizationStatusChange 
 }) => {
   const [activeTab, setActiveTab] = useState<'optimization' | 'calculator'>('optimization');
-  const [connectedBank, setConnectedBank] = useState<string | null>(null);
-  const [fromDate, setFromDate] = useState<string | null>(null);
-  const [toDate, setToDate] = useState<string | null>(null);
+  const [transactionsUploaded, setTransactionsUploaded] = useState(false);
+  const [uploadedTransactions, setUploadedTransactions] = useState<any[]>([]);
   const [transactionsImported, setTransactionsImported] = useState(false);
   const [optimizationTransaction, setOptimizationTransaction] = useState<Transaction | null>(null);
   const [showOptimizationPopup, setShowOptimizationPopup] = useState(false);
@@ -54,15 +53,16 @@ const CostAnalysisTab: React.FC<CostAnalysisTabProps> = ({
   const [showProviderComparison, setShowProviderComparison] = useState(false);
   const [acceptedRecommendation, setAcceptedRecommendation] = useState<Provider | null>(null);
 
-  const handleBankConnection = (bank: string, from: string, to: string) => {
-    setConnectedBank(bank);
-    setFromDate(from);
-    setToDate(to);
-   // Notify parent component about bank connection
-   if (onBankConnection) {
-     onBankConnection();
-   }
-    // Automatically start transaction import after bank connection
+  const handleTransactionUpload = (transactions: any[]) => {
+    setUploadedTransactions(transactions);
+    setTransactionsUploaded(true);
+    
+    // Notify parent component about transaction upload
+    if (onBankConnection) {
+      onBankConnection();
+    }
+    
+    // Automatically start transaction analysis
     setTimeout(() => {
       setTransactionsImported(true);
     }, 500);
@@ -120,33 +120,33 @@ const CostAnalysisTab: React.FC<CostAnalysisTabProps> = ({
     // The parent component should handle this status update
   };
 
-  // If no bank is connected, show only the bank connection component
-  if (!connectedBank) {
+  // If no transactions are uploaded, show only the upload component
+  if (!transactionsUploaded) {
     return (
       <div className="space-y-6">
         <div className="mb-6">
           <div className="flex items-center mb-4">
-            <Building2 className="h-6 w-6 text-blue-600 mr-2" />
+            <Upload className="h-6 w-6 text-blue-600 mr-2" />
             <h3 className="text-lg font-medium text-gray-900">Kostenanalyse</h3>
           </div>
           <p className="text-gray-600">
-            Verbinden Sie Ihr Bankkonto, um automatisch Optimierungspotenziale in Ihren Ausgaben zu identifizieren.
+            Laden Sie Ihre Buchungsdaten hoch, um automatisch Optimierungspotenziale in Ihren Ausgaben zu identifizieren.
           </p>
         </div>
 
-        <BankConnection onConnectionComplete={handleBankConnection} />
+        <TransactionUpload onUploadComplete={handleTransactionUpload} />
       </div>
     );
   }
 
-  // After bank connection, show the tabs
+  // After transaction upload, show the analysis results
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="mb-6">
         <h2 className="text-xl font-semibold text-gray-900 mb-2">Kostenoptimierung</h2>
         <p className="text-gray-600">
-          Analysieren Sie Ihre Ausgaben und identifizieren Sie Einsparpotenziale.
+          Basierend auf {uploadedTransactions.length} analysierten Buchungen wurden Optimierungspotenziale identifiziert.
         </p>
       </div>
 
