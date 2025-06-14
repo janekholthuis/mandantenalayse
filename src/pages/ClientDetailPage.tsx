@@ -90,7 +90,6 @@ const ClientDetailPage: React.FC = () => {
   const [showOptimizations, setShowOptimizations] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [activeOptimizations, setActiveOptimizations] = useState<Set<string>>(new Set());
-  const [activeTab, setActiveTab] = useState<'optimizations' | 'transactions'>('optimizations');
   const [activeTab, setActiveTab] = useState<'optimizations' | 'transactions'>('transactions');
   const [bankConnected, setBankConnected] = useState(false);
   const [documentsUploaded, setDocumentsUploaded] = useState(false);
