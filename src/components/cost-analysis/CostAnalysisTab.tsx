@@ -58,48 +58,13 @@ const CostAnalysisTab: React.FC<CostAnalysisTabProps> = ({
   const [acceptedRecommendation, setAcceptedRecommendation] = useState<Provider | null>(null);
   const [isLoadingTransactions, setIsLoadingTransactions] = useState(false);
 
-  const handleTransactionUpload = async (transactions: Transaction[]) => {
-    if (!user) {
-      showError('Benutzer nicht angemeldet');
-      return;
-    }
-
-    try {
-      // Transform transactions for Supabase
-      const transactionsToInsert = transactions.map(transaction => ({
-        datum: transaction.date,
-        buchungstext: transaction.description,
-        betrag: transaction.amount,
-        waehrung: 'EUR',
-        konto: transaction.accountNumber || '',
-        gegenkonto: '',
-        soll_haben: transaction.amount < 0 ? 'S' : 'H',
-        belegnummer: '',
-        mandant_id: null, // Will be set when linking to specific client
-        user_id: user.id
-      }));
-
-      const { data, error } = await supabase
-        .from('transactions')
-        .insert(transactionsToInsert)
-        .select();
-
-      if (error) {
-        throw error;
-      }
-
-      setUploadedTransactions(transactions);
-      setTransactionsUploaded(true);
-      
-      showSuccess(`${data.length} Transaktionen erfolgreich gespeichert`);
-      
-      // Notify parent component about transaction upload
-      if (onBankConnection) {
-        onBankConnection();
-      }
-    } catch (error) {
-      console.error('Error saving transactions:', error);
-      showError('Fehler beim Speichern der Transaktionen');
+  const handleTransactionUpload = (transactions: any[]) => {
+    setUploadedTransactions(transactions);
+    setTransactionsUploaded(true);
+    
+    // Notify parent component about transaction upload
+    if (onBankConnection) {
+      onBankConnection();
     }
   };
 
@@ -176,7 +141,7 @@ const CostAnalysisTab: React.FC<CostAnalysisTabProps> = ({
   };
 
   // If no transactions are uploaded, show only the upload component
-  if (!transactionsUploaded) {
+  if (!transactionsUploaded && !isLoadingTransactions) {
     return (
       <div className="space-y-6">
         <div className="mb-6">
@@ -189,7 +154,16 @@ const CostAnalysisTab: React.FC<CostAnalysisTabProps> = ({
           </p>
         </div>
 
-        <TransactionUpload onUploadComplete={handleTransactionUpload} />
+        <TransactionUploadWithValidation onUploadComplete={handleTransactionUpload} />
+      </div>
+    );
+  }
+
+  // Show loading state
+  if (isLoadingTransactions) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
       </div>
     );
   }
@@ -210,6 +184,9 @@ const CostAnalysisTab: React.FC<CostAnalysisTabProps> = ({
           }
         </p>
       </div>
+
+      {/* Transactions List */}
+      <TransactionsList transactions={uploadedTransactions} />
 
       {/* AI Analysis Engine */}
       {!analysisCompleted && (
