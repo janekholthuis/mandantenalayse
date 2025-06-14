@@ -12,6 +12,7 @@ import { supabase } from '../lib/supabase';
 import { useAuth } from '../hooks/useAuth';
 import { ClientDetail, OptimizationItem, Employee } from '../types';
 import { formatCurrency } from '../utils/formatters';
+import { showSuccess, showError } from '../lib/toast';
 
 const OPTIMIZATIONS = [
   {
@@ -81,6 +82,28 @@ const OPTIMIZATIONS = [
   }
 ];
 
+const LEGAL_FORMS = [
+  'Einzelunternehmen (e.K.)',
+  'Freiberufler',
+  'Kleingewerbe',
+  'Gesellschaft bürgerlichen Rechts (GbR)',
+  'Offene Handelsgesellschaft (OHG)',
+  'Kommanditgesellschaft (KG)',
+  'GmbH & Co. KG',
+  'Partnerschaftsgesellschaft (PartG)',
+  'PartG mbB (mit beschränkter Berufshaftung)',
+  'Gesellschaft mit beschränkter Haftung (GmbH)',
+  'Unternehmergesellschaft (haftungsbeschränkt) – UG',
+  'Aktiengesellschaft (AG)',
+  'Societas Europaea (SE)',
+  'Eingetragene Genossenschaft (eG)',
+  'Eingetragener Verein (e.V.)',
+  'Stiftung',
+  'Körperschaft des öffentlichen Rechts',
+  'Anstalt des öffentlichen Rechts',
+  'Limited (Ltd.) – UK',
+  'Sonstige ausländische Gesellschaft (z. B. BV, SARL, LLC)'
+];
 type TabType = 'transactions' | 'contracts' | 'optimizations' | 'settings';
 
 const ClientDetailPage: React.FC = () => {
@@ -108,6 +131,12 @@ const ClientDetailPage: React.FC = () => {
       missingDocuments: ['Stromvertrag', 'Letzte Stromrechnung']
     }
   ]);
+  const [isEditing, setIsEditing] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [editForm, setEditForm] = useState({
+    name: '',
+    legalForm: ''
+  });
   const optimizationsRef = useRef<HTMLDivElement>(null);
   
   // Determine current tab from URL
@@ -231,6 +260,15 @@ const ClientDetailPage: React.FC = () => {
     fetchClient();
   }, [id, user]);
 
+  // Initialize edit form when client data is loaded
+  useEffect(() => {
+    if (client && !isEditing) {
+      setEditForm({
+        name: client.name || '',
+        legalForm: client.legalForm || ''
+      });
+    }
+  }, [client, isEditing]);
   const handleBankConnection = () => {
     setBankConnected(true);
   };
