@@ -13,7 +13,7 @@ const ClientsPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [showImportForm, setShowImportForm] = useState(false);
   const [clients, setClients] = useState<Client[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   
   const filteredClients = useMemo(() => {
     if (!searchTerm) return clients;
@@ -29,7 +29,6 @@ const ClientsPage: React.FC = () => {
   const fetchClients = async () => {
     if (!user) return;
     
-    setIsLoading(true);
     try {
       const { data: mandantenData, error } = await supabase
         .from('Mandanten')
@@ -92,6 +91,7 @@ const ClientsPage: React.FC = () => {
       setClients(transformedClients);
     } catch (error) {
       console.error('Error fetching clients:', error);
+      setClients([]);
     } finally {
       setIsLoading(false);
     }
@@ -103,10 +103,10 @@ const ClientsPage: React.FC = () => {
 
   // Fetch clients on component mount
   React.useEffect(() => {
-    if (user) {
+    if (user && isLoading) {
       fetchClients();
     }
-  }, [user]);
+  }, [user, isLoading]);
   
   return (
     <>
