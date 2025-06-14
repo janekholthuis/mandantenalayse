@@ -9,6 +9,7 @@ import CostCalculatorTab from './CostCalculatorTab';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../hooks/useAuth';
 import { Transaction } from '../../types';
+import { useParams } from 'react-router-dom';
 import { showSuccess, showError } from '../../lib/toast';
 
 interface Transaction {
@@ -45,6 +46,7 @@ const CostAnalysisTab: React.FC<CostAnalysisTabProps> = ({
   onOptimizationStatusChange 
 }) => {
   const { user } = useAuth();
+  const { id: mandantId } = useParams<{ id: string }>();
   const [activeTab, setActiveTab] = useState<'optimization' | 'calculator'>('optimization');
   const [transactionsUploaded, setTransactionsUploaded] = useState(false);
   const [uploadedTransactions, setUploadedTransactions] = useState<Transaction[]>([]);
@@ -57,6 +59,62 @@ const CostAnalysisTab: React.FC<CostAnalysisTabProps> = ({
   const [showProviderComparison, setShowProviderComparison] = useState(false);
   const [acceptedRecommendation, setAcceptedRecommendation] = useState<Provider | null>(null);
   const [isLoadingTransactions, setIsLoadingTransactions] = useState(false);
+
+  // Load existing transactions on component mount
+  React.useEffect(() => {
+    const loadExistingTransactions = async () => {
+      if (!user || !mandantId) return;
+      
+      setIsLoadingTransactions(true);
+      try {
+        const { data, error } = await supabase
+          .from('transaktionen')
+          .select('*')
+          .eq('mandant_id', mandantId)
+          .eq('user_id', user.id)
+          .order('datum', { ascending: false });
+
+        if (error) {
+          console.error('Error loading transactions:', error);
+          return;
+        }
+
+        if (data && data.length > 0) {
+          // Transform Supabase data to frontend format
+          const transactions = data.map(row => ({
+            id: row.id,
+            date: row.datum || '',
+            amount: row.betrag || 0,
+            description: row.buchungstext || '',
+            category: 'Unbekannt', // Will be categorized by AI
+            accountNumber: row.konto || '',
+            // Include all Supabase fields
+            datum: row.datum,
+            buchungstext: row.buchungstext,
+            betrag: row.betrag,
+            waehrung: row.waehrung,
+            konto: row.konto,
+            gegenkonto: row.gegenkonto,
+            soll_haben: row.soll_haben,
+            belegnummer: row.belegnummer,
+            mandant_id: row.mandant_id,
+            user_id: row.user_id,
+            created_at: row.created_at,
+            updated_at: row.updated_at
+          }));
+
+          setUploadedTransactions(transactions);
+          setTransactionsUploaded(true);
+        }
+      } catch (error) {
+        console.error('Error loading transactions:', error);
+      } finally {
+        setIsLoadingTransactions(false);
+      }
+    };
+
+    loadExistingTransactions();
+  }, [user, mandantId]);
 
   const handleTransactionUpload = (transactions: any[]) => {
     setUploadedTransactions(transactions);
@@ -163,7 +221,10 @@ const CostAnalysisTab: React.FC<CostAnalysisTabProps> = ({
   if (isLoadingTransactions) {
     return (
       <div className="flex justify-center items-center h-64">
+        <div className="text-center">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+          <p className="mt-4 text-gray-600">Lade bestehende Transaktionen...</p>
+        </div>
       </div>
     );
   }

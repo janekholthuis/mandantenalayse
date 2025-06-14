@@ -3,6 +3,9 @@ import { Upload, FileText, X, CheckCircle, AlertTriangle, Download, Info, AlertC
 import * as XLSX from 'xlsx';
 import Button from '../ui/Button';
 import { showSuccess, showError } from '../../lib/toast';
+import { supabase } from '../../lib/supabase';
+import { useAuth } from '../../hooks/useAuth';
+import { useParams } from 'react-router-dom';
 
 interface TransactionUploadWithValidationProps {
   onUploadComplete: (transactions: any[]) => void;
@@ -19,6 +22,8 @@ interface ValidationError {
 }
 
 const TransactionUploadWithValidation: React.FC<TransactionUploadWithValidationProps> = ({ onUploadComplete }) => {
+  const { user } = useAuth();
+  const { id: mandantId } = useParams<{ id: string }>();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [parsedData, setParsedData] = useState<ParsedTransaction[]>([]);
   const [fieldMapping, setFieldMapping] = useState<Record<string, string>>({});
@@ -29,7 +34,7 @@ const TransactionUploadWithValidation: React.FC<TransactionUploadWithValidationP
   const [currentStep, setCurrentStep] = useState<'upload' | 'preview' | 'validation'>('upload');
 
   const downloadTemplate = () => {
-    const csvContent = 'Buchungsdatum,Konto,Gegenkonto,Betrag,Buchungstext,Belegfeld1\n"2025-01-15","1200","4400","-89.50","Stromabschlag Januar","RE-2025-001"\n"2025-01-14","1200","4300","-45.20","Internet & Telefon","RE-2025-002"\n"2025-01-13","1200","6800","-156.80","KFZ-Versicherung","RE-2025-003"';
+    const csvContent = 'Belegdatum,Konto,Gegenkonto,Betrag,Buchungstext,Belegnummer,Währung,Soll/Haben-Kennzeichen\n"2025-01-15","1200","4400","-89.50","Stromabschlag Januar","RE-2025-001","EUR","S"\n"2025-01-14","1200","4300","-45.20","Internet & Telefon","RE-2025-002","EUR","S"\n"2025-01-13","1200","6800","-156.80","KFZ-Versicherung","RE-2025-003","EUR","S"';
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     const url = URL.createObjectURL(blob);
@@ -113,16 +118,22 @@ const TransactionUploadWithValidation: React.FC<TransactionUploadWithValidationP
       
       sourceFields.forEach(field => {
         const lowerField = field.toLowerCase();
-        if (lowerField.includes('datum') || lowerField.includes('date')) {
-          autoMapping['Buchungsdatum'] = field;
+        if (lowerField.includes('datum') || lowerField.includes('date') || lowerField.includes('belegdatum')) {
+          autoMapping['datum'] = field;
         } else if (lowerField.includes('betrag') || lowerField.includes('amount')) {
-          autoMapping['Betrag'] = field;
+          autoMapping['betrag'] = field;
         } else if (lowerField.includes('text') || lowerField.includes('beschreibung')) {
-          autoMapping['Buchungstext'] = field;
+          autoMapping['buchungstext'] = field;
         } else if (lowerField.includes('konto') && !lowerField.includes('gegen')) {
-          autoMapping['Konto'] = field;
+          autoMapping['konto'] = field;
         } else if (lowerField.includes('gegenkonto')) {
-          autoMapping['Gegenkonto'] = field;
+          autoMapping['gegenkonto'] = field;
+        } else if (lowerField.includes('währung') || lowerField.includes('currency')) {
+          autoMapping['waehrung'] = field;
+        } else if (lowerField.includes('soll') || lowerField.includes('haben')) {
+          autoMapping['soll_haben'] = field;
+        } else if (lowerField.includes('beleg') || lowerField.includes('nummer')) {
+          autoMapping['belegnummer'] = field;
         }
       });
       
@@ -136,31 +147,72 @@ const TransactionUploadWithValidation: React.FC<TransactionUploadWithValidationP
     }
   };
 
-  const handleUpload = () => {
+  const handleUpload = async () => {
     if (!gdprConsent) {
       setShowGdprError(true);
       showError('Bitte bestätigen Sie die DSGVO-Einverständniserklärung');
       return;
     }
 
+    if (!user || !mandantId) {
+      showError('Benutzer oder Mandant nicht gefunden');
+      return;
+    }
     setShowGdprError(false);
     setIsProcessing(true);
     
     try {
-      // Transform data for analysis
-      const transactions = parsedData.map(row => ({
-        id: crypto.randomUUID(),
-        date: row[fieldMapping['Buchungsdatum']] || '',
-        amount: parseFloat(row[fieldMapping['Betrag']]) || 0,
-        description: row[fieldMapping['Buchungstext']] || '',
-        category: 'Unbekannt',
-        accountNumber: row[fieldMapping['Konto']] || ''
+      // Transform data for Supabase insertion
+      const transactionsForDb = parsedData.map(row => ({
+        datum: row[fieldMapping['datum']] || null,
+        betrag: parseFloat(row[fieldMapping['betrag']]) || 0,
+        buchungstext: row[fieldMapping['buchungstext']] || '',
+        konto: row[fieldMapping['konto']] || null,
+        gegenkonto: row[fieldMapping['gegenkonto']] || null,
+        waehrung: row[fieldMapping['waehrung']] || 'EUR',
+        soll_haben: row[fieldMapping['soll_haben']] || null,
+        belegnummer: row[fieldMapping['belegnummer']] || null,
+        mandant_id: mandantId,
+        user_id: user.id
+      }));
+
+      // Insert into Supabase
+      const { data: insertedData, error } = await supabase
+        .from('transaktionen')
+        .insert(transactionsForDb)
+        .select();
+
+      if (error) {
+        throw error;
+      }
+
+      // Transform data for frontend display
+      const transactions = (insertedData || []).map(row => ({
+        id: row.id,
+        date: row.datum || '',
+        amount: row.betrag || 0,
+        description: row.buchungstext || '',
+        category: 'Unbekannt', // Will be categorized by AI
+        accountNumber: row.konto || '',
+        // Include all Supabase fields
+        datum: row.datum,
+        buchungstext: row.buchungstext,
+        betrag: row.betrag,
+        waehrung: row.waehrung,
+        konto: row.konto,
+        gegenkonto: row.gegenkonto,
+        soll_haben: row.soll_haben,
+        belegnummer: row.belegnummer,
+        mandant_id: row.mandant_id,
+        user_id: row.user_id,
+        created_at: row.created_at,
+        updated_at: row.updated_at
       }));
 
       onUploadComplete(transactions);
       showSuccess(`${transactions.length} Transaktionen erfolgreich hochgeladen`);
     } catch (error) {
-      showError('Fehler beim Verarbeiten der Transaktionen');
+      showError('Fehler beim Speichern der Transaktionen: ' + (error as Error).message);
       console.error('Upload error:', error);
     } finally {
       setIsProcessing(false);
@@ -263,16 +315,32 @@ const TransactionUploadWithValidation: React.FC<TransactionUploadWithValidationP
         {/* Field Mapping */}
         <div className="mb-6">
           <h4 className="text-md font-medium text-gray-900 mb-4">Feldzuordnung</h4>
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+            <h5 className="text-sm font-medium text-blue-900 mb-2">DATEV-Feldmapping</h5>
+            <p className="text-sm text-blue-800">
+              Die Felder werden automatisch den DATEV-Standardfeldern zugeordnet. Überprüfen Sie die Zuordnung und passen Sie sie bei Bedarf an.
+            </p>
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {['Buchungsdatum', 'Betrag', 'Buchungstext', 'Konto'].map(targetField => (
+            {[
+              { key: 'datum', label: 'Belegdatum', required: true, description: 'Alternativ: Buchungsdatum' },
+              { key: 'betrag', label: 'Betrag', required: true, description: 'Netto/Brutto je nach Exportart' },
+              { key: 'buchungstext', label: 'Buchungstext', required: true, description: 'Basis für KI-Vertragserkennung' },
+              { key: 'konto', label: 'Konto', required: false, description: 'Für Kontenanalyse/Kategorisierung' },
+              { key: 'gegenkonto', label: 'Gegenkonto', required: false, description: 'z.B. Bank, Debitor, Kreditor' },
+              { key: 'waehrung', label: 'Währung', required: false, description: 'Default = EUR' },
+              { key: 'soll_haben', label: 'Soll/Haben-Kennzeichen', required: false, description: '"S" oder "H"' },
+              { key: 'belegnummer', label: 'Belegnummer', required: false, description: 'Für Matching mit Belegsystem' }
+            ].map(field => (
               <div key={targetField} className="border border-gray-200 rounded-lg p-4">
                 <label className="text-sm font-medium text-gray-900 mb-2 block">
-                  {targetField}
-                  {['Buchungsdatum', 'Betrag'].includes(targetField) && <span className="text-red-500 ml-1">*</span>}
+                  {field.label}
+                  {field.required && <span className="text-red-500 ml-1">*</span>}
                 </label>
+                <p className="text-xs text-gray-500 mb-2">{field.description}</p>
                 <select
-                  value={fieldMapping[targetField] || ''}
-                  onChange={(e) => setFieldMapping(prev => ({ ...prev, [targetField]: e.target.value }))}
+                  value={fieldMapping[field.key] || ''}
+                  onChange={(e) => setFieldMapping(prev => ({ ...prev, [field.key]: e.target.value }))}
                   className="w-full text-sm border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 >
                   <option value="">-- Spalte wählen --</option>
@@ -293,9 +361,13 @@ const TransactionUploadWithValidation: React.FC<TransactionUploadWithValidationP
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50 sticky top-0">
                   <tr>
-                    {['Buchungsdatum', 'Betrag', 'Buchungstext', 'Konto'].map(field => (
+                    {['datum', 'betrag', 'buchungstext', 'konto', 'gegenkonto'].map(field => (
                       <th key={field} className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
-                        {field}
+                        {field === 'datum' ? 'Datum' : 
+                         field === 'betrag' ? 'Betrag' :
+                         field === 'buchungstext' ? 'Buchungstext' :
+                         field === 'konto' ? 'Konto' :
+                         field === 'gegenkonto' ? 'Gegenkonto' : field}
                       </th>
                     ))}
                   </tr>
@@ -303,7 +375,7 @@ const TransactionUploadWithValidation: React.FC<TransactionUploadWithValidationP
                 <tbody className="bg-white divide-y divide-gray-200">
                   {parsedData.slice(0, 5).map((row, index) => (
                     <tr key={index} className="hover:bg-gray-50">
-                      {['Buchungsdatum', 'Betrag', 'Buchungstext', 'Konto'].map(field => (
+                      {['datum', 'betrag', 'buchungstext', 'konto', 'gegenkonto'].map(field => (
                         <td key={field} className="px-4 py-2 text-sm text-gray-900">
                           {fieldMapping[field] ? row[fieldMapping[field]] || '-' : '-'}
                         </td>
@@ -363,7 +435,7 @@ const TransactionUploadWithValidation: React.FC<TransactionUploadWithValidationP
           <Button
             variant="primary"
             onClick={handleUpload}
-            disabled={!fieldMapping['Buchungsdatum'] || !fieldMapping['Betrag'] || isProcessing}
+            disabled={!fieldMapping['datum'] || !fieldMapping['betrag'] || !fieldMapping['buchungstext'] || isProcessing}
             isLoading={isProcessing}
             className="bg-blue-600 hover:bg-blue-700"
           >
