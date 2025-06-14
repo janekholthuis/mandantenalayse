@@ -92,18 +92,27 @@ const ClientImportForm: React.FC<ClientImportFormProps> = ({ onImportComplete, o
 
       headers.forEach((header, index) => {
         if (values[index] !== undefined) {
-          if (header === 'PLZ' && values[index]) {
+          // Map DATEV fields to our schema
+          let mappedHeader = header;
+          if (header === 'Mandantenname') {
+            mappedHeader = 'Firmenname';
+          }
+          
+          if (mappedHeader === 'PLZ' && values[index]) {
             const plz = parseInt(values[index]);
             if (!isNaN(plz)) {
-              row[header] = plz;
+              row[mappedHeader] = plz;
             }
-          } else {
-            row[header] = values[index];
+          } else if (values[index]) {
+            row[mappedHeader] = values[index];
           }
         }
       });
 
-      data.push(row);
+      // Only add rows that have at least a company name
+      if (row.Firmenname && row.Firmenname.trim() !== '') {
+        data.push(row);
+      }
     }
 
     return data;
@@ -139,15 +148,21 @@ const ClientImportForm: React.FC<ClientImportFormProps> = ({ onImportComplete, o
             headers.forEach((header: string, index: number) => {
               const value = jsonData[i][index];
               if (value !== undefined && value !== null && value !== '') {
-                if (header === 'PLZ' && typeof value === 'number') {
-                  row[header] = value;
-                } else if (header === 'PLZ' && typeof value === 'string') {
+                // Map DATEV fields to our schema
+                let mappedHeader = header;
+                if (header === 'Mandantenname') {
+                  mappedHeader = 'Firmenname';
+                }
+                
+                if (mappedHeader === 'PLZ' && typeof value === 'number') {
+                  row[mappedHeader] = value;
+                } else if (mappedHeader === 'PLZ' && typeof value === 'string') {
                   const plz = parseInt(value);
                   if (!isNaN(plz)) {
-                    row[header] = plz;
+                    row[mappedHeader] = plz;
                   }
                 } else {
-                  row[header] = String(value);
+                  row[mappedHeader] = String(value);
                 }
               }
             });
@@ -449,11 +464,11 @@ const ClientImportForm: React.FC<ClientImportFormProps> = ({ onImportComplete, o
                 <div>
                   <p><strong>DATEV-Format (unterstützt):</strong></p>
                   <ul className="list-disc list-inside ml-4 space-y-1 text-xs">
-                    <li><code>Mandantenname</code> oder <code>Firmenname</code></li>
-                    <li><code>Mandantennummer</code> (optional)</li>
-                    <li><code>Beraternummer</code> (optional)</li>
-                    <li><code>Branche</code> (optional)</li>
-                    <li><code>Status</code> (optional)</li>
+                    <li><code>Mandantenname</code> wird zu <code>Firmenname</code> gemappt</li>
+                    <li><code>Mandantennummer</code> (wird ignoriert)</li>
+                    <li><code>Beraternummer</code> (wird ignoriert)</li>
+                    <li><code>Branche</code> (wird ignoriert)</li>
+                    <li><code>Status</code> (wird ignoriert)</li>
                   </ul>
                 </div>
               </div>

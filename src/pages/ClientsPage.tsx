@@ -46,10 +46,10 @@ const ClientsPage: React.FC = () => {
       const transformedClients = data.map(client => ({
         id: client.id.toString(),
         name: client.Firmenname,
-        industry: 'Unbekannt', // Default since not in schema
+        industry: 'Nicht angegeben', // Default since not in schema
         revenue: 0, // Default since not in schema
         profit: 0, // Default since not in schema
-        legalForm: 'Unbekannt', // Default since not in schema
+        legalForm: 'Nicht angegeben', // Default since not in schema
         status: 'active' as const,
         lastAnalyzed: undefined,
         employeeCount: 0,
