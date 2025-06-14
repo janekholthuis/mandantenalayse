@@ -8,6 +8,15 @@ interface Transaction {
   description: string;
   category: string;
   accountNumber: string;
+  // Supabase fields
+  datum?: string;
+  buchungstext?: string;
+  betrag?: number;
+  waehrung?: string;
+  konto?: string;
+  gegenkonto?: string;
+  soll_haben?: string;
+  belegnummer?: string;
 }
 
 interface TransactionsListProps {
@@ -235,16 +244,19 @@ const TransactionsList: React.FC<TransactionsListProps> = ({ transactions }) => 
                 Datum
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Titel
+                Buchungstext
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Betrag
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Art
+                Konto
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Kategorie
+                Gegenkonto
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Art
               </th>
             </tr>
           </thead>
@@ -271,6 +283,12 @@ const TransactionsList: React.FC<TransactionsListProps> = ({ transactions }) => 
                     </span>
                   </div>
                 </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  {transaction.konto || transaction.accountNumber || '-'}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  {transaction.gegenkonto || '-'}
+                </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm">
                   <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
                     transaction.amount < 0 
@@ -278,11 +296,6 @@ const TransactionsList: React.FC<TransactionsListProps> = ({ transactions }) => 
                       : 'bg-green-100 text-green-800'
                   }`}>
                     {transaction.amount < 0 ? 'Ausgabe' : 'Einnahme'}
-                  </span>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getCategoryColor(transaction.category)}`}>
-                    {transaction.category}
                   </span>
                 </td>
               </tr>
