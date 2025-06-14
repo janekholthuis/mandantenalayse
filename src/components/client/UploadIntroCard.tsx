@@ -93,17 +93,10 @@ const UploadIntroCard: React.FC<UploadIntroCardProps> = ({ onStartUpload }) => {
       {/* Supported Formats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
         <div className="text-center p-4 bg-green-50 border border-green-200 rounded-lg">
-          <div className="text-green-600 font-medium text-sm">✅ CSV-Dateien</div>
-          <div className="text-green-700 text-xs mt-1">.csv</div>
+          <div className="text-green-600 font-medium text-sm">Erlaubte Dateiformate:</div>
+          <div className="text-green-700 text-xs mt-1">✅  CSV (.csv), Excel Dateien (.xlsx, .xls)</div>
         </div>
-        <div className="text-center p-4 bg-green-50 border border-green-200 rounded-lg">
-          <div className="text-green-600 font-medium text-sm">✅ Excel-Dateien</div>
-          <div className="text-green-700 text-xs mt-1">.xlsx, .xls</div>
-        </div>
-        <div className="text-center p-4 bg-green-50 border border-green-200 rounded-lg">
-          <div className="text-green-600 font-medium text-sm">✅ DATEV-Export</div>
-          <div className="text-green-700 text-xs mt-1">Automatisch erkannt</div>
-        </div>
+       
       </div>
 
       {/* Start Upload Button */}
