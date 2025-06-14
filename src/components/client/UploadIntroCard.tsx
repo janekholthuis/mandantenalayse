@@ -117,9 +117,7 @@ const UploadIntroCard: React.FC<UploadIntroCardProps> = ({ onStartUpload }) => {
           <div className="flex items-center">
             <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
             <span>🔐 Ihre Daten werden verschlüsselt übertragen und gemäß DSGVO verarbeitet.</span>
-            <button className="ml-2 text-blue-600 hover:text-blue-700 underline">
-              Mehr erfahren
-            </button>
+          
           </div>
         </div>
       </div>
