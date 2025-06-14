@@ -52,11 +52,17 @@ const UploadIntroCard: React.FC<UploadIntroCardProps> = ({ onStartUpload }) => {
             </h3>
             <p className="text-sm text-blue-800 mb-3">
               Die Datei exportieren Sie über DATEV Arbeitsplatz pro. Eine detaillierte 
-              Schritt-für-Schritt-Anleitung finden Sie in unserem Hilfebereich.
+              Schritt-für-Schritt-Anleitung von DATEV finden Sie unter diesem Link:
             </p>
-            <button className="text-sm text-blue-700 hover:text-blue-800 font-medium underline">
-              📖 Anleitung ansehen
-            </button>
+        <a
+  href="https://apps.datev.de/help-center/documents/1029145"
+  target="_blank"
+  rel="noopener noreferrer"
+>
+  <button className="text-sm text-blue-700 hover:text-blue-800 font-medium underline">
+    📖 Anleitung ansehen
+  </button>
+</a>
           </div>
         </div>
       </div>
