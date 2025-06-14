@@ -30,22 +30,18 @@ const ClientsPage: React.FC = () => {
   }, [searchTerm, clients]);
 
   const fetchClients = async () => {
-    if (!user) return;
-    
     setIsLoading(true);
     try {
-      const { data, error } = await supabase
+      let { data: Mandanten, error } = await supabase
         .from('Mandanten')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
+        .select('*');
 
       if (error) throw error;
 
       // Transform Supabase data to match our Client interface
-      const transformedClients = data.map(client => ({
+      const transformedClients = (Mandanten || []).map(client => ({
         id: client.id.toString(),
-        name: client.Firmenname,
+        name: client.Firmenname || 'Unbekannt',
         industry: 'Nicht angegeben', // Default since not in schema
         revenue: 0, // Default since not in schema
         profit: 0, // Default since not in schema
@@ -53,7 +49,7 @@ const ClientsPage: React.FC = () => {
         status: 'active' as const,
         lastAnalyzed: undefined,
         employeeCount: 0,
-        city: client.Stadt,
+        city: client.Stadt || undefined,
         postalCode: client.PLZ
       }));
 
@@ -71,7 +67,9 @@ const ClientsPage: React.FC = () => {
 
   // Fetch clients on component mount
   React.useEffect(() => {
-    fetchClients();
+    if (user) {
+      fetchClients();
+    }
   }, [user]);
   
   return (
