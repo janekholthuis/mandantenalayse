@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useParams, Link, useSearchParams } from 'react-router-dom';
+import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft, Upload, RefreshCw, BarChart3, FileText, Settings, Zap, AlertCircle, Wand2 } from 'lucide-react';
 import PageHeader from '../components/layout/PageHeader';
 import OptimizationCard from '../components/optimization/OptimizationCard';
@@ -86,14 +86,14 @@ type TabType = 'transactions' | 'contracts' | 'optimizations' | 'settings';
 const ClientDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
-  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const location = useLocation();
   const [client, setClient] = useState<ClientDetail | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [showOptimizations, setShowOptimizations] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [activeOptimizations, setActiveOptimizations] = useState<Set<string>>(new Set());
-  const [activeTab, setActiveTab] = useState<TabType>('transactions');
   const [bankConnected, setBankConnected] = useState(false);
   const [documentsUploaded, setDocumentsUploaded] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
@@ -110,13 +110,27 @@ const ClientDetailPage: React.FC = () => {
   ]);
   const optimizationsRef = useRef<HTMLDivElement>(null);
   
-  // Check for tab parameter in URL
+  // Determine current tab from URL
+  const getCurrentTab = (): TabType => {
+    const path = location.pathname;
+    if (path.includes('/transactions')) return 'transactions';
+    if (path.includes('/contracts')) return 'contracts';
+    if (path.includes('/optimizations')) return 'optimizations';
+    if (path.includes('/settings')) return 'settings';
+    return 'transactions'; // Default tab
+  };
+
+  const [activeTab, setActiveTab] = useState<TabType>(getCurrentTab());
+
+  // Update active tab when URL changes
   useEffect(() => {
-    const tabParam = searchParams.get('tab');
-    if (tabParam && ['transactions', 'contracts', 'optimizations', 'settings'].includes(tabParam)) {
-      setActiveTab(tabParam as TabType);
-    }
-  }, [searchParams]);
+    setActiveTab(getCurrentTab());
+  }, [location.pathname]);
+
+  const handleTabChange = (tab: TabType) => {
+    setActiveTab(tab);
+    navigate(`/clients/${id}/${tab}`);
+  };
   
   useEffect(() => {
     const fetchClient = async () => {
@@ -627,6 +641,66 @@ const ClientDetailPage: React.FC = () => {
           </div>
         }
       />
+
+      {/* Tab Navigation */}
+      <div className="bg-white rounded-lg shadow mb-8">
+        <div className="border-b border-gray-200">
+          <nav className="-mb-px flex space-x-8 px-6">
+            <button
+              onClick={() => handleTabChange('transactions')}
+              className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                activeTab === 'transactions'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              <div className="flex items-center">
+                <BarChart3 className="h-5 w-5 mr-2" />
+                Transaktionen
+              </div>
+            </button>
+            <button
+              onClick={() => handleTabChange('contracts')}
+              className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                activeTab === 'contracts'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              <div className="flex items-center">
+                <FileText className="h-5 w-5 mr-2" />
+                Verträge
+              </div>
+            </button>
+            <button
+              onClick={() => handleTabChange('optimizations')}
+              className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                activeTab === 'optimizations'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              <div className="flex items-center">
+                <Zap className="h-5 w-5 mr-2" />
+                MA-Benefits
+              </div>
+            </button>
+            <button
+              onClick={() => handleTabChange('settings')}
+              className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                activeTab === 'settings'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              <div className="flex items-center">
+                <Settings className="h-5 w-5 mr-2" />
+                Einstellungen
+              </div>
+            </button>
+          </nav>
+        </div>
+      </div>
       
       {/* Summary Cards */}
       <div className="bg-white rounded-lg shadow mb-8">
@@ -674,69 +748,9 @@ const ClientDetailPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Tab Navigation */}
-      <div className="bg-white rounded-lg shadow mb-8">
-        <div className="border-b border-gray-200">
-          <nav className="-mb-px flex space-x-8 px-6">
-            <button
-              onClick={() => setActiveTab('transactions')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                activeTab === 'transactions'
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
-            >
-              <div className="flex items-center">
-                <BarChart3 className="h-5 w-5 mr-2" />
-                Transaktionen
-              </div>
-            </button>
-            <button
-              onClick={() => setActiveTab('contracts')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                activeTab === 'contracts'
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
-            >
-              <div className="flex items-center">
-                <FileText className="h-5 w-5 mr-2" />
-                Verträge
-              </div>
-            </button>
-            <button
-              onClick={() => setActiveTab('optimizations')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                activeTab === 'optimizations'
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
-            >
-              <div className="flex items-center">
-                <Zap className="h-5 w-5 mr-2" />
-                MA-Benefits
-              </div>
-            </button>
-            <button
-              onClick={() => setActiveTab('settings')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                activeTab === 'settings'
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
-            >
-              <div className="flex items-center">
-                <Settings className="h-5 w-5 mr-2" />
-                Einstellungen
-              </div>
-            </button>
-          </nav>
-        </div>
-
-        {/* Tab Content */}
-        <div className="p-6">
-          {renderTabContent()}
-        </div>
+      {/* Tab Content */}
+      <div className="mb-8">
+        {renderTabContent()}
       </div>
 
       {/* Analysis Modal */}
@@ -744,18 +758,22 @@ const ClientDetailPage: React.FC = () => {
         <ClientAnalysis
           client={client}
           onComplete={handleAnalysisComplete}
-          onCancel={() => setIsAnalyzing(false)}
+          onClose={() => setIsAnalyzing(false)}
         />
       )}
 
       {/* Optimization Settings Modal */}
       {showSettings && (
         <OptimizationSettings
+          optimizations={OPTIMIZATIONS.map(opt => ({
+            id: opt.id,
+            title: opt.title,
+            description: opt.description,
+            isActive: activeOptimizations.has(opt.title)
+          }))}
+          onToggle={handleToggleOptimization}
+          isOpen={showSettings}
           onClose={() => setShowSettings(false)}
-          onSave={(settings) => {
-            console.log('Settings saved:', settings);
-            setShowSettings(false);
-          }}
         />
       )}
 
@@ -764,8 +782,7 @@ const ClientDetailPage: React.FC = () => {
         <div ref={optimizationsRef}>
           <OptimizationsList
             optimizations={client.optimizations}
-            onToggle={handleToggleOptimization}
-            activeOptimizations={activeOptimizations}
+            onStatusChange={handleOptimizationStatusChange}
           />
         </div>
       )}

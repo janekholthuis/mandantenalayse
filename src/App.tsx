@@ -57,6 +57,10 @@ const AppContent: React.FC = () => {
                   <Route path="/clients/new" element={<NewClientPage />} />
                   <Route path="/clients/upload" element={<ClientUploadPage />} />
                   <Route path="/clients/:id" element={<ClientDetailPage />} />
+                  <Route path="/clients/:id/transactions" element={<ClientDetailPage />} />
+                  <Route path="/clients/:id/contracts" element={<ClientDetailPage />} />
+                  <Route path="/clients/:id/optimizations" element={<ClientDetailPage />} />
+                  <Route path="/clients/:id/settings" element={<ClientDetailPage />} />
                   <Route path="/settings" element={<SettingsPage />} />
 
                   <Route path="*" element={<Navigate to="/clients" replace />} />
