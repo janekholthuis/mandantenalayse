@@ -585,7 +585,18 @@ const ClientDetailPage: React.FC = () => {
       
       <PageHeader
         title={client.name}
-        description={`${client.industry} | ${client.legalForm}`}
+        description={
+          <div className="flex items-center space-x-4 text-sm text-gray-600">
+            <div className="flex items-center">
+              <span className="font-medium">Branche:</span>
+              <span className="ml-1">{client.industry || 'Nicht angegeben'}</span>
+            </div>
+            <div className="flex items-center">
+              <span className="font-medium">Rechtsform:</span>
+              <span className="ml-1">{client.legalForm || 'Nicht angegeben'}</span>
+            </div>
+          </div>
+        }
         actions={
           <div className="flex space-x-3">
             <Button
