@@ -47,7 +47,7 @@ const ClientsPage: React.FC = () => {
         profit: 0,
         legalForm: client.unternehmensform || undefined,
         status: client.status === 'aktiv' ? 'active' : 'inactive',
-        lastAnalyzed: undefined, // Will be determined by checking optimizations
+        lastAnalyzed: undefined, // Will be determined by checking contracts
         employeeCount: client.Mitarbeiter_Anzahl || 0,
         city: client.ort || undefined,
         postalCode: client.plz ? parseInt(client.plz) : undefined,
@@ -73,18 +73,17 @@ const ClientsPage: React.FC = () => {
         updated_at: client.updated_at
       }));
 
-      // Check for optimizations to determine lastAnalyzed
+      // Check for contracts to determine lastAnalyzed
       for (const client of transformedClients) {
-        const { data: optimizations } = await supabase
-          .from('optimizations')
+        const { data: contracts } = await supabase
+          .from('contracts')
           .select('created_at')
           .eq('mandant_id', client.id)
-          .eq('user_id', user.id)
           .order('created_at', { ascending: false })
           .limit(1);
 
-        if (optimizations && optimizations.length > 0) {
-          client.lastAnalyzed = optimizations[0].created_at;
+        if (contracts && contracts.length > 0) {
+          client.lastAnalyzed = contracts[0].created_at;
         }
       }
 
