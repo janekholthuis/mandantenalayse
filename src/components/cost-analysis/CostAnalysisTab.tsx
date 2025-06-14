@@ -58,13 +58,48 @@ const CostAnalysisTab: React.FC<CostAnalysisTabProps> = ({
   const [acceptedRecommendation, setAcceptedRecommendation] = useState<Provider | null>(null);
   const [isLoadingTransactions, setIsLoadingTransactions] = useState(false);
 
-  const handleTransactionUpload = (transactions: any[]) => {
-    setUploadedTransactions(transactions);
-    setTransactionsUploaded(true);
-    
-    // Notify parent component about transaction upload
-    if (onBankConnection) {
-      onBankConnection();
+  const handleTransactionUpload = async (transactions: Transaction[]) => {
+    if (!user) {
+      showError('Benutzer nicht angemeldet');
+      return;
+    }
+
+    try {
+      // Transform transactions for Supabase
+      const transactionsToInsert = transactions.map(transaction => ({
+        datum: transaction.date,
+        buchungstext: transaction.description,
+        betrag: transaction.amount,
+        waehrung: 'EUR',
+        konto: transaction.accountNumber || '',
+        gegenkonto: '',
+        soll_haben: transaction.amount < 0 ? 'S' : 'H',
+        belegnummer: '',
+        mandant_id: null, // Will be set when linking to specific client
+        user_id: user.id
+      }));
+
+      const { data, error } = await supabase
+        .from('transactions')
+        .insert(transactionsToInsert)
+        .select();
+
+      if (error) {
+        throw error;
+      }
+
+      setUploadedTransactions(transactions);
+      setTransactionsUploaded(true);
+      
+      showSuccess(`${data.length} Transaktionen erfolgreich gespeichert`);
+      
+      // Notify parent component about transaction upload
+      if (onBankConnection) {
+        onBankConnection();
+      }
+    } catch (error) {
+      console.error('Error saving transactions:', error);
+      showError('Fehler beim Speichern der Transaktionen');
     }
   };
 
