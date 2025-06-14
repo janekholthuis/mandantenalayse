@@ -28,7 +28,7 @@ const ClientCard: React.FC<ClientCardProps> = ({ client }) => {
           
           {/* Settings Icon - Direct link to client settings */}
           <Link
-            to={`/clients/${client.id}?tab=settings`}
+            to={`/clients/${client.id}/settings`}
             className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-all opacity-0 group-hover:opacity-100"
             title="Mandanten-Einstellungen"
             onClick={(e) => e.stopPropagation()}

@@ -274,50 +274,9 @@ const ClientDetailPage: React.FC = () => {
                         readOnly
                       />
                     </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Mitarbeiteranzahl
-                      </label>
-                      <input
-                        type="number"
-                        value={client?.employeeCount || 0}
-                        className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        readOnly
-                      />
-                    </div>
                   </div>
                 </div>
 
-                <div>
-                  <h4 className="text-lg font-medium text-gray-900 mb-4">Analyse-Einstellungen</h4>
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                      <div>
-                        <h5 className="font-medium text-gray-900">Automatische Analysen</h5>
-                        <p className="text-sm text-gray-600">
-                          Führe monatlich automatische Optimierungsanalysen durch
-                        </p>
-                      </div>
-                      <label className="relative inline-flex items-center cursor-pointer">
-                        <input type="checkbox" className="sr-only peer" />
-                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                      </label>
-                    </div>
-                    
-                    <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                      <div>
-                        <h5 className="font-medium text-gray-900">E-Mail-Benachrichtigungen</h5>
-                        <p className="text-sm text-gray-600">
-                          Sende Benachrichtigungen bei neuen Optimierungen
-                        </p>
-                      </div>
-                      <label className="relative inline-flex items-center cursor-pointer">
-                        <input type="checkbox" className="sr-only peer" defaultChecked />
-                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                      </label>
-                    </div>
-                  </div>
-                </div>
 
                 <div className="pt-4 border-t border-gray-200">
                   <Button
