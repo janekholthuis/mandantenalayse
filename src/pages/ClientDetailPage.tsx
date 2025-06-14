@@ -1,86 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
-import { ArrowLeft, Upload, RefreshCw, BarChart3, FileText, Settings, Zap, AlertCircle, Wand2 } from 'lucide-react';
+import { ArrowLeft, Upload, RefreshCw, BarChart3, FileText, Settings } from 'lucide-react';
 import PageHeader from '../components/layout/PageHeader';
-import OptimizationCard from '../components/optimization/OptimizationCard';
-import OptimizationSettings from '../components/optimization/OptimizationSettings';
-import ClientAnalysis from '../components/client/ClientAnalysis';
 import CostAnalysisTab from '../components/cost-analysis/CostAnalysisTab';
-import OptimizationsList from '../components/optimization/OptimizationsList';
 import Button from '../components/ui/Button';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../hooks/useAuth';
-import { ClientDetail, OptimizationItem, Employee } from '../types';
+import { Client } from '../types';
 import { formatCurrency } from '../utils/formatters';
 import { showSuccess, showError } from '../lib/toast';
 
-const OPTIMIZATIONS = [
-  {
-    id: 'sachbezug',
-    title: 'Sachbezug',
-    description: 'Steuerfreier oder pauschalversteuerter geldwerter Vorteil bis zu 50 € pro Monat, z. B. als Gutschein.'
-  },
-  {
-    id: 'essenszuschuss',
-    title: 'Essenszuschuss',
-    description: 'Arbeitgeberzuschuss für Mahlzeiten, z. B. durch Essensmarken oder Kantine.'
-  },
-  {
-    id: 'jobticket',
-    title: 'Jobticket',
-    description: 'Steuerfreies oder pauschalbesteuertes Ticket für den ÖPNV.'
-  },
-  {
-    id: 'fahrtkostenzuschuss',
-    title: 'Fahrtkostenzuschuss',
-    description: 'Zuschuss für Fahrten zwischen Wohnung und Arbeitsstätte.'
-  },
-  {
-    id: 'internetpauschale',
-    title: 'Internetpauschale',
-    description: 'Steuerfreier Zuschuss bis 50 € monatlich für private Internetnutzung.'
-  },
-  {
-    id: 'gesundheitsfoerderung',
-    title: 'Gesundheitsförderung',
-    description: 'Bis zu 600 € jährlich für zertifizierte Gesundheitsmaßnahmen steuerfrei.'
-  },
-  {
-    id: 'kinderbetreuung',
-    title: 'Kinderbetreuungskosten',
-    description: 'Steuerfreier Zuschuss zu Kita, Tagesmutter etc.'
-  },
-  {
-    id: 'bav',
-    title: 'Betriebliche Altersvorsorge (bAV)',
-    description: 'Beiträge sind steuer- und sozialversicherungsfrei bis zur Höchstgrenze.'
-  },
-  {
-    id: 'erholungsbeihilfe',
-    title: 'Erholungsbeihilfe',
-    description: 'Steuerbegünstigter Zuschuss für Urlaub und Erholung.'
-  },
-  {
-    id: 'tankgutschein',
-    title: 'Tankgutschein',
-    description: 'Monatlicher Gutschein im Rahmen des Sachbezugs.'
-  },
-  {
-    id: 'gutscheinkarten',
-    title: 'Gutscheinkarten',
-    description: 'Prepaid-Karten im Rahmen des Sachbezugs, z. B. für Shopping oder Tanken.'
-  },
-  {
-    id: 'dienstwagen',
-    title: 'Dienstwagen',
-    description: 'Private Nutzung eines Firmenwagens mit 1 %-Regel oder Fahrtenbuch.'
-  },
-  {
-    id: 'vl',
-    title: 'Vermögenswirksame Leistungen (VL)',
-    description: 'Arbeitgeberleistung zur privaten Vermögensbildung.'
-  }
-];
 
 const LEGAL_FORMS = [
   'Einzelunternehmen (e.K.)',
@@ -104,19 +33,15 @@ const LEGAL_FORMS = [
   'Limited (Ltd.) – UK',
   'Sonstige ausländische Gesellschaft (z. B. BV, SARL, LLC)'
 ];
-type TabType = 'transactions' | 'contracts' | 'optimizations' | 'settings';
+type TabType = 'transactions' | 'contracts' | 'settings';
 
 const ClientDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const [client, setClient] = useState<ClientDetail | null>(null);
+  const [client, setClient] = useState<Client | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [showOptimizations, setShowOptimizations] = useState(false);
-  const [showSettings, setShowSettings] = useState(false);
-  const [activeOptimizations, setActiveOptimizations] = useState<Set<string>>(new Set());
   const [bankConnected, setBankConnected] = useState(false);
   const [documentsUploaded, setDocumentsUploaded] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
@@ -137,14 +62,12 @@ const ClientDetailPage: React.FC = () => {
     name: '',
     legalForm: ''
   });
-  const optimizationsRef = useRef<HTMLDivElement>(null);
   
   // Determine current tab from URL
   const getCurrentTab = (): TabType => {
     const path = location.pathname;
     if (path.includes('/transactions')) return 'transactions';
     if (path.includes('/contracts')) return 'contracts';
-    if (path.includes('/optimizations')) return 'optimizations';
     if (path.includes('/settings')) return 'settings';
     return 'transactions'; // Default tab
   };
@@ -186,30 +109,8 @@ const ClientDetailPage: React.FC = () => {
           return;
         }
 
-        // Fetch employees
-        const { data: employeesData, error: employeesError } = await supabase
-          .from('employees')
-          .select('*')
-          .eq('mandant_id', id)
-          .eq('user_id', user.id);
-
-        if (employeesError) {
-          console.error('Error fetching employees:', employeesError);
-        }
-
-        // Fetch optimizations
-        const { data: optimizationsData, error: optimizationsError } = await supabase
-          .from('optimizations')
-          .select('*')
-          .eq('mandant_id', id)
-          .eq('user_id', user.id);
-
-        if (optimizationsError) {
-          console.error('Error fetching optimizations:', optimizationsError);
-        }
-
-        // Transform Supabase data to ClientDetail interface
-        const transformedClient: ClientDetail = {
+        // Transform Supabase data to Client interface
+        const transformedClient: Client = {
           id: clientData.id.toString(),
           name: clientData.name || 'Unbekannt',
           industry: clientData.branchenschluessel_bezeichnung || 'Nicht angegeben',
@@ -217,35 +118,30 @@ const ClientDetailPage: React.FC = () => {
           profit: 0,
           legalForm: clientData.unternehmensform || 'Nicht angegeben',
           status: clientData.status === 'aktiv' ? 'active' : 'inactive',
-          lastAnalyzed: optimizationsData && optimizationsData.length > 0 ? clientData.updated_at : undefined,
+          lastAnalyzed: undefined,
           employeeCount: clientData.Mitarbeiter_Anzahl || 0,
           city: clientData.ort || undefined,
           postalCode: clientData.plz ? parseInt(clientData.plz) : undefined,
-          optimizations: (optimizationsData || []).map(opt => ({
-            id: opt.id,
-            title: opt.title,
-            description: opt.description || '',
-            potentialSavings: opt.potential_savings || 0,
-            status: opt.status as any,
-            category: opt.category as any,
-            requirements: opt.requirements || [],
-            employeeCount: opt.employee_count || 0,
-            employeesAnalyzed: opt.employees_analyzed || 0,
-            employeesBenefiting: opt.employees_benefiting || 0,
-            netBenefitEmployee: opt.net_benefit_employee || 0,
-            employerCost: opt.employer_cost || 0,
-            mandant_id: opt.mandant_id,
-            user_id: opt.user_id
-          })),
-          employees: (employeesData || []).map(emp => ({
-            id: emp.id,
-            name: emp.name,
-            position: emp.position || '',
-            department: emp.department || '',
-            mandant_id: emp.mandant_id,
-            user_id: emp.user_id
-          })),
-          totalEmployeesAnalyzed: employeesData?.length || 0
+          // Supabase specific fields
+          mandanten_id: clientData.Mandanten_ID,
+          beraternummer: clientData.beraternummer,
+          branchenschluessel: clientData.branchenschluessel,
+          branchenschluessel_bezeichnung: clientData.branchenschluessel_bezeichnung,
+          unternehmensform: clientData.unternehmensform,
+          unternehmensgegenstand: clientData.unternehmensgegenstand,
+          typ: clientData.typ,
+          typbezeichnung: clientData.typbezeichnung,
+          vdb_info: clientData.vdb_info,
+          vdb_info_textuell: clientData.vdb_info_textuell,
+          plz: clientData.plz,
+          ort: clientData.ort,
+          land: clientData.land,
+          strasse: clientData.strasse,
+          postfach: clientData.postfach,
+          telefon: clientData.telefon,
+          sepa: clientData.sepa,
+          created_at: clientData.created_at,
+          updated_at: clientData.updated_at
         };
 
         setClient(transformedClient);
@@ -291,86 +187,11 @@ const ClientDetailPage: React.FC = () => {
   };
 
   const calculateTotalSavings = () => {
-    if (!client?.optimizations) return 0;
-    return client.optimizations.reduce((sum, opt) => sum + opt.potentialSavings, 0);
+    return 0;
   };
 
   const calculateImplementedSavings = () => {
-    if (!client?.optimizations) return 0;
-    return client.optimizations
-      .filter(opt => opt.status === 'implemented' || opt.status === 'used')
-      .reduce((sum, opt) => sum + opt.potentialSavings, 0);
-  };
-
-  const getOptimizationStats = () => {
-    if (!client?.optimizations) return { used: 0, total: OPTIMIZATIONS.length };
-    const used = client.optimizations.filter(opt => 
-      opt.status === 'implemented' || opt.status === 'used'
-    ).length;
-    return {
-      used,
-      total: OPTIMIZATIONS.length
-    };
-  };
-
-  const handleToggleOptimization = (optId: string, title: string) => {
-    setActiveOptimizations(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(title)) {
-        newSet.delete(title);
-      } else {
-        newSet.add(title);
-      }
-      return newSet;
-    });
-  };
-
-  const handleAnalysisComplete = async (newOptimizations: OptimizationItem[]) => {
-    if (!client || !user) return;
-    
-    try {
-      // Save optimizations to database
-      const optimizationsToInsert = newOptimizations.map(opt => ({
-        title: opt.title,
-        description: opt.description,
-        status: opt.status,
-        category: opt.category,
-        potential_savings: opt.potentialSavings,
-        mandant_id: client.id,
-        user_id: user.id,
-        employee_count: opt.employeeCount,
-        employees_analyzed: opt.employeesAnalyzed || 0,
-        employees_benefiting: opt.employeesBenefiting || 0,
-        net_benefit_employee: opt.netBenefitEmployee || 0,
-        employer_cost: opt.employerCost || 0,
-        requirements: opt.requirements
-      }));
-
-      const { error } = await supabase
-        .from('optimizations')
-        .insert(optimizationsToInsert);
-
-      if (error) {
-        console.error('Error saving optimizations:', error);
-      }
-
-      // Update client state
-      setClient({
-        ...client,
-        lastAnalyzed: new Date().toISOString(),
-        optimizations: newOptimizations
-      });
-      
-      setIsAnalyzing(false);
-      setShowOptimizations(true);
-      
-      setTimeout(() => {
-        optimizationsRef.current?.scrollIntoView({ behavior: 'smooth' });
-      }, 100);
-    } catch (error) {
-      console.error('Error in analysis complete:', error);
-      setIsAnalyzing(false);
-    }
+    return 0;
   };
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -415,73 +236,6 @@ const ClientDetailPage: React.FC = () => {
                 </Button>
               </div>
             </div>
-          </div>
-        );
-      
-      case 'optimizations':
-        return (
-          <div className="space-y-6">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-semibold text-gray-900">MA-Benefits Optimierungen</h2>
-              <div className="flex items-center space-x-2">
-                <button
-                  onClick={() => setShowSettings(true)}
-                  className="p-2 text-gray-600 hover:text-gray-900 rounded-full hover:bg-gray-100"
-                  title="Optimierungen konfigurieren"
-                >
-                  <Settings size={20} />
-                </button>
-              </div>
-            </div>
-
-            {!client?.lastAnalyzed ? (
-              <div className="bg-amber-50 border border-amber-200 rounded-lg p-6 text-center">
-                <AlertCircle className="h-8 w-8 text-amber-500 mx-auto mb-3" />
-                <h3 className="text-lg font-medium text-amber-800 mb-2">
-                  Noch keine Analyse durchgeführt
-                </h3>
-                <p className="text-amber-700 mb-4">
-                  Führen Sie eine Analyse durch, um Optimierungspotenziale zu identifizieren.
-                </p>
-                <Button
-                  variant="secondary"
-                  onClick={() => setIsAnalyzing(true)}
-                  className="bg-white text-amber-700 border border-amber-300 hover:bg-amber-50"
-                  icon={<Wand2 size={16} />}
-                >
-                  Jetzt analysieren
-                </Button>
-              </div>
-            ) : client.optimizations.length > 0 ? (
-              <div className="space-y-4">
-                {client.optimizations.map(opt => (
-                  <OptimizationCard
-                    key={opt.id}
-                    title={opt.title}
-                    description={opt.description}
-                    isActive={activeOptimizations.has(opt.title)}
-                    onToggle={() => handleToggleOptimization(opt.id, opt.title)}
-                    employeeCount={opt.employeeCount}
-                    totalEmployees={client.employeeCount}
-                    employeesAnalyzed={opt.employeesAnalyzed}
-                    employeesBenefiting={opt.employeesBenefiting}
-                    requirements={opt.requirements}
-                    netBenefitEmployee={opt.netBenefitEmployee}
-                    employerCost={opt.employerCost}
-                  />
-                ))}
-              </div>
-            ) : (
-              <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 text-center">
-                <AlertCircle className="h-8 w-8 text-gray-400 mx-auto mb-3" />
-                <h3 className="text-lg font-medium text-gray-700 mb-2">
-                  Keine Optimierungen gefunden
-                </h3>
-                <p className="text-gray-600">
-                  Für diesen Mandanten wurden noch keine Optimierungen identifiziert.
-                </p>
-              </div>
-            )}
           </div>
         );
       
@@ -615,8 +369,6 @@ const ClientDetailPage: React.FC = () => {
     );
   }
 
-  const optimizationStats = getOptimizationStats();
-
   return (
     <div>
       <div className="mb-4">
@@ -644,11 +396,11 @@ const ClientDetailPage: React.FC = () => {
           <div className="flex space-x-3">
             <Button
               variant="secondary"
-              icon={<RefreshCw size={16} />}
-              onClick={() => setIsAnalyzing(true)}
+              icon={<Upload size={16} />}
+              onClick={() => document.getElementById('document-upload')?.click()}
               className="bg-white text-blue-700 border border-blue-200 hover:bg-blue-50"
             >
-              Neu analysieren
+              Dokumente hochladen
             </Button>
             <div className="relative">
               <input
@@ -658,14 +410,6 @@ const ClientDetailPage: React.FC = () => {
                 onChange={handleFileUpload}
                 accept=".pdf,.doc,.docx,.xls,.xlsx"
               />
-              <Button
-                variant="primary"
-                icon={<Upload size={16} />}
-                onClick={() => document.getElementById('document-upload')?.click()}
-                className="bg-blue-600 hover:bg-blue-700 text-white"
-              >
-                Dokumente hochladen
-              </Button>
             </div>
           </div>
         }
@@ -699,19 +443,6 @@ const ClientDetailPage: React.FC = () => {
               <div className="flex items-center">
                 <FileText className="h-5 w-5 mr-2" />
                 Verträge
-              </div>
-            </button>
-            <button
-              onClick={() => handleTabChange('optimizations')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                activeTab === 'optimizations'
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
-            >
-              <div className="flex items-center">
-                <Zap className="h-5 w-5 mr-2" />
-                MA-Benefits
               </div>
             </button>
             <button
@@ -759,7 +490,7 @@ const ClientDetailPage: React.FC = () => {
             <div className="bg-gray-50 p-4 rounded-lg">
               <p className="text-sm font-medium text-gray-500">Identifizierte Potentiale</p>
               <p className="mt-1 text-2xl font-semibold text-gray-900">
-                {bankConnected ? '2' : optimizationStats.used}
+                {bankConnected ? '2' : '0'}
               </p>
               <p className="text-xs text-gray-500 mt-1">Optimierungsmöglichkeiten</p>
             </div>
@@ -781,40 +512,6 @@ const ClientDetailPage: React.FC = () => {
       <div className="mb-8">
         {renderTabContent()}
       </div>
-
-      {/* Analysis Modal */}
-      {isAnalyzing && (
-        <ClientAnalysis
-          client={client}
-          onComplete={handleAnalysisComplete}
-          onClose={() => setIsAnalyzing(false)}
-        />
-      )}
-
-      {/* Optimization Settings Modal */}
-      {showSettings && (
-        <OptimizationSettings
-          optimizations={OPTIMIZATIONS.map(opt => ({
-            id: opt.id,
-            title: opt.title,
-            description: opt.description,
-            isActive: activeOptimizations.has(opt.title)
-          }))}
-          onToggle={handleToggleOptimization}
-          isOpen={showSettings}
-          onClose={() => setShowSettings(false)}
-        />
-      )}
-
-      {/* Optimizations List */}
-      {showOptimizations && client && (
-        <div ref={optimizationsRef}>
-          <OptimizationsList
-            optimizations={client.optimizations}
-            onStatusChange={handleOptimizationStatusChange}
-          />
-        </div>
-      )}
     </div>
   );
 };

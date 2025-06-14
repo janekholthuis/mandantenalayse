@@ -37,43 +37,6 @@ export type Client = {
   updated_at?: string;
 };
 
-export type Employee = {
-  id: string;
-  name: string;
-  position?: string;
-  department?: string;
-  mandant_id: string;
-  user_id: string;
-  created_at?: string;
-  updated_at?: string;
-};
-
-export type OptimizationItem = {
-  id: string;
-  title: string;
-  description: string;
-  potentialSavings: number;
-  status: 'unused' | 'potential' | 'used' | 'discussed' | 'planned' | 'implemented' | 'document-missing' | 'send-offers' | 'waiting-for-client' | 'completed';
-  category: 'tax' | 'cost' | 'structure';
-  details?: string;
-  requirements: string[];
-  employeeCount: number;
-  employeesAnalyzed?: number;
-  employeesBenefiting?: number;
-  netBenefitEmployee?: number;
-  employerCost?: number;
-  mandant_id: string;
-  user_id: string;
-  created_at?: string;
-  updated_at?: string;
-};
-
-export type ClientDetail = Client & {
-  optimizations: OptimizationItem[];
-  employees: Employee[];
-  totalEmployeesAnalyzed?: number;
-};
-
 export type Rule = {
   id: string;
   name: string;
