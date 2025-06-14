@@ -144,7 +144,7 @@ const ClientsPage: React.FC = () => {
             <input
               type="text"
               className="flex-1 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-              placeholder="Mandanten nach Name, Branche oder Rechtsform suchen..."
+              placeholder="Mandanten nach Name oder Rechtsform suchen..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
