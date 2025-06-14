@@ -447,50 +447,53 @@ const ClientDetailPage: React.FC = () => {
       </div>
       
       {/* Summary Cards */}
-      <div className="bg-white rounded-lg shadow mb-8">
-        <div className="px-4 py-5 sm:p-6">
-          <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4 flex items-center">
-            <BarChart3 className="h-5 w-5 mr-2 text-blue-600" />
-            Übersicht
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <p className="text-sm font-medium text-gray-500">Analysierte Verträge</p>
-              <p className="mt-1 text-2xl font-semibold text-gray-900">
-                {bankConnected ? '3' : '0'}
-              </p>
-              <p className="text-xs text-gray-500 mt-1">KI-Analyse durchgeführt</p>
-            </div>
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <p className="text-sm font-medium text-gray-500">Bereits eingespart</p>
-              <p className="mt-1 text-2xl font-semibold text-gray-900">
-                <span>
-                  {formatCurrency(calculateImplementedSavings())}
-                  <span className="text-sm font-normal text-gray-500 ml-1">p.a.</span>
-                </span>
-              </p>
-              <p className="text-xs text-gray-500 mt-1">Umgesetzte Optimierungen</p>
-            </div>
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <p className="text-sm font-medium text-gray-500">Identifizierte Potentiale</p>
-              <p className="mt-1 text-2xl font-semibold text-gray-900">
-                {bankConnected ? '2' : '0'}
-              </p>
-              <p className="text-xs text-gray-500 mt-1">Optimierungsmöglichkeiten</p>
-            </div>
-            <div className="bg-blue-50 p-4 rounded-lg">
-              <p className="text-sm font-medium text-blue-700">Einsparungspotential</p>
-              <p className="mt-1 text-2xl font-semibold text-blue-900">
-                <span>
-                  {formatCurrency(calculateTotalSavings() + calculateCostOptimizationPotential())}
-                  <span className="text-sm font-normal text-blue-500 ml-1">p.a.</span>
-                </span>
-              </p>
-              <p className="text-xs text-blue-600 mt-1">Gesamtpotential</p>
+      {/* Summary Cards - Hidden in Settings tab */}
+      {activeTab !== 'settings' && (
+        <div className="bg-white rounded-lg shadow mb-8">
+          <div className="px-4 py-5 sm:p-6">
+            <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4 flex items-center">
+              <BarChart3 className="h-5 w-5 mr-2 text-blue-600" />
+              Übersicht
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <p className="text-sm font-medium text-gray-500">Analysierte Verträge</p>
+                <p className="mt-1 text-2xl font-semibold text-gray-900">
+                  {bankConnected ? '3' : '0'}
+                </p>
+                <p className="text-xs text-gray-500 mt-1">KI-Analyse durchgeführt</p>
+              </div>
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <p className="text-sm font-medium text-gray-500">Bereits eingespart</p>
+                <p className="mt-1 text-2xl font-semibold text-gray-900">
+                  <span>
+                    {formatCurrency(calculateImplementedSavings())}
+                    <span className="text-sm font-normal text-gray-500 ml-1">p.a.</span>
+                  </span>
+                </p>
+                <p className="text-xs text-gray-500 mt-1">Umgesetzte Optimierungen</p>
+              </div>
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <p className="text-sm font-medium text-gray-500">Identifizierte Potentiale</p>
+                <p className="mt-1 text-2xl font-semibold text-gray-900">
+                  {bankConnected ? '2' : '0'}
+                </p>
+                <p className="text-xs text-gray-500 mt-1">Optimierungsmöglichkeiten</p>
+              </div>
+              <div className="bg-blue-50 p-4 rounded-lg">
+                <p className="text-sm font-medium text-blue-700">Einsparungspotential</p>
+                <p className="mt-1 text-2xl font-semibold text-blue-900">
+                  <span>
+                    {formatCurrency(calculateTotalSavings() + calculateCostOptimizationPotential())}
+                    <span className="text-sm font-normal text-blue-500 ml-1">p.a.</span>
+                  </span>
+                </p>
+                <p className="text-xs text-blue-600 mt-1">Gesamtpotential</p>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* Tab Content */}
       <div className="mb-8">
