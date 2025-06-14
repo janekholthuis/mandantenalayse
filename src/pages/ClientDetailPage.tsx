@@ -296,15 +296,6 @@ const ClientDetailPage: React.FC = () => {
               <div className="flex items-center mb-4">
                 <Settings className="h-6 w-6 text-blue-600 mr-2" />
                 <h3 className="text-lg font-medium text-gray-900">Mandanten-Einstellungen</h3>
-                {!isEditing && (
-                  <Button
-                    variant="secondary"
-                    onClick={() => setIsEditing(true)}
-                    className="bg-gray-100 text-gray-700 hover:bg-gray-200"
-                  >
-                    Bearbeiten
-                  </Button>
-                )}
               </div>
               
               {/* Client Information */}
@@ -318,44 +309,38 @@ const ClientDetailPage: React.FC = () => {
                       </label>
                       <input
                         type="text"
-                        value={isEditing ? editForm.name : (client?.name || '')}
-                        onChange={(e) => isEditing && setEditForm(prev => ({ ...prev, name: e.target.value }))}
+                        value={editForm.name}
+                        onChange={(e) => {
+                          setEditForm(prev => ({ ...prev, name: e.target.value }));
+                          setIsEditing(true);
+                        }}
                         className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        readOnly={!isEditing}
-                        disabled={!isEditing}
                       />
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
                         Rechtsform
                       </label>
-                      {isEditing ? (
-                        <select
-                          value={editForm.legalForm}
-                          onChange={(e) => setEditForm(prev => ({ ...prev, legalForm: e.target.value }))}
-                          className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        >
-                          <option value="">Rechtsform auswählen</option>
-                          {LEGAL_FORMS.map(form => (
-                            <option key={form} value={form}>{form}</option>
-                          ))}
-                        </select>
-                      ) : (
-                        <input
-                          type="text"
-                          value={client?.legalForm || 'Nicht angegeben'}
-                          className="w-full border border-gray-300 rounded-md px-3 py-2 bg-gray-50"
-                          readOnly
-                          disabled
-                        />
-                      )}
+                      <select
+                        value={editForm.legalForm}
+                        onChange={(e) => {
+                          setEditForm(prev => ({ ...prev, legalForm: e.target.value }));
+                          setIsEditing(true);
+                        }}
+                        className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      >
+                        <option value="">Rechtsform auswählen</option>
+                        {LEGAL_FORMS.map(form => (
+                          <option key={form} value={form}>{form}</option>
+                        ))}
+                      </select>
                     </div>
                   </div>
                 </div>
 
 
-                <div className="pt-4 border-t border-gray-200">
-                  {isEditing ? (
+                {isEditing && (
+                  <div className="pt-4 border-t border-gray-200">
                     <div className="flex space-x-3">
                       <Button
                         variant="secondary"
@@ -375,8 +360,8 @@ const ClientDetailPage: React.FC = () => {
                         {isSaving ? 'Speichere...' : 'Einstellungen speichern'}
                       </Button>
                     </div>
-                  ) : null}
-                </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
