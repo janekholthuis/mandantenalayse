@@ -820,5 +820,3 @@ const ClientDetailPage: React.FC = () => {
 };
 
 export default ClientDetailPage;
-
-export default ClientDetailPage
