@@ -334,7 +334,7 @@ const TransactionUpload: React.FC<TransactionUploadProps> = ({ onUploadComplete 
             </h3>
             <p className="text-sm text-blue-800 mb-3">
               Diese Datei können Sie aus DATEV Kanzlei-Rechnungswesen exportieren – 
-              z. B. über 'Daten exportieren - Buchungssätze - ASCII/CSV'
+              z. B. über 'Daten exportieren &gt; Buchungssätze &gt; ASCII/CSV'
             </p>
             <button className="text-sm text-blue-700 hover:text-blue-800 font-medium underline">
               📖 Detaillierte Anleitung ansehen
@@ -387,12 +387,12 @@ const TransactionUpload: React.FC<TransactionUploadProps> = ({ onUploadComplete 
           <div className="text-green-700 text-xs mt-1">.xlsx, .xls</div>
         </div>
         <div className="text-center p-4 bg-green-50 border border-green-200 rounded-lg">
-          <div className="text-green-600 font-medium text-sm">✅ XML-Dateien</div>
-          <div className="text-green-700 text-xs mt-1">.xml</div>
+          <div className="text-green-600 font-medium text-sm">✅ Text-Dateien</div>
+          <div className="text-green-700 text-xs mt-1">.txt</div>
         </div>
         <div className="text-center p-4 bg-green-50 border border-green-200 rounded-lg">
-          <div className="text-green-600 font-medium text-sm">✅ ZIP-Archive</div>
-          <div className="text-green-700 text-xs mt-1">.zip (optional)</div>
+          <div className="text-green-600 font-medium text-sm">✅ DATEV-Export</div>
+          <div className="text-green-700 text-xs mt-1">Automatisch erkannt</div>
         </div>
       </div>
 
@@ -416,7 +416,7 @@ const TransactionUpload: React.FC<TransactionUploadProps> = ({ onUploadComplete 
           📂 Datei hochladen
         </h2>
         <p className="text-gray-600">
-          Wählen Sie eine DATEV-Buchungsdatei im CSV-, Excel- oder XML-Format aus.
+          Wählen Sie eine DATEV-Buchungsdatei im CSV- oder Excel-Format aus.
         </p>
       </div>
 
@@ -429,7 +429,7 @@ const TransactionUpload: React.FC<TransactionUploadProps> = ({ onUploadComplete 
           </p>
           <input
             type="file"
-            accept=".csv,.xlsx,.xls,.xml,.zip"
+            accept=".csv,.xlsx,.xls,.txt"
             onChange={(e) => e.target.files?.[0] && handleFileSelect(e.target.files[0])}
             className="hidden"
             id="file-upload"
@@ -444,7 +444,7 @@ const TransactionUpload: React.FC<TransactionUploadProps> = ({ onUploadComplete 
           </Button>
         </div>
         <p className="text-xs text-gray-500 mt-2">
-          CSV, XLSX, XLS, XML, ZIP bis 50MB
+          CSV, XLSX, XLS, TXT bis 50MB
         </p>
       </div>
 
