@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { UserPlus, Upload } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import ClientCard from '../components/client/ClientCard';
-import ClientImportForm from '../components/client/ClientImportForm';
+import EnhancedClientImportForm from '../components/client/EnhancedClientImportForm';
 import Button from '../components/ui/Button';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../hooks/useAuth';
@@ -167,7 +167,7 @@ const ClientsPage: React.FC = () => {
 
       {/* CSV Import Modal */}
       {showImportForm && (
-        <ClientImportForm
+        <EnhancedClientImportForm
           onImportComplete={handleImportComplete}
           onClose={() => setShowImportForm(false)}
         />
