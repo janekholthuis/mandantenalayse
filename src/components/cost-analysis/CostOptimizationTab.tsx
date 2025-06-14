@@ -25,22 +25,24 @@ interface Provider {
 }
 
 interface CostOptimizationTabProps {
-  connectedBank: string | null;
+  transactionsUploaded: boolean;
+  uploadedTransactions: any[];
   transactionsImported: boolean;
   acceptedRecommendation: Provider | null;
   showProviderComparison: boolean;
-  onBankConnection: (bank: string, from: string, to: string) => void;
+  onTransactionUpload: (transactions: any[]) => void;
   onOptimizationFound: (transaction: Transaction) => void;
   onRecommendationAccepted: (provider: Provider) => void;
   onEmailSent?: () => void;
 }
 
 const CostOptimizationTab: React.FC<CostOptimizationTabProps> = ({
-  connectedBank,
+  transactionsUploaded,
+  uploadedTransactions,
   transactionsImported,
   acceptedRecommendation,
   showProviderComparison,
-  onBankConnection,
+  onTransactionUpload,
   onOptimizationFound,
   onRecommendationAccepted,
   onEmailSent
@@ -112,7 +114,7 @@ const CostOptimizationTab: React.FC<CostOptimizationTabProps> = ({
   return (
     <div className="space-y-6">
       {/* Search and Filter Section */}
-      {connectedBank && transactionsImported && (
+      {transactionsUploaded && transactionsImported && (
         <div className="bg-white rounded-lg shadow p-6">
           <div className="flex items-center justify-between mb-4">
             <h4 className="text-lg font-medium text-gray-900">Transaktionen durchsuchen</h4>
@@ -216,13 +218,13 @@ const CostOptimizationTab: React.FC<CostOptimizationTabProps> = ({
         </div>
       )}
 
-      {/* Bank Connection */}
-      {!connectedBank && (
-        <BankConnection onConnectionComplete={onBankConnection} />
+      {/* Transaction Upload */}
+      {!transactionsUploaded && (
+        <TransactionUpload onUploadComplete={onTransactionUpload} />
       )}
 
       {/* Transaction Import */}
-      {connectedBank && (
+      {transactionsUploaded && (
         <TransactionImport 
           onOptimizationFound={onOptimizationFound}
           autoImport={transactionsImported}
@@ -254,8 +256,8 @@ const CostOptimizationTab: React.FC<CostOptimizationTabProps> = ({
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
             <div className="bg-white rounded-lg p-4">
               <h4 className="font-medium text-gray-900 mb-2">Analysierte Transaktionen</h4>
-              <p className="text-2xl font-bold text-blue-600">30</p>
-              <p className="text-sm text-gray-600">Letzte 30 Tage</p>
+              <p className="text-2xl font-bold text-blue-600">{uploadedTransactions.length}</p>
+              <p className="text-sm text-gray-600">Hochgeladene Buchungen</p>
             </div>
             <div className="bg-white rounded-lg p-4">
               <h4 className="font-medium text-gray-900 mb-2">Erkannte Optimierungen</h4>
