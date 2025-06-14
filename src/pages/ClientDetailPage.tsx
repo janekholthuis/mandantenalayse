@@ -86,6 +86,7 @@ type TabType = 'transactions' | 'contracts' | 'optimizations' | 'settings';
 const ClientDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
+  const [searchParams] = useSearchParams();
   const [client, setClient] = useState<ClientDetail | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -108,6 +109,14 @@ const ClientDetailPage: React.FC = () => {
     }
   ]);
   const optimizationsRef = useRef<HTMLDivElement>(null);
+  
+  // Check for tab parameter in URL
+  useEffect(() => {
+    const tabParam = searchParams.get('tab');
+    if (tabParam && ['transactions', 'contracts', 'optimizations', 'settings'].includes(tabParam)) {
+      setActiveTab(tabParam as TabType);
+    }
+  }, [searchParams]);
   
   useEffect(() => {
     const fetchClient = async () => {
