@@ -10,11 +10,11 @@ const LandingPage = () => {
           Kosten und Steuern automatisiert optimieren
         </h1>
         <p className="text-xl max-w-3xl mx-auto mb-10 text-gray-700">
-          Hochautomatisierte Mandantenanalysen identifizieren ungenutzte Mitarbeiter-Benefits sowie Betriebseinsparpotenziale – inklusive konkreter Handlungsempfehlungen. Kein Mehraufwand, mit reduziertem Haftungsrisiko – und mit spürbarem Mehrwert für Ihre Mandanten.
+          Hochautomatisierte Mandantenanalysen identifizieren ungenutzte Mitarbeiter-Benefits sowie betriebliche Einsparpotenziale – inklusive konkreter Handlungsempfehlungen. Kein Mehraufwand, mit reduziertem Haftungsrisiko – und mit spürbarem Mehrwert für Ihre Mandanten.
         </p>
         <div className="aspect-w-16 aspect-h-9 max-w-4xl mx-auto rounded overflow-hidden">
           <iframe
-            src="https://www.loom.com/embed/1eddc511125d4219bf6a58bab86b7e58"
+            src="https://www.loom.com/share/1eddc511125d4219bf6a58bab86b7e58?sid=1737cc25-20a5-4629-822c-fa78358c106f"
             frameBorder="0"
             allowFullScreen
             title="Demo-Video"
