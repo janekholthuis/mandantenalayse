@@ -11,12 +11,7 @@ Eine cloudbasierte Plattform zur Mandantenanalyse und -verwaltung für Steuerkan
 - **Mitarbeiter-Benefits**: Verwaltung steuerlicher Vorteile
 - **Kostenoptimierung**: Automatische Analyse von Verträgen und Ausgaben
 - **E-Mail-System**: Verwendung der integrierten Supabase-Authentifizierungs-Mails
-
----
-
-## 🔐 Authentifizierung mit Supabase
-
-Die Anwendung nutzt **Supabase Auth** für Registrierung, Login und Passwort-Reset.
+gistrierung, Login und Passwort-Reset.
 
 ### ✅ Supabase Konfiguration
 
