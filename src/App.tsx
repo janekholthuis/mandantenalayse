@@ -7,6 +7,7 @@ import PasswordResetPage from './pages/PasswordResetPage'
 import ConfirmEmailPage from './pages/ConfirmEmailPage'
 import EmailConfirmationSentPage from './pages/EmailConfirmationSentPage'
 import ClientsPage from './pages/ClientsPage'
+import LandingPage from './pages/LandingPage'
 import ClientAddPage from './pages/ClientAddPage'
 import NewClientPage from './pages/NewClientPage'
 import ClientUploadPage from './pages/ClientUploadPage'
@@ -47,6 +48,7 @@ const AppContent: React.FC = () => {
               <Route path="/confirm-email" element={<ConfirmEmailPage />} />
               <Route path="/auth-callback" element={<ConfirmEmailPage />} />
               <Route path="/email-confirmation-sent" element={<EmailConfirmationSentPage />} />
+                      <Route path="/start" element={<LandingPage />} />
 
               {/* Protected */}
               {user ? (
