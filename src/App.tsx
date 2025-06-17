@@ -29,7 +29,6 @@ const AppContent: React.FC = () => {
     '/email-confirmation-sent'
   ];
   const isAuthPage = authPaths.includes(loc.pathname);
-  const showNav = user && !isAuthPage;
 
   if (loading) {
     return (
@@ -38,6 +37,13 @@ const AppContent: React.FC = () => {
       </div>
     );
   }
+
+  // Redirektiere "/" zu /login, wenn nicht eingeloggt
+  if (!user && loc.pathname === '/') {
+    return <Navigate to="/login" replace />;
+  }
+
+  const showNav = user && !isAuthPage;
 
   return (
     <div className="h-screen flex flex-col">
@@ -48,7 +54,6 @@ const AppContent: React.FC = () => {
           <div className={`max-w-7xl mx-auto px-4 lg:px-8 py-8 ${showNav ? 'pt-4' : ''}`}>
             <Routes>
               {/* Public/Auth Routes */}
-         
               <Route path="/login" element={<LoginForm />} />
               <Route path="/signup" element={<SignupForm />} />
               <Route path="/reset-password" element={<PasswordResetPage />} />
@@ -72,7 +77,7 @@ const AppContent: React.FC = () => {
                   <Route path="*" element={<Navigate to="/clients" replace />} />
                 </>
               ) : (
-                <Route path="*" element={<Navigate to="/" replace />} />
+                <Route path="*" element={<Navigate to="/login" replace />} />
               )}
             </Routes>
           </div>
