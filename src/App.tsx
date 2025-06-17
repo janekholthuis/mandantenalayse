@@ -7,7 +7,6 @@ import PasswordResetPage from './pages/PasswordResetPage';
 import ConfirmEmailPage from './pages/ConfirmEmailPage';
 import EmailConfirmationSentPage from './pages/EmailConfirmationSentPage';
 import ClientsPage from './pages/ClientsPage';
-import LandingPage from './pages/LandingPage';
 import ClientAddPage from './pages/ClientAddPage';
 import NewClientPage from './pages/NewClientPage';
 import ClientUploadPage from './pages/ClientUploadPage';
@@ -49,7 +48,7 @@ const AppContent: React.FC = () => {
           <div className={`max-w-7xl mx-auto px-4 lg:px-8 py-8 ${showNav ? 'pt-4' : ''}`}>
             <Routes>
               {/* Public/Auth Routes */}
-              <Route path="/" element={user ? <Navigate to="/clients" replace /> : <LandingPage />} />
+         
               <Route path="/login" element={<LoginForm />} />
               <Route path="/signup" element={<SignupForm />} />
               <Route path="/reset-password" element={<PasswordResetPage />} />
