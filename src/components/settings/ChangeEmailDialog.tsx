@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import Button from '../ui/Button';
 import { showError, showSuccess } from '../../lib/toast';
@@ -10,14 +10,37 @@ interface Props {
 const ChangeEmailDialog: React.FC<Props> = ({ onSuccess }) => {
   const [open, setOpen] = useState(false);
   const [newEmail, setNewEmail] = useState('');
+  const [currentEmail, setCurrentEmail] = useState('');
   const [loading, setLoading] = useState(false);
 
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+      if (data?.user?.email) {
+        setCurrentEmail(data.user.email);
+      }
+    });
+  }, []);
+
   const handleChangeEmail = async () => {
+    if (!newEmail || !newEmail.includes('@')) {
+      showError('Bitte gültige neue E-Mail-Adresse eingeben');
+      return;
+    }
+
     setLoading(true);
     try {
       const { error } = await supabase.auth.updateUser({ email: newEmail });
       if (error) throw error;
-      const msg = '📧 showSuccess("Bestätige den Link in deiner alten und neuen E-Mail-Adresse.");';
+
+      // Track beide E-Mails lokal
+      localStorage.setItem('email_change_steps', JSON.stringify({
+        oldEmail: currentEmail,
+        newEmail: newEmail,
+        oldConfirmed: false,
+        newConfirmed: false
+      }));
+
+      const msg = '📧 Bestätige den Link in deiner alten und neuen E-Mail-Adresse.';
       showSuccess(msg);
       onSuccess?.(msg);
       setNewEmail('');
