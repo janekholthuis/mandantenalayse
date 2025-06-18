@@ -18,9 +18,22 @@ export const formatPercentage = (value: number): string => {
 };
 
 export const formatDate = (dateString: string): string => {
-  return new Date(dateString).toLocaleDateString('de-DE', {
-    year: 'numeric',
-    month: 'long',
+  if (!dateString) return '–';
+
+  const date = new Date(dateString);
+  if (isNaN(date.getTime())) return 'Ungültiges Datum';
+
+  const today = new Date();
+  const diffTime = today.getTime() - date.getTime();
+  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+  if (diffDays === 0) return 'Heute';
+  if (diffDays === 1) return 'Gestern';
+  if (diffDays < 7) return `vor ${diffDays} Tagen`;
+
+  return date.toLocaleDateString('de-DE', {
     day: 'numeric',
+    month: 'long',
+    year: 'numeric',
   });
 };
