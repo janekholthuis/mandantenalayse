@@ -17,7 +17,8 @@ const ChangeEmailDialog: React.FC<Props> = ({ onSuccess }) => {
     try {
       const { error } = await supabase.auth.updateUser({ email: newEmail });
       if (error) throw error;
-      const msg = '📧 Bestätigungs-E-Mail gesendet';
+      const msg = '📧 showSuccess("Bestätige den Link in deiner alten und neuen E-Mail-Adresse.");
+';
       showSuccess(msg);
       onSuccess?.(msg);
       setNewEmail('');
