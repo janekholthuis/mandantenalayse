@@ -1,11 +1,13 @@
 export const formatCurrency = (amount: number): string => {
+  const isSmallAmount = amount < 10;
   return new Intl.NumberFormat('de-DE', {
     style: 'currency',
     currency: 'EUR',
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
+    minimumFractionDigits: isSmallAmount ? 2 : 0,
+    maximumFractionDigits: isSmallAmount ? 2 : 0,
   }).format(amount);
 };
+
 
 export const formatPercentage = (value: number): string => {
   return new Intl.NumberFormat('de-DE', {
