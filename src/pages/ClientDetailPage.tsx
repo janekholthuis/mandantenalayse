@@ -2,8 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft, Upload, RefreshCw, BarChart3, FileText, Settings } from 'lucide-react';
 import PageHeader from '../components/layout/PageHeader';
-import CostAnalysisTab from '../components/cost-analysis/CostAnalysisTab';
-import ContractsList from '../components/contracts/ContractsList';
+
 import Button from '../components/ui/Button';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../hooks/useAuth';
