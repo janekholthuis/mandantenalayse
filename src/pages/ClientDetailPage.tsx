@@ -94,15 +94,7 @@ const ClientDetailPage: React.FC = () => {
           return;
         }
 
-        // Fetch contracts
-        const { data: contractsData, error: contractsError } = await supabase
-          .from('contracts')
-          .select('*')
-          .eq('mandant_id', id);
-
-        if (contractsError) {
-          console.error('Error fetching contracts:', contractsError);
-        }
+        
 
         // Transform Supabase data to Client interface
         const transformedClient: Client = {
@@ -140,10 +132,7 @@ const ClientDetailPage: React.FC = () => {
 
         setClient(transformedClient);
         
-        // Set contracts
-        if (contractsData) {
-          setContracts(contractsData);
-        }
+     
         
         // Initialize edit form with current client data
         setEditForm({
