@@ -38,7 +38,7 @@ const ClientAddPage: React.FC = () => {
                 </div>
                 <div className="flex items-center justify-center">
                   <FileText className="h-4 w-4 mr-2" />
-                  <span>Vollständige Datenerfassung</span>
+                 
                 </div>
               </div>
               <Button
