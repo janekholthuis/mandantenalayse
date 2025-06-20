@@ -51,7 +51,7 @@ const ClientDetailPage: React.FC = () => {
   // Determine current tab from URL
   const getCurrentTab = (): TabType => {
     const path = location.pathname;
-    if (path.includes('/benefits')) return 'benefits';
+    if (path.includes('/benefits')) return 'Benefits';
     if (path.includes('/employees')) return 'Mitarbeiter';
     if (path.includes('/settings')) return 'Einstellungen';
     return 'benefits'; // Default tab
@@ -84,7 +84,7 @@ const ClientDetailPage: React.FC = () => {
           .single();
 
         if (clientError) {
-          console.error('Error fetching client:', clientError);
+          console.error('Fehler beim Laden des Mandanten:', clientError);
           setClient(null);
           return;
         }
