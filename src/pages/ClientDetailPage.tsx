@@ -150,7 +150,7 @@ const ClientDetailPage: React.FC = () => {
         setEditForm({
           name: transformedClient.name,
           employee_count: transformedClient.employee_count?.toString() || '',
-          legal_form: transformedClient.legalForm?.toString() || '',
+          legal_form: transformedClient.legalForm || '',
           plz: transformedClient.plz || '',
           ort: transformedClient.ort || '',
           strasse: transformedClient.strasse || ''
@@ -223,7 +223,7 @@ const ClientDetailPage: React.FC = () => {
         updateData.employee_count = parseInt(editForm.employee_count);
       }
       if (editForm.legal_form) {
-        updateData.legal_form = parseInt(editForm.legal_form);
+        updateData.legal_form = editForm.legal_form;
       }
       if (editForm.plz) updateData.plz = editForm.plz;
       if (editForm.ort) updateData.ort = editForm.ort;
@@ -242,7 +242,7 @@ const ClientDetailPage: React.FC = () => {
         ...prev,
         name: editForm.name,
         employee_count: editForm.employee_count ? parseInt(editForm.employee_count) : 0,
-        legalForm: editForm.legal_form,
+        legalForm: editForm.legal_form || undefined,
         plz: editForm.plz,
         ort: editForm.ort,
         strasse: editForm.strasse
@@ -626,7 +626,7 @@ const ClientDetailPage: React.FC = () => {
                     >
                       <option value="">Rechtsform auswählen</option>
                       {legalForms.map(form => (
-                        <option key={form.id} value={form.id}>{form.name}</option>
+                        <option key={form.id} value={form.name}>{form.name}</option>
                       ))}
                     </select>
                   </div>
@@ -684,7 +684,7 @@ const ClientDetailPage: React.FC = () => {
                             setEditForm({
                               name: client.name,
                               employee_count: client.employee_count?.toString() || '',
-                              legal_form: client.legalForm?.toString() || '',
+                              legal_form: client.legalForm || '',
                               plz: client.plz || '',
                               ort: client.ort || '',
                               strasse: client.strasse || ''
