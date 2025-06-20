@@ -809,7 +809,12 @@ const ClientDetailPage: React.FC = () => {
           </button>
         </div>
 
-       
+        {/* Key Metrics Grid */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          {/* Employees */}
+        
+        </div>
+      </div>
       {/* Tab Navigation */}
       <div className="bg-white rounded-lg shadow mb-8">
         <div className="border-b border-gray-200">
