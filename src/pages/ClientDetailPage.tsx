@@ -274,12 +274,7 @@ const ClientDetailPage: React.FC = () => {
     switch (activeTab) {
       case 'transactions':
         return (
-          <CostAnalysisTab 
-            onBankConnection={handleBankConnection}
-            onDocumentUploaded={handleDocumentUploaded}
-            onEmailSent={handleEmailSent}
-            onOptimizationStatusChange={handleOptimizationStatusChange}
-          />
+           <h3 className="text-lg font-medium text-gray-900">Mandanten-Einstellungen</h3>
         );
       
    
