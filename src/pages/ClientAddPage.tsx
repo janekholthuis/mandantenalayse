@@ -75,7 +75,7 @@ const ClientAddPage: React.FC = () => {
               <Button
                 variant="primary"
                 className="mt-6 w-full bg-green-600 hover:bg-green-700 group-hover:bg-green-700"
-                icon={<Upload size={66} />}
+                icon={<Upload size={16} />}
               >
                 Upload starten
               </Button>
