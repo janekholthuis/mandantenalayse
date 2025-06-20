@@ -217,25 +217,7 @@ const ClientDetailPage: React.FC = () => {
     );
   };
 
-  const calculateCostOptimizationPotential = () => {
-    if (!bankConnected) return 0;
-    
-    return costOptimizations
-      .filter(opt => opt.status === 'waiting-for-client')
-      .reduce((sum, opt) => sum + opt.potentialSavings, 0);
-  };
-
-  const calculateTotalSavings = () => {
-    return contracts
-      .filter(contract => contract.wechsel_empfohlen)
-      .reduce((sum, contract) => sum + (contract.optimizationPotential || 0), 0);
-  };
-
-  const calculateImplementedSavings = () => {
-    return contracts
-      .filter(contract => contract.status === 'optimiert')
-      .reduce((sum, contract) => sum + (contract.optimizationPotential || 0), 0);
-  };
+  
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
