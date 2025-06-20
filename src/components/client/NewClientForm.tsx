@@ -36,33 +36,13 @@ const NewClientForm: React.FC = () => {
   const [formData, setFormData] = useState({
     // Basic required fields
     name: '',
-    
-    // Optional fields matching the database schema
-    mandanten_id: '',
-    anrede: '',
-    akad_grad: '',
-    adelstitel: '',
-    unternehmensform: '',
-    unternehmensgegenstand: '',
-    branchenschluessel: '',
-    branchenschluessel_bezeichnung: '',
-    typ: '',
-    typbezeichnung: '',
-    status: 'aktiv',
-    vdb_info: '',
-    vdb_info_textuell: '',
-    beraternummer: '',
+    employee_count: '',
     
     // Address fields
     plz: '',
     ort: '',
     land: 'Deutschland',
-    strasse: '',
-    postfach: '',
-    telefon: '',
-    
-    // Additional fields
-    sepa: ''
+    strasse: ''
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
