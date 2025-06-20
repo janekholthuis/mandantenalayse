@@ -113,7 +113,7 @@ const ClientsPage: React.FC = () => {
       if (error) throw error;
 
       const transformedDeletedClients: Client[] = (deletedData || []).map(clientData => ({
-        id: clientData.id.toString(),
+       
         name: clientData.name || 'Unbekannt',
         status: 'inactive',
         employeeCount: clientData.employee_count || 0,
