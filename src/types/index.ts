@@ -7,6 +7,7 @@ export type Client = {
   status: 'active' | 'inactive';
   lastAnalyzed?: string;
   employeeCount?: number;
+  employee_count?: number;
   expectedRevenue?: number;
   expectedProfit?: number;
   plannedRevenue?: number;
