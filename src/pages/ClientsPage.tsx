@@ -118,14 +118,7 @@ const ClientsPage: React.FC = () => {
             </p>
           </div>
           <div className="flex space-x-3">
-            <Button
-              variant="secondary"
-              onClick={() => setShowImportForm(true)}
-              icon={<Upload size={16} />}
-              className="bg-white text-blue-700 border border-blue-200 hover:bg-blue-50"
-            >
-              Mandanten hochladen
-            </Button>
+          
             <Link to="/clients/add">
               <Button
                 variant="primary"
