@@ -779,38 +779,10 @@ const ClientDetailPage: React.FC = () => {
           </div>
         }
       />
-{/* Key Metrics Layer */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center">
-            <div className="h-12 w-12 bg-blue-100 rounded-lg flex items-center justify-center mr-4">
-              <Building2 className="h-6 w-6 text-blue-600" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">{client.name}</h1>
-              <div className="flex items-center mt-1">
-                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                  <CheckCircle className="h-3 w-3 mr-1" />
-                  Aktiv
-                </span>
-                {client.legalForm && legalForms.length > 0 && (
-                  <span className="ml-2 text-sm text-gray-500">
-                    {legalForms.find(form => form.id.toString() === client.legalForm?.toString())?.name || 'Unbekannt'}
-                  </span>
-                )}
-              </div>
-            </div>
-          </div>
-          <button
-            onClick={() => navigate(`/clients/${client.id}/einstellungen`)}
-            className="text-blue-600 hover:text-blue-700 font-medium text-sm"
-          >
-            Details →
-          </button>
-        </div>
+
 
       
-      </div>
+
       {/* Tab Navigation */}
       <div className="bg-white rounded-lg shadow mb-8">
           <div className="flex items-center">
