@@ -34,15 +34,6 @@ interface Employee {
   updated_at: string;
 }
 
-interface ClientBenefit {
-  id: string;
-  client_id: string;
-  benefit_id: number;
-  is_active: boolean;
-  monthly_amount: number;
-  benefit: Benefit;
-}
-
 type TabType = 'benefits' | 'mitarbeiter' | 'einstellungen';
 type ViewMode = 'list' | 'kanban';
 
@@ -62,7 +53,7 @@ const ClientDetailPage: React.FC = () => {
   const [client, setClient] = useState<Client | null>(null);
   const [legalForms, setLegalForms] = useState<LegalForm[]>([]);
   const [benefits, setBenefits] = useState<Benefit[]>([]);
-  const [clientBenefits, setClientBenefits] = useState<ClientBenefit[]>([]);
+  const [clientBenefits, setClientBenefits] = useState<Benefit[]>([]);
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
@@ -181,14 +172,11 @@ const ClientDetailPage: React.FC = () => {
           setBenefits(benefitsData || []);
         }
 
-        // Fetch client benefits (benefits linked to this client)
+        // Fetch benefits linked to this client
         const { data: clientBenefitsData, error: clientBenefitsError } = await supabase
           .from('client_benefits')
-          .select(`
-            *,
-            benefit:benefits(*)
-          `)
-          .eq('client_id', id);
+          .select('*')
+          .eq('client', id);
 
         if (!clientBenefitsError) {
           setClientBenefits(clientBenefitsData || []);
@@ -347,45 +335,39 @@ const ClientDetailPage: React.FC = () => {
   };
 
   // Handle benefit toggle
-  const handleBenefitToggle = async (benefitId: number, isActive: boolean) => {
+  const handleBenefitToggle = async (benefitId: number, benefitName: string) => {
     if (!client) return;
 
     try {
-      if (isActive) {
-        // Add benefit to client
+      const isCurrentlyLinked = clientBenefits.some(cb => cb.id === benefitId);
+      
+      if (!isCurrentlyLinked) {
+        // Link benefit to client by updating the client field
         const { error } = await supabase
-          .from('client_benefits')
-          .insert([{
-            client_id: client.id,
-            benefit_id: benefitId,
-            is_active: true,
-            monthly_amount: 0
-          }]);
+          .from('benefits')
+          .update({ client: client.id })
+          .eq('id', benefitId);
 
         if (error) throw error;
 
-        // Refresh client benefits
-        const { data: clientBenefitsData } = await supabase
+        // Refresh benefits linked to this client
+        const { data: updatedBenefitsData } = await supabase
           .from('client_benefits')
-          .select(`
-            *,
-            benefit:benefits(*)
-          `)
-          .eq('client_id', client.id);
+          .select('*')
+          .eq('client', client.id);
 
-        setClientBenefits(clientBenefitsData || []);
+        setClientBenefits(updatedBenefitsData || []);
         showSuccess('Benefit erfolgreich hinzugefügt');
       } else {
-        // Remove benefit from client
+        // Unlink benefit from client by setting client field to null
         const { error } = await supabase
-          .from('client_benefits')
-          .delete()
-          .eq('client_id', client.id)
-          .eq('benefit_id', benefitId);
+          .from('benefits')
+          .update({ client: null })
+          .eq('id', benefitId);
 
         if (error) throw error;
 
-        setClientBenefits(prev => prev.filter(cb => cb.benefit_id !== benefitId));
+        setClientBenefits(prev => prev.filter(cb => cb.id !== benefitId));
         showSuccess('Benefit erfolgreich entfernt');
       }
     } catch (error) {
@@ -416,17 +398,17 @@ const ClientDetailPage: React.FC = () => {
 
               {clientBenefits.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {clientBenefits.map((clientBenefit) => (
-                    <div key={clientBenefit.id} className="border border-gray-200 rounded-lg p-4">
+                  {clientBenefits.map((benefit) => (
+                    <div key={benefit.id} className="border border-gray-200 rounded-lg p-4">
                       <h4 className="font-medium text-gray-900 mb-2">
-                        {clientBenefit.benefit.name}
+                        {benefit.name}
                       </h4>
                       <p className="text-sm text-gray-600 mb-2">
-                        {clientBenefit.benefit.beschreibung}
+                        {benefit.beschreibung}
                       </p>
                       <div className="text-xs text-gray-500">
-                        <div>Max: {clientBenefit.benefit.max_betrag_monat}€/Monat</div>
-                        <div>{clientBenefit.benefit.paragraf}</div>
+                        <div>Max: {benefit.max_betrag_monat}€/Monat</div>
+                        <div>{benefit.paragraf}</div>
                       </div>
                     </div>
                   ))}
@@ -882,12 +864,10 @@ const ClientDetailPage: React.FC = () => {
             id: benefit.id.toString(),
             title: benefit.name,
             description: benefit.beschreibung,
-            isActive: clientBenefits.some(cb => cb.benefit_id === benefit.id)
+            isActive: clientBenefits.some(cb => cb.id === benefit.id)
           }))}
           onToggle={(id, title) => {
-            const benefitId = parseInt(id);
-            const isCurrentlyActive = clientBenefits.some(cb => cb.benefit_id === benefitId);
-            handleBenefitToggle(benefitId, !isCurrentlyActive);
+            handleBenefitToggle(parseInt(id), title);
           }}
           isOpen={showOptimizationSettings}
           onClose={() => setShowOptimizationSettings(false)}
