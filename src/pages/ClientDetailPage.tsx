@@ -178,7 +178,7 @@ const ClientDetailPage: React.FC = () => {
 
         // Fetch benefits linked to this client
         const { data: clientBenefitsData, error: clientBenefitsError } = await supabase
-          .from('client_benefits')
+          .from('benefits')
           .select('*')
           .eq('client', id);
 
