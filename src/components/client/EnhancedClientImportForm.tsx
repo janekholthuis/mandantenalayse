@@ -133,7 +133,7 @@ const EnhancedClientImportForm: React.FC<EnhancedClientImportFormProps> = ({
         }));
 
       const { data, error } = await supabase
-        .from('Mandanten')
+        .from('clients')
         .insert(dataToInsert)
         .select();
 
