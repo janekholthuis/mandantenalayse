@@ -1,6 +1,15 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, CheckCircle, Clock, Settings, Building2, Scale, Trash2, AlertCircle } from 'lucide-react';
+import {
+  ArrowRight,
+  CheckCircle,
+  Clock,
+  Settings,
+  Building2,
+  Scale,
+  Trash2,
+  AlertCircle
+} from 'lucide-react';
 import { Client } from '../../types';
 
 interface ClientCardProps {
@@ -12,7 +21,7 @@ const ClientCard: React.FC<ClientCardProps> = ({ client, onDelete }) => {
   const handleDelete = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     if (confirm(`Möchten Sie den Mandanten "${client.name}" wirklich löschen? Er wird in den Papierkorb verschoben.`)) {
       onDelete?.(client.id);
     }
@@ -21,11 +30,11 @@ const ClientCard: React.FC<ClientCardProps> = ({ client, onDelete }) => {
   const getStatusBadge = () => {
     const isActive = client.status === 'active';
     return (
-      <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-        isActive 
-          ? 'bg-green-100 text-green-800' 
-          : 'bg-red-100 text-red-800'
-      }`}>
+      <span
+        className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+          isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+        }`}
+      >
         {isActive ? (
           <>
             <CheckCircle className="h-3 w-3 mr-1" />
@@ -42,10 +51,10 @@ const ClientCard: React.FC<ClientCardProps> = ({ client, onDelete }) => {
   };
 
   return (
-    <div className="bg-white overflow-hidden shadow rounded-lg transition-all hover:shadow-md border border-gray-100 group">
-      <div className="p-6">
-        {/* Header with Client Name and Settings */}
-        <div className="flex items-start justify-between mb-4">
+    <Link to={`/clients/${client.id}`} className="block hover:no-underline">
+      <div className="bg-white overflow-hidden shadow rounded-lg transition-all hover:shadow-md border border-gray-100 group p-6">
+        {/* Header */}
+        <div className="flex items-start justify-between mb-3">
           <div className="flex-1 min-w-0">
             <h3 className="text-lg font-semibold text-gray-900 truncate group-hover:text-blue-600 transition-colors">
               {client.name}
@@ -54,8 +63,7 @@ const ClientCard: React.FC<ClientCardProps> = ({ client, onDelete }) => {
               {getStatusBadge()}
             </div>
           </div>
-          
-          {/* Action Icons */}
+
           <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
             <Link
               to={`/clients/${client.id}/einstellungen`}
@@ -67,7 +75,7 @@ const ClientCard: React.FC<ClientCardProps> = ({ client, onDelete }) => {
             </Link>
             <button
               onClick={handleDelete}
-              className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-full transition-all"
+              className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-all"
               title="Mandant löschen"
             >
               <Trash2 size={16} />
@@ -75,9 +83,9 @@ const ClientCard: React.FC<ClientCardProps> = ({ client, onDelete }) => {
           </div>
         </div>
 
-        {/* Client Information */}
-        <div className="space-y-2 mb-4">
-          <div className="flex items-center text-sm text-gray-600">
+        {/* Infos */}
+        <div className="space-y-2 mb-3">
+          <div className="flex items-center text-sm text-gray-700">
             <Scale className="h-4 w-4 mr-2 text-gray-400" />
             <span className="font-medium">Rechtsform:</span>
             <span className="ml-1">{client.legalForm || 'nicht angegeben'}</span>
@@ -85,7 +93,7 @@ const ClientCard: React.FC<ClientCardProps> = ({ client, onDelete }) => {
         </div>
 
         {/* Footer */}
-        <div className="pt-4 border-t border-gray-100">
+        <div className="pt-3 border-t border-gray-200">
           <div className="flex items-center justify-between">
             {client.lastAnalyzed ? (
               <div className="flex items-center text-sm text-green-600">
@@ -100,18 +108,15 @@ const ClientCard: React.FC<ClientCardProps> = ({ client, onDelete }) => {
                 <span className="text-xs">Nicht analysiert</span>
               </div>
             )}
-            
-            <Link
-              to={`/clients/${client.id}`}
-              className="text-sm text-blue-600 hover:text-blue-500 flex items-center font-medium transition-colors"
-            >
+
+            <div className="text-sm text-blue-600 hover:text-blue-500 flex items-center font-medium transition-colors">
               Details
               <ArrowRight size={14} className="ml-1" />
-            </Link>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </Link>
   );
 };
 
