@@ -115,7 +115,7 @@ const NewClientForm: React.FC = () => {
         
         {/* Basic Information */}
         <div>
-          <h3 className="text-lg font-medium text-gray-900 mb-4">Grunddaten</h3>s
+          <h3 className="text-lg font-medium text-gray-900 mb-4">Grunddaten</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="md:col-span-2">
               <label htmlFor="name" className="block text-sm font-medium text-gray-700">
