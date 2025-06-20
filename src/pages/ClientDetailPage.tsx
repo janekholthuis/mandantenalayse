@@ -130,7 +130,7 @@ const ClientDetailPage: React.FC = () => {
           legalForm: clientData.unternehmensform || 'Nicht angegeben',
           status: clientData.status === 'aktiv' ? 'active' : 'inactive',
           lastAnalyzed: undefined,
-          employeeCount: clientData.Mitarbeiter_Anzahl || 0,
+          employeeCount: 0, // Not in clients table
           city: clientData.ort || undefined,
           postalCode: clientData.plz ? parseInt(clientData.plz) : undefined,
           // Supabase specific fields
