@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../hooks/useAuth';
@@ -6,37 +6,22 @@ import { showSuccess, showError } from '../../lib/toast';
 import { Building2, Users, MapPin, Building } from 'lucide-react';
 import Button from '../ui/Button';
 
-const LEGAL_FORMS = [
-  'Einzelunternehmen (e.K.)',
-  'Freiberufler',
-  'Kleingewerbe',
-  'Gesellschaft bürgerlichen Rechts (GbR)',
-  'Offene Handelsgesellschaft (OHG)',
-  'Kommanditgesellschaft (KG)',
-  'GmbH & Co. KG',
-  'Partnerschaftsgesellschaft (PartG)',
-  'PartG mbB (mit beschränkter Berufshaftung)',
-  'Gesellschaft mit beschränkter Haftung (GmbH)',
-  'Unternehmergesellschaft (haftungsbeschränkt) – UG',
-  'Aktiengesellschaft (AG)',
-  'Societas Europaea (SE)',
-  'Eingetragene Genossenschaft (eG)',
-  'Eingetragener Verein (e.V.)',
-  'Stiftung',
-  'Körperschaft des öffentlichen Rechts',
-  'Anstalt des öffentlichen Rechts',
-  'Limited (Ltd.) – UK',
-  'Sonstige ausländische Gesellschaft (z. B. BV, SARL, LLC)'
-];
+interface LegalForm {
+  id: number;
+  name: string;
+  category: string;
+}
 
 const NewClientForm: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const [legalForms, setLegalForms] = useState<LegalForm[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     // Basic required fields
     name: '',
     employee_count: '',
+    legal_form: '',
     
     // Address fields
     plz: '',
@@ -44,6 +29,28 @@ const NewClientForm: React.FC = () => {
     land: 'Deutschland',
     strasse: ''
   });
+
+  // Fetch legal forms on component mount
+  useEffect(() => {
+    const fetchLegalForms = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('legal_forms')
+          .select('*')
+          .order('name');
+
+        if (error) {
+          console.error('Error fetching legal forms:', error);
+        } else {
+          setLegalForms(data || []);
+        }
+      } catch (error) {
+        console.error('Error fetching legal forms:', error);
+      }
+    };
+
+    fetchLegalForms();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -65,13 +72,20 @@ const NewClientForm: React.FC = () => {
       const insertData: any = {
         name: formData.name.trim(),
         user_id: user.id,
-        status: formData.status || 'aktiv'
+        status: 'aktiv'
       };
-    if (formData.plz.trim()) insertData.plz = formData.plz.trim();
+
+      // Add optional fields only if they have values
+      if (formData.employee_count.trim()) {
+        insertData.employee_count = parseInt(formData.employee_count);
+      }
+      if (formData.legal_form.trim()) {
+        insertData.legal_form = parseInt(formData.legal_form);
+      }
+      if (formData.plz.trim()) insertData.plz = formData.plz.trim();
       if (formData.ort.trim()) insertData.ort = formData.ort.trim();
       if (formData.land.trim()) insertData.land = formData.land.trim();
-          if (formData.unternehmensform.trim()) insertData.unternehmensform = formData.unternehmensform.trim();
-      
+      if (formData.strasse.trim()) insertData.strasse = formData.strasse.trim();
 
       const { data, error } = await supabase
         .from('clients')
@@ -110,9 +124,6 @@ const NewClientForm: React.FC = () => {
   return (
     <div className="bg-white shadow rounded-lg max-w-4xl">
       <form onSubmit={handleSubmit} className="space-y-8 p-8">
-
-
-        
         {/* Basic Information */}
         <div>
           <h3 className="text-lg font-medium text-gray-900 mb-4">Grunddaten</h3>
@@ -137,12 +148,30 @@ const NewClientForm: React.FC = () => {
                 />
               </div>
             </div>
-      </div>      </div>
-           
 
-         
             <div>
-              <label htmlFor="unternehmensform" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="employee_count" className="block text-sm font-medium text-gray-700">
+                Anzahl Mitarbeiter
+              </label>
+              <div className="mt-1 relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Users className="h-5 w-5 text-gray-400" />
+                </div>
+                <input
+                  type="number"
+                  name="employee_count"
+                  id="employee_count"
+                  min="0"
+                  className="block w-full pl-10 pr-3 py-2 sm:text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="25"
+                  value={formData.employee_count}
+                  onChange={handleChange}
+                />
+              </div>
+            </div>
+
+            <div>
+              <label htmlFor="legal_form" className="block text-sm font-medium text-gray-700">
                 Rechtsform
               </label>
               <div className="mt-1 relative">
@@ -150,20 +179,21 @@ const NewClientForm: React.FC = () => {
                   <Building className="h-5 w-5 text-gray-400" />
                 </div>
                 <select
-                  name="unternehmensform"
-                  id="unternehmensform"
+                  name="legal_form"
+                  id="legal_form"
                   className="block w-full pl-10 pr-3 py-2 sm:text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  value={formData.unternehmensform}
+                  value={formData.legal_form}
                   onChange={handleChange}
                 >
                   <option value="">Rechtsform auswählen</option>
-                  {LEGAL_FORMS.map(form => (
-                    <option key={form} value={form}>{form}</option>
+                  {legalForms.map(form => (
+                    <option key={form.id} value={form.id}>{form.name}</option>
                   ))}
                 </select>
               </div>
             </div>
-
+          </div>
+        </div>
 
         {/* Address Information */}
         <div>
@@ -228,14 +258,8 @@ const NewClientForm: React.FC = () => {
                 onChange={handleChange}
               />
             </div>
-
-           
           </div>
         </div>
-
-       
-
-      
 
         {/* Form Actions */}
         <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200">

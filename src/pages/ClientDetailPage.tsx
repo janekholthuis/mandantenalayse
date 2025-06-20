@@ -8,98 +8,28 @@ import { useAuth } from '../hooks/useAuth';
 import { Client } from '../types';
 import { showSuccess, showError } from '../lib/toast';
 
-const LEGAL_FORMS = [
-  'Einzelunternehmen (e.K.)',
-  'Freiberufler',
-  'Kleingewerbe',
-  'Gesellschaft bürgerlichen Rechts (GbR)',
-  'Offene Handelsgesellschaft (OHG)',
-  'Kommanditgesellschaft (KG)',
-  'GmbH & Co. KG',
-  'Partnerschaftsgesellschaft (PartG)',
-  'PartG mbB (mit beschränkter Berufshaftung)',
-  'Gesellschaft mit beschränkter Haftung (GmbH)',
-  'Unternehmergesellschaft (haftungsbeschränkt) – UG',
-  'Aktiengesellschaft (AG)',
-  'Societas Europaea (SE)',
-  'Eingetragene Genossenschaft (eG)',
-  'Eingetragener Verein (e.V.)',
-  'Stiftung',
-  'Körperschaft des öffentlichen Rechts',
-  'Anstalt des öffentlichen Rechts',
-  'Limited (Ltd.) – UK',
-  'Sonstige ausländische Gesellschaft (z. B. BV, SARL, LLC)'
-];
-
 type TabType = 'benefits' | 'mitarbeiter' | 'einstellungen';
 
-// Mock data for optimizations
-const mockOptimizations = [
-  {
-    id: '1',
-    title: 'Sachbezüge optimieren',
-    description: 'Einführung von steuerfreien Sachbezügen bis 50€ pro Monat pro Mitarbeiter',
-    potentialSavings: 600,
-    status: 'potential',
-    category: 'Steueroptimierung',
-    requirements: [
-      'Dokumentation der Sachbezüge',
-      'Einhaltung der monatlichen Grenze von 50€',
-      'Keine Bargeldauszahlung'
-    ]
-  },
-  {
-    id: '2',
-    title: 'Betriebliche Altersvorsorge',
-    description: 'Einführung oder Optimierung der betrieblichen Altersvorsorge',
-    potentialSavings: 800,
-    status: 'in-progress',
-    category: 'Mitarbeiterbenefits',
-    requirements: [
-      'Auswahl eines geeigneten bAV-Systems',
-      'Dokumentation der Vereinbarungen',
-      'Information der Mitarbeiter'
-    ]
-  },
-  {
-    id: '3',
-    title: 'Jobticket',
-    description: 'Steuerfreies oder pauschalbesteuertes Ticket für den ÖPNV',
-    potentialSavings: 400,
-    status: 'completed',
-    category: 'Mobilität',
-    requirements: [
-      'Vereinbarung mit ÖPNV-Anbieter',
-      'Dokumentation der Nutzung',
-      'Steuerliche Behandlung klären'
-    ]
-  }
-];
+interface LegalForm {
+  id: number;
+  name: string;
+  category: string;
+}
 
-// Mock data for employees
-const mockEmployees = [
-  {
-    id: '1',
-    name: 'Max Mustermann',
-    position: 'Geschäftsführer',
-    benefits: ['Jobticket', 'Betriebliche Altersvorsorge'],
-    potentialBenefits: ['Sachbezüge']
-  },
-  {
-    id: '2',
-    name: 'Anna Schmidt',
-    position: 'Buchhalterin',
-    benefits: ['Jobticket'],
-    potentialBenefits: ['Sachbezüge', 'Betriebliche Altersvorsorge']
-  },
-  {
-    id: '3',
-    name: 'Thomas Weber',
-    position: 'Entwickler',
-    benefits: [],
-    potentialBenefits: ['Sachbezüge', 'Jobticket', 'Betriebliche Altersvorsorge']
-  }
-];
+interface Benefit {
+  id: number;
+  name: string;
+  beschreibung: string;
+  max_betrag_monat: number;
+  paragraf: string;
+}
+
+interface Employee {
+  id: string;
+  vorname: string;
+  nachname: string;
+  client_id: string;
+}
 
 const ClientDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -107,13 +37,16 @@ const ClientDetailPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [client, setClient] = useState<Client | null>(null);
+  const [legalForms, setLegalForms] = useState<LegalForm[]>([]);
+  const [benefits, setBenefits] = useState<Benefit[]>([]);
+  const [employees, setEmployees] = useState<Employee[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [editForm, setEditForm] = useState({
     name: '',
     employee_count: '',
-    unternehmensform: '',
+    legal_form: '',
     strasse: '',
     plz: '',
     ort: '',
@@ -141,11 +74,12 @@ const ClientDetailPage: React.FC = () => {
   };
   
   useEffect(() => {
-    const fetchClient = async () => {
+    const fetchData = async () => {
       if (!id || !user) return;
       
       setIsLoading(true);
       try {
+        // Fetch client data
         const { data: clientData, error: clientError } = await supabase
           .from('clients')
           .select('*')
@@ -162,6 +96,42 @@ const ClientDetailPage: React.FC = () => {
         if (!clientData) {
           setClient(null);
           return;
+        }
+
+        // Fetch legal forms
+        const { data: legalFormsData, error: legalFormsError } = await supabase
+          .from('legal_forms')
+          .select('*')
+          .order('name');
+
+        if (legalFormsError) {
+          console.error('Fehler beim Laden der Rechtsformen:', legalFormsError);
+        } else {
+          setLegalForms(legalFormsData || []);
+        }
+
+        // Fetch benefits
+        const { data: benefitsData, error: benefitsError } = await supabase
+          .from('benefits')
+          .select('*')
+          .order('name');
+
+        if (benefitsError) {
+          console.error('Fehler beim Laden der Benefits:', benefitsError);
+        } else {
+          setBenefits(benefitsData || []);
+        }
+
+        // Fetch employees for this client
+        const { data: employeesData, error: employeesError } = await supabase
+          .from('employees')
+          .select('*')
+          .eq('client_id', id);
+
+        if (employeesError) {
+          console.error('Fehler beim Laden der Mitarbeiter:', employeesError);
+        } else {
+          setEmployees(employeesData || []);
         }
 
         // Transform Supabase data to Client interface
@@ -204,21 +174,21 @@ const ClientDetailPage: React.FC = () => {
         setEditForm({
           name: transformedClient.name,
           employee_count: transformedClient.employeeCount?.toString() || '',
-          unternehmensform: transformedClient.unternehmensform || '',
+          legal_form: transformedClient.unternehmensform || '',
           strasse: transformedClient.strasse || '',
           plz: transformedClient.plz || '',
           ort: transformedClient.ort || '',
           telefon: transformedClient.telefon || ''
         });
       } catch (error) {
-        console.error('Error fetching client:', error);
+        console.error('Error fetching data:', error);
         setClient(null);
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchClient();
+    fetchData();
   }, [id, user]);
 
   const handleSaveSettings = async () => {
@@ -231,7 +201,7 @@ const ClientDetailPage: React.FC = () => {
         .update({
           name: editForm.name,
           employee_count: editForm.employee_count ? parseInt(editForm.employee_count) : null,
-          unternehmensform: editForm.unternehmensform,
+          legal_form: parseInt(editForm.legal_form) || null,
           strasse: editForm.strasse,
           plz: editForm.plz,
           ort: editForm.ort,
@@ -250,7 +220,6 @@ const ClientDetailPage: React.FC = () => {
         ...prev,
         name: editForm.name,
         employeeCount: editForm.employee_count ? parseInt(editForm.employee_count) : 0,
-        unternehmensform: editForm.unternehmensform,
         strasse: editForm.strasse,
         plz: editForm.plz,
         ort: editForm.ort,
@@ -272,7 +241,7 @@ const ClientDetailPage: React.FC = () => {
       setEditForm({
         name: client.name,
         employee_count: client.employeeCount?.toString() || '',
-        unternehmensform: client.unternehmensform || '',
+        legal_form: client.unternehmensform || '',
         strasse: client.strasse || '',
         plz: client.plz || '',
         ort: client.ort || '',
@@ -280,24 +249,6 @@ const ClientDetailPage: React.FC = () => {
       });
     }
     setIsEditing(false);
-  };
-
-  const getStatusBadge = (status: string) => {
-    const colors = {
-      'potential': 'bg-blue-100 text-blue-800',
-      'in-progress': 'bg-yellow-100 text-yellow-800',
-      'completed': 'bg-green-100 text-green-800'
-    };
-    const labels = {
-      'potential': 'Potenzial',
-      'in-progress': 'In Bearbeitung',
-      'completed': 'Umgesetzt'
-    };
-    return (
-      <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${colors[status] || 'bg-gray-100 text-gray-800'}`}>
-        {labels[status] || status}
-      </span>
-    );
   };
 
   const renderTabContent = () => {
@@ -308,48 +259,47 @@ const ClientDetailPage: React.FC = () => {
             <div className="bg-white rounded-lg shadow p-6">
               <div className="flex items-center mb-6">
                 <Gift className="h-6 w-6 text-blue-600 mr-2" />
-                <h3 className="text-lg font-medium text-gray-900">Aktuelle Optimierungen</h3>
+                <h3 className="text-lg font-medium text-gray-900">Verfügbare Benefits</h3>
               </div>
               
-              <div className="space-y-4">
-                {mockOptimizations.map((optimization) => (
-                  <div key={optimization.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="flex-1">
-                        <div className="flex items-center mb-2">
-                          <h4 className="text-lg font-medium text-gray-900 mr-3">
-                            {optimization.title}
+              {benefits.length > 0 ? (
+                <div className="space-y-4">
+                  {benefits.map((benefit) => (
+                    <div key={benefit.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex-1">
+                          <h4 className="text-lg font-medium text-gray-900 mb-2">
+                            {benefit.name}
                           </h4>
-                          {getStatusBadge(optimization.status)}
+                          {benefit.paragraf && (
+                            <span className="inline-flex px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
+                              {benefit.paragraf}
+                            </span>
+                          )}
                         </div>
-                        <span className="inline-flex px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-800">
-                          {optimization.category}
-                        </span>
+                        {benefit.max_betrag_monat && (
+                          <div className="text-right">
+                            <div className="text-lg font-bold text-green-600">
+                              bis {benefit.max_betrag_monat.toLocaleString('de-DE')} €
+                            </div>
+                            <div className="text-xs text-gray-500">pro Monat</div>
+                          </div>
+                        )}
                       </div>
-                      <div className="text-right">
-                        <div className="text-lg font-bold text-green-600">
-                          {optimization.potentialSavings.toLocaleString('de-DE')} €
-                        </div>
-                        <div className="text-xs text-gray-500">pro Jahr</div>
-                      </div>
+                      
+                      {benefit.beschreibung && (
+                        <p className="text-gray-600 text-sm">{benefit.beschreibung}</p>
+                      )}
                     </div>
-                    
-                    <p className="text-gray-600 mb-3 text-sm">{optimization.description}</p>
-                    
-                    <div>
-                      <h5 className="text-sm font-medium text-gray-700 mb-2">Anforderungen:</h5>
-                      <ul className="text-xs text-gray-600 space-y-1">
-                        {optimization.requirements.map((req, index) => (
-                          <li key={index} className="flex items-start">
-                            <span className="inline-block w-1 h-1 bg-gray-400 rounded-full mt-1.5 mr-2 flex-shrink-0"></span>
-                            {req}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8">
+                  <Gift className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">Keine Benefits verfügbar</h3>
+                  <p className="text-gray-500">Es sind noch keine Benefits in der Datenbank hinterlegt.</p>
+                </div>
+              )}
             </div>
           </div>
         );
@@ -360,53 +310,34 @@ const ClientDetailPage: React.FC = () => {
             <div className="bg-white rounded-lg shadow p-6">
               <div className="flex items-center mb-6">
                 <Users className="h-6 w-6 text-blue-600 mr-2" />
-                <h3 className="text-lg font-medium text-gray-900">Mitarbeiter & Benefits</h3>
+                <h3 className="text-lg font-medium text-gray-900">Mitarbeiter</h3>
               </div>
               
-              <div className="space-y-4">
-                {mockEmployees.map((employee) => (
-                  <div key={employee.id} className="border border-gray-200 rounded-lg p-4">
-                    <div className="flex items-start justify-between mb-3">
-                      <div>
-                        <h4 className="text-lg font-medium text-gray-900">{employee.name}</h4>
-                        <p className="text-sm text-gray-600">{employee.position}</p>
-                      </div>
-                    </div>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <h5 className="text-sm font-medium text-green-700 mb-2">Aktive Benefits</h5>
-                        {employee.benefits.length > 0 ? (
-                          <div className="space-y-1">
-                            {employee.benefits.map((benefit, index) => (
-                              <span key={index} className="inline-flex px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800 mr-1 mb-1">
-                                {benefit}
-                              </span>
-                            ))}
-                          </div>
-                        ) : (
-                          <p className="text-xs text-gray-500">Keine aktiven Benefits</p>
-                        )}
+              {employees.length > 0 ? (
+                <div className="space-y-4">
+                  {employees.map((employee) => (
+                    <div key={employee.id} className="border border-gray-200 rounded-lg p-4">
+                      <div className="flex items-start justify-between mb-3">
+                        <div>
+                          <h4 className="text-lg font-medium text-gray-900">
+                            {employee.vorname} {employee.nachname}
+                          </h4>
+                        </div>
                       </div>
                       
-                      <div>
-                        <h5 className="text-sm font-medium text-blue-700 mb-2">Mögliche Benefits</h5>
-                        {employee.potentialBenefits.length > 0 ? (
-                          <div className="space-y-1">
-                            {employee.potentialBenefits.map((benefit, index) => (
-                              <span key={index} className="inline-flex px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800 mr-1 mb-1">
-                                {benefit}
-                              </span>
-                            ))}
-                          </div>
-                        ) : (
-                          <p className="text-xs text-gray-500">Alle Benefits bereits aktiv</p>
-                        )}
+                      <div className="text-sm text-gray-500">
+                        <p>Mitarbeiter-ID: {employee.id}</p>
                       </div>
                     </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8">
+                  <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">Keine Mitarbeiter</h3>
+                  <p className="text-gray-500">Für diesen Mandanten sind noch keine Mitarbeiter erfasst.</p>
+                </div>
+              )}
             </div>
           </div>
         );
@@ -459,16 +390,16 @@ const ClientDetailPage: React.FC = () => {
                         Rechtsform
                       </label>
                       <select
-                        value={editForm.unternehmensform}
+                        value={editForm.legal_form}
                         onChange={(e) => {
-                          setEditForm(prev => ({ ...prev, unternehmensform: e.target.value }));
+                          setEditForm(prev => ({ ...prev, legal_form: e.target.value }));
                           setIsEditing(true);
                         }}
                         className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                       >
                         <option value="">Rechtsform auswählen</option>
-                        {LEGAL_FORMS.map(form => (
-                          <option key={form} value={form}>{form}</option>
+                        {legalForms.map(form => (
+                          <option key={form.id} value={form.id}>{form.name}</option>
                         ))}
                       </select>
                     </div>
