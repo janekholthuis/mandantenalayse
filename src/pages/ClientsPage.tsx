@@ -31,7 +31,7 @@ const ClientsPage: React.FC = () => {
     
     try {
       const { data: mandantenData, error } = await supabase
-        .from('Mandanten')
+        .from('clients')
         .select('*')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
