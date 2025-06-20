@@ -383,9 +383,7 @@ const ClientsPage: React.FC = () => {
                               <div className="text-sm font-medium text-gray-900">
                                 {client.name}
                               </div>
-                              <div className="text-sm text-gray-500">
-                                {client.mandanten_id || 'Keine ID'}
-                              </div>
+                            
                             </div>
                           </div>
                         </td>
