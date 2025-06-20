@@ -282,12 +282,7 @@ const ClientDetailPage: React.FC = () => {
           />
         );
       
-      case 'contracts':
-        return (
-          <div className="space-y-6">
-            <ContractsList contracts={contracts} />
-          </div>
-        );
+   
       
       case 'Einstellungen':
         return (
