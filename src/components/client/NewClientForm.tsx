@@ -71,8 +71,8 @@ const NewClientForm: React.FC = () => {
       // Prepare data for insertion, only including non-empty values
       const insertData: any = {
         name: formData.name.trim(),
-        user_id: user.id,
-        status: 'aktiv'
+        user_id: user.id
+  
       };
 
       // Add optional fields only if they have values
