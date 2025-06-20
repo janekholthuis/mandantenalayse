@@ -84,33 +84,7 @@ const ClientAddPage: React.FC = () => {
         </Link>
       </div>
 
-      {/* Additional Info */}
-      <div className="mt-8 max-w-4xl">
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-          <h4 className="text-lg font-medium text-blue-900 mb-3">Hilfe bei der Auswahl</h4>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
-            <div>
-              <h5 className="font-medium text-blue-800 mb-2">Manuell eintragen wählen, wenn:</h5>
-              <ul className="space-y-1 text-blue-700">
-                <li>• Sie nur wenige Mandanten hinzufügen möchten</li>
-                <li>• Sie alle Details sofort erfassen möchten</li>
-                <li>• Sie keine vorhandene Datei haben</li>
-                <li>• Sie die Daten sorgfältig prüfen möchten</li>
-              </ul>
-            </div>
-            <div>
-              <h5 className="font-medium text-blue-800 mb-2">Datei hochladen wählen, wenn:</h5>
-              <ul className="space-y-1 text-blue-700">
-                <li>• Sie Mandanten aus DATEV exportieren möchten</li>
-                <li>• Sie viele Mandanten gleichzeitig importieren möchten</li>
-                <li>• Sie Zeit sparen möchten</li>
-                <li>• Sie bereits eine Excel- oder CSV-Datei haben</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </div>
-
+     
       {/* DATEV Hinweis */}
       <div className="mt-8 max-w-4xl">
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
