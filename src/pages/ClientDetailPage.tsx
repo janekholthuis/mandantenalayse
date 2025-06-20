@@ -272,7 +272,7 @@ const ClientDetailPage: React.FC = () => {
 
   const renderTabContent = () => {
     switch (activeTab) {
-      case 'transactions':
+      case 'benefits':
         return (
            <h3 className="text-lg font-medium text-gray-900">Mandanten-Einstellungen</h3>
         );
