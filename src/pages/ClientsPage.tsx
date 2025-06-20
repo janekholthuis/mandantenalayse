@@ -118,7 +118,6 @@ const ClientsPage: React.FC = () => {
             </p>
           </div>
           <div className="flex space-x-3">
-          
             <Link to="/clients/add">
               <Button
                 variant="primary"
