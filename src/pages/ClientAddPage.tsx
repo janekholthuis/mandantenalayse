@@ -29,8 +29,7 @@ const ClientAddPage: React.FC = () => {
                 Manuell eintragen
               </h3>
               <p className="text-gray-600 mb-6">
-                Geben Sie die Mandantendaten einzeln über ein Formular ein. 
-                Ideal für wenige Mandanten oder wenn Sie alle Details sofort erfassen möchten.
+                Fügen sie neue Mandanten über ein Formular hinzu.   
               </p>
               <div className="space-y-2 text-sm text-gray-500">
                 <div className="flex items-center justify-center">
