@@ -36,10 +36,7 @@ const ClientAddPage: React.FC = () => {
                   <Users className="h-4 w-4 mr-2" />
                   <span>Einzelne Mandanten</span>
                 </div>
-                <div className="flex items-center justify-center">
-                  <FileText className="h-4 w-4 mr-2" />
-                 
-                </div>
+               
               </div>
               <Button
                 variant="primary"
