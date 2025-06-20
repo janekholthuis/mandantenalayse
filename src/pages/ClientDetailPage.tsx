@@ -20,6 +20,10 @@ const { user } = useAuth();
 const navigate = useNavigate();
 const location = useLocation();
 
+  const { id, tab } = useParams<{ id: string; tab: string }>();
+const activeTab = tab || 'benefits';
+
+
 const handleTabChange = (tab: string) => {
 navigate(`/clients/${id}/${tab}`);
 };
