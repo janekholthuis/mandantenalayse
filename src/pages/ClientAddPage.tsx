@@ -93,12 +93,23 @@ const ClientAddPage: React.FC = () => {
       <div>
         <h4 className="text-lg font-medium text-blue-900">Mandantenexport aus DATEV</h4>
         <p className="text-blue-700 text-sm mt-1">
-          Sie können Ihre Mandantenliste ganz einfach aus dem DATEV Arbeitsplatz pro als Excel-Datei exportieren. 
-          Die Schritt-für-Schritt-Anleitung dazu finden Sie auf der Upload-Seite.
+          Exportieren Sie Ihre Mandantenliste ganz einfach aus DATEV Arbeitsplatz pro:
+        </p>
+        <ol className="list-decimal list-inside text-blue-700 text-sm mt-2 space-y-1">
+          <li>Öffnen Sie den <strong>DATEV Arbeitsplatz pro</strong>.</li>
+          <li>Gehen Sie zur <strong>Mandantenübersicht</strong>.</li>
+          <li>Klicken Sie oben auf <strong>„Exportieren“ → „Excel-Datei“</strong>.</li>
+          <li>Speichern Sie die Datei lokal auf Ihrem Rechner.</li>
+          <li>Laden Sie die Datei anschließend hier in unsere Anwendung hoch.</li>
+        </ol>
+        <p className="text-blue-700 text-sm mt-2">
+          📖 <a href="https://apps.datev.de/help-center/documents/1029145" target="_blank" rel="noopener noreferrer" className="underline font-medium text-blue-800 hover:text-blue-900">Zur offiziellen DATEV-Anleitung</a>
         </p>
       </div>
     </div>
   </div>
+</div>
+
 </div>
 
     </div>
