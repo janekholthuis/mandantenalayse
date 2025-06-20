@@ -85,21 +85,22 @@ const ClientAddPage: React.FC = () => {
       </div>
 
      
-      {/* DATEV Hinweis */}
-      <div className="mt-8 max-w-4xl">
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <div className="flex items-center">
-            <Database className="h-6 w-6 text-blue-600 mr-3" />
-            <div>
-              <h4 className="text-lg font-medium text-blue-900">DATEV-Integration</h4>
-              <p className="text-blue-700 text-sm mt-1">
-                Exportieren Sie Ihre Mandantenliste direkt aus DATEV Arbeitsplatz pro. 
-                Eine detaillierte Anleitung finden Sie auf der Upload-Seite.
-              </p>
-            </div>
-          </div>
-        </div>
+     {/* DATEV Hinweis */}
+<div className="mt-8 max-w-4xl">
+  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+    <div className="flex items-center">
+      <Database className="h-6 w-6 text-blue-600 mr-3" />
+      <div>
+        <h4 className="text-lg font-medium text-blue-900">Mandantenexport aus DATEV</h4>
+        <p className="text-blue-700 text-sm mt-1">
+          Sie können Ihre Mandantenliste ganz einfach aus dem DATEV Arbeitsplatz pro als Excel-Datei exportieren. 
+          Die Schritt-für-Schritt-Anleitung dazu finden Sie auf der Upload-Seite.
+        </p>
       </div>
+    </div>
+  </div>
+</div>
+
     </div>
   );
 };
