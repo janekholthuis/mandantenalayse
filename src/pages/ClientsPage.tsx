@@ -74,18 +74,7 @@ const ClientsPage: React.FC = () => {
       }));
 
       // Check for contracts to determine lastAnalyzed
-      for (const client of transformedClients) {
-        const { data: contracts } = await supabase
-          .from('clients') // This should probably be a contracts table when it exists
-          .select('created_at')
-          .eq('mandant_id', client.id)
-          .order('created_at', { ascending: false })
-          .limit(1);
 
-        if (contracts && contracts.length > 0) {
-          client.lastAnalyzed = contracts[0].created_at;
-        }
-      }
 
       setClients(transformedClients);
     } catch (error) {
