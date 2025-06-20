@@ -811,70 +811,7 @@ const ClientDetailPage: React.FC = () => {
 
         {/* Key Metrics Grid */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          {/* Employees */}
-          <div className="flex items-center">
-            <div className="h-10 w-10 bg-gray-100 rounded-lg flex items-center justify-center mr-3">
-              <Users className="h-5 w-5 text-gray-600" />
-            </div>
-            <div>
-              <div className="text-lg font-semibold text-gray-900">
-                {employees.length} Mitarbeiter
-              </div>
-              <div className="text-sm text-gray-500">
-                {client.employee_count ? `von ${client.employee_count} erfasst` : 'erfasst'}
-              </div>
-            </div>
-          </div>
-
-          {/* Active Benefits */}
-          <div className="flex items-center">
-            <div className="h-10 w-10 bg-green-100 rounded-lg flex items-center justify-center mr-3">
-              <Gift className="h-5 w-5 text-green-600" />
-            </div>
-            <div>
-              <div className="text-lg font-semibold text-gray-900">
-                {clientBenefits.length} Benefits
-              </div>
-              <div className="text-sm text-gray-500">aktiv</div>
-            </div>
-          </div>
-
-          {/* Last Analysis */}
-          <div className="flex items-center">
-            <div className="h-10 w-10 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
-              <Calendar className="h-5 w-5 text-blue-600" />
-            </div>
-            <div>
-              <div className="text-lg font-semibold text-gray-900">
-                {client.created_at ? 
-                  new Date(client.created_at).toLocaleDateString('de-DE', { 
-                    day: '2-digit', 
-                    month: '2-digit',
-                    year: 'numeric'
-                  }) : 
-                  'Nie'
-                }
-              </div>
-              <div className="text-sm text-gray-500">Analysiert</div>
-            </div>
-          </div>
-
-          {/* Potential Savings */}
-          <div className="flex items-center">
-            <div className="h-10 w-10 bg-yellow-100 rounded-lg flex items-center justify-center mr-3">
-              <TrendingUp className="h-5 w-5 text-yellow-600" />
-            </div>
-            <div>
-              <div className="text-lg font-semibold text-gray-900">
-                {clientBenefits.length > 0 ? 
-                  `${(clientBenefits.length * 600).toLocaleString('de-DE')} €` : 
-                  '0 €'
-                }
-              </div>
-              <div className="text-sm text-gray-500">Potenzial/Jahr</div>
-            </div>
-          </div>
-        </div>
+          
       </div>
       {/* Tab Navigation */}
       <div className="bg-white rounded-lg shadow mb-8">
