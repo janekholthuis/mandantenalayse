@@ -102,7 +102,11 @@ const ClientDetailPage: React.FC = () => {
   // Fetch all data
   useEffect(() => {
     const fetchData = async () => {
-      if (!id || !user) return;
+      if (!id || !user || id === 'undefined') {
+        setClient(null);
+        setIsLoading(false);
+        return;
+      }
       
       setIsLoading(true);
       try {

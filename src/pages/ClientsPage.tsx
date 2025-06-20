@@ -54,6 +54,7 @@ const ClientsPage: React.FC = () => {
 
       // Transform Supabase data to match our Client interface
       const transformedClients: Client[] = (mandantenData || []).map(clientData => ({
+        id: clientData.id,
         name: clientData.name || 'Unbekannt',
         industry: clientData.branchenschluessel_bezeichnung || undefined,
         revenue: 0,
@@ -112,7 +113,7 @@ const ClientsPage: React.FC = () => {
       if (error) throw error;
 
       const transformedDeletedClients: Client[] = (deletedData || []).map(clientData => ({
-      
+        id: clientData.id,
         name: clientData.name || 'Unbekannt',
         status: 'inactive',
         employeeCount: clientData.employee_count || 0,
