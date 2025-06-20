@@ -60,8 +60,7 @@ const ClientAddPage: React.FC = () => {
                 Datei hochladen
               </h3>
               <p className="text-gray-600 mb-6">
-                Laden Sie eine CSV- oder Excel-Datei mit mehreren Mandanten hoch. 
-                Perfekt für den Import größerer Datenmengen.
+                Laden Sie eine CSV- oder Excel-Datei mit mehreren Mandanten hoch.
               </p>
               <div className="space-y-2 text-sm text-gray-500">
                 <div className="flex items-center justify-center">
