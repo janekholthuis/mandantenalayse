@@ -184,7 +184,7 @@ const ClientDetailPage: React.FC = () => {
     setIsSaving(true);
     try {
       const { error } = await supabase
-        .from('Mandanten')
+        .from('clients')
         .update({
           name: editForm.name,
           unternehmensform: editForm.legalForm,
