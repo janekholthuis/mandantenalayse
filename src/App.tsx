@@ -68,7 +68,8 @@ const AppContent: React.FC = () => {
                   <Route path="/clients/add" element={<ClientAddPage />} />
                   <Route path="/clients/new" element={<NewClientPage />} />
                   <Route path="/clients/upload" element={<ClientUploadPage />} />
-                  <Route path="/clients/:id" element={<ClientDetailPage />} />
+                 <Route path="/clients/:id/:tab?" element={<ClientDetailPage />} />
+
             
                   <Route path="/clients/:id/optimizations" element={<ClientDetailPage />} />
                   <Route path="/clients/:id/settings" element={<ClientDetailPage />} />
