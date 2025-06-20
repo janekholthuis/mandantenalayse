@@ -85,7 +85,7 @@ const ClientAddPage: React.FC = () => {
       </div>
 
      
-     {/* DATEV Hinweis */}
+ {/* DATEV Hinweis */}
 <div className="mt-8 max-w-4xl">
   <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
     <div className="flex items-center">
@@ -109,7 +109,11 @@ const ClientAddPage: React.FC = () => {
     </div>
   </div>
 </div>
+    </div>
 
+
+
+  
 </div>
 
     </div>
