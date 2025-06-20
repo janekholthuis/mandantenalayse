@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft, Upload, RefreshCw, BarChart3, FileText, Settings } from 'lucide-react';
 import PageHeader from '../components/layout/PageHeader';
-
 import Button from '../components/ui/Button';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../hooks/useAuth';
@@ -33,7 +32,7 @@ const LEGAL_FORMS = [
   'Limited (Ltd.) – UK',
   'Sonstige ausländische Gesellschaft (z. B. BV, SARL, LLC)'
 ];
-type TabType = 'transactions' | 'contracts' | 'settings';
+type TabType = 'Benefits' | 'Mitarbeiter' | 'Einstellungen';
 
 const ClientDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
