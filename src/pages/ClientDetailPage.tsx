@@ -69,7 +69,7 @@ const ClientDetailPage: React.FC = () => {
     if (path.includes('/benefits')) return 'benefits';
     if (path.includes('/employees')) return 'Mitarbeiter';
     if (path.includes('/settings')) return 'Einstellungen';
-    return 'transactions'; // Default tab
+    return 'benefits'; // Default tab
   };
 
   const [activeTab, setActiveTab] = useState<TabType>(getCurrentTab());
