@@ -94,7 +94,7 @@ const ClientDetailPage: React.FC = () => {
       try {
         // Fetch client data
         const { data: clientData, error: clientError } = await supabase
-          .from('Mandanten')
+          .from('clients')
           .select('*')
           .eq('id', id)
           .eq('user_id', user.id)
