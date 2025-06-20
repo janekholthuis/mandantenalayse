@@ -769,91 +769,92 @@ const ClientDetailPage: React.FC = () => {
 
       
 
-      {/* Tab Navigation */}
-      <div className="bg-white rounded-lg shadow mb-8">
-          <div className="flex items-center">
-            <div className="h-10 w-10 bg-gray-100 rounded-lg flex items-center justify-center mr-3">
-              <Users className="h-5 w-5 text-gray-600" />
-            </div>
-            <div>
-              <div className="text-lg font-semibold text-gray-900">
-                {employees.length} Mitarbeiter
-              </div>
-              <div className="text-sm text-gray-500">
-                {client.employee_count ? `von ${client.employee_count} erfasst` : 'erfasst'}
-              </div>
-            </div>
-          </div>
-
-          {/* Active Benefits */}
-          <div className="flex items-center">
-            <div className="h-10 w-10 bg-green-100 rounded-lg flex items-center justify-center mr-3">
-              <Gift className="h-5 w-5 text-green-600" />
-            </div>
-            <div>
-              <div className="text-lg font-semibold text-gray-900">
-                {clientBenefits.length} Benefits
-              </div>
-              <div className="text-sm text-gray-500">aktiv</div>
-            </div>
-          </div>
-
-          {/* Last Analysis */}
-          <div className="flex items-center">
-            <div className="h-10 w-10 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
-              <Calendar className="h-5 w-5 text-blue-600" />
-            </div>
-            <div>
-              <div className="text-lg font-semibold text-gray-900">
-                {client.created_at ? 
-                  new Date(client.created_at).toLocaleDateString('de-DE', { 
-                    day: '2-digit', 
-                    month: '2-digit',
-                    year: 'numeric'
-                  }) : 
-                  'Nie'
-                }
-              </div>
-              <div className="text-sm text-gray-500">Analysiert</div>
-            </div>
-          </div>
-
-          {/* Potential Savings */}
-          <div className="flex items-center">
-            <div className="h-10 w-10 bg-yellow-100 rounded-lg flex items-center justify-center mr-3">
-              <TrendingUp className="h-5 w-5 text-yellow-600" />
-            </div>
-            <div>
-              <div className="text-lg font-semibold text-gray-900">
-                {clientBenefits.length > 0 ? 
-                  `${(clientBenefits.length * 600).toLocaleString('de-DE')} €` : 
-                  '0 €'
-                }
-              </div>
-              <div className="text-sm text-gray-500">Potenzial/Jahr</div>
-            </div>
-          </div>
-        <div className="border-b border-gray-200">
-          <nav className="-mb-px flex space-x-8 px-6">
-            {Tabs.map(({ id, label, icon: Icon }) => (
-              <button
-                key={id}
-                onClick={() => handleTabChange(id as TabType)}
-                className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === id
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-              >
-                <div className="flex items-center">
-                  <Icon className="h-5 w-5 mr-2" />
-                  {label}
-                </div>
-              </button>
-            ))}
-          </nav>
+     {/* Overview & Tab Navigation */}
+<div className="bg-white rounded-lg shadow mb-8 px-6 py-4">
+  {/* Overview Section */}
+  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+    
+    {/* Mitarbeiter */}
+    <div className="flex items-center">
+      <div className="h-10 w-10 bg-gray-100 rounded-lg flex items-center justify-center mr-3">
+        <Users className="h-5 w-5 text-gray-600" />
+      </div>
+      <div>
+        <div className="text-lg font-semibold text-gray-900">
+          {employees.length} Mitarbeiter
+        </div>
+        <div className="text-sm text-gray-500">
+          {client.employee_count ? `von ${client.employee_count} erfasst` : 'erfasst'}
         </div>
       </div>
+    </div>
+
+    {/* Benefits */}
+    <div className="flex items-center">
+      <div className="h-10 w-10 bg-green-100 rounded-lg flex items-center justify-center mr-3">
+        <Gift className="h-5 w-5 text-green-600" />
+      </div>
+      <div>
+        <div className="text-lg font-semibold text-gray-900">
+          {clientBenefits.length} Benefits
+        </div>
+        <div className="text-sm text-gray-500">aktiv</div>
+      </div>
+    </div>
+
+    {/* Letzte Analyse */}
+    <div className="flex items-center">
+      <div className="h-10 w-10 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
+        <Calendar className="h-5 w-5 text-blue-600" />
+      </div>
+      <div>
+        <div className="text-lg font-semibold text-gray-900">
+          {client.created_at 
+            ? new Date(client.created_at).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' })
+            : 'Nie'}
+        </div>
+        <div className="text-sm text-gray-500">Analysiert</div>
+      </div>
+    </div>
+
+    {/* Sparpotenzial */}
+    <div className="flex items-center">
+      <div className="h-10 w-10 bg-yellow-100 rounded-lg flex items-center justify-center mr-3">
+        <TrendingUp className="h-5 w-5 text-yellow-600" />
+      </div>
+      <div>
+        <div className="text-lg font-semibold text-gray-900">
+          {clientBenefits.length > 0 
+            ? `${(clientBenefits.length * 600).toLocaleString('de-DE')} €` 
+            : '0 €'}
+        </div>
+        <div className="text-sm text-gray-500">Potenzial/Jahr</div>
+      </div>
+    </div>
+  </div>
+
+  {/* Tabs */}
+  <div className="border-b border-gray-200">
+    <nav className="-mb-px flex space-x-8">
+      {Tabs.map(({ id, label, icon: Icon }) => (
+        <button
+          key={id}
+          onClick={() => handleTabChange(id as TabType)}
+          className={`py-4 px-1 border-b-2 font-medium text-sm ${
+            activeTab === id
+              ? 'border-blue-500 text-blue-600'
+              : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+          }`}
+        >
+          <div className="flex items-center">
+            <Icon className="h-5 w-5 mr-2" />
+            {label}
+          </div>
+        </button>
+      ))}
+    </nav>
+  </div>
+</div>
 
       {/* Tab Content */}
       <div className="mb-8">
