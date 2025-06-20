@@ -41,21 +41,7 @@ const ClientDetailPage: React.FC = () => {
   const location = useLocation();
   const [client, setClient] = useState<Client | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [bankConnected, setBankConnected] = useState(false);
-  const [documentsUploaded, setDocumentsUploaded] = useState(false);
-  const [emailSent, setEmailSent] = useState(false);
-  const [contracts, setContracts] = useState<Contract[]>([]);
-  const [costOptimizations, setCostOptimizations] = useState([
-    {
-      id: 'stromvertrag',
-      title: 'Stromvertrag optimieren',
-      description: 'Wechsel zu günstigerem Stromanbieter mit besseren Konditionen',
-      status: 'document-missing',
-      potentialSavings: 210,
-      requirements: ['Aktueller Stromvertrag', 'Jahresverbrauch'],
-      missingDocuments: ['Stromvertrag', 'Letzte Stromrechnung']
-    }
-  ]);
+
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [editForm, setEditForm] = useState({
@@ -429,7 +415,7 @@ const ClientDetailPage: React.FC = () => {
         <div className="border-b border-gray-200">
           <nav className="-mb-px flex space-x-8 px-6">
             <button
-              onClick={() => handleTabChange('transactions')}
+              onClick={() => handleTabChange('Benefits')}
               className={`py-4 px-1 border-b-2 font-medium text-sm ${
                 activeTab === 'transactions'
                   ? 'border-blue-500 text-blue-600'
@@ -442,7 +428,7 @@ const ClientDetailPage: React.FC = () => {
               </div>
             </button>
             <button
-              onClick={() => handleTabChange('contracts')}
+              onClick={() => handleTabChange('Mitabeiter')}
               className={`py-4 px-1 border-b-2 font-medium text-sm ${
                 activeTab === 'contracts'
                   ? 'border-blue-500 text-blue-600'
@@ -455,7 +441,7 @@ const ClientDetailPage: React.FC = () => {
               </div>
             </button>
             <button
-              onClick={() => handleTabChange('settings')}
+              onClick={() => handleTabChange('Einstellungen')}
               className={`py-4 px-1 border-b-2 font-medium text-sm ${
                 activeTab === 'settings'
                   ? 'border-blue-500 text-blue-600'
