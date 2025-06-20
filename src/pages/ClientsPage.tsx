@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { UserPlus, Upload, Trash2, RotateCcw } from 'lucide-react';
+import { UserPlus, Upload, Trash2, RotateCcw, Grid, List, Settings } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import ClientCard from '../components/client/ClientCard';
 import EnhancedClientImportForm from '../components/client/EnhancedClientImportForm';
@@ -14,6 +14,7 @@ const ClientsPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [showImportForm, setShowImportForm] = useState(false);
   const [showTrash, setShowTrash] = useState(false);
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [clients, setClients] = useState<Client[]>([]);
   const [deletedClients, setDeletedClients] = useState<Client[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -250,7 +251,7 @@ const ClientsPage: React.FC = () => {
         </div>
         
         <div className="mb-6">
-          <div className="flex gap-2">
+          <div className="flex gap-2 items-center">
             <input
               type="text"
               className="flex-1 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
@@ -258,6 +259,24 @@ const ClientsPage: React.FC = () => {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
+            {!showTrash && (
+              <div className="flex items-center border border-gray-300 rounded-md">
+                <button
+                  onClick={() => setViewMode('grid')}
+                  className={`p-2 ${viewMode === 'grid' ? 'bg-blue-100 text-blue-600' : 'text-gray-500 hover:text-gray-700'} transition-colors`}
+                  title="Kachel-Ansicht"
+                >
+                  <Grid size={16} />
+                </button>
+                <button
+                  onClick={() => setViewMode('list')}
+                  className={`p-2 ${viewMode === 'list' ? 'bg-blue-100 text-blue-600' : 'text-gray-500 hover:text-gray-700'} transition-colors`}
+                  title="Listen-Ansicht"
+                >
+                  <List size={16} />
+                </button>
+              </div>
+            )}
             <button
               className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
               onClick={() => {/* Search functionality already handled by filteredClients */}}
@@ -317,13 +336,112 @@ const ClientsPage: React.FC = () => {
           </div>
         ) : (
           // Normal View
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredClients.map(client => (
-              <ClientCard key={client.id} client={client} onDelete={handleDeleteClient} />
-            ))}
+          <>
+            {viewMode === 'grid' ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredClients.map(client => (
+                  <ClientCard key={client.id} client={client} onDelete={handleDeleteClient} />
+                ))}
+              </div>
+            ) : (
+              <div className="bg-white shadow rounded-lg overflow-hidden">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Mandant
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Status
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Rechtsform
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Ort
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Erstellt
+                      </th>
+                      <th className="relative px-6 py-3">
+                        <span className="sr-only">Aktionen</span>
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {filteredClients.map((client) => (
+                      <tr key={client.id} className="hover:bg-gray-50">
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center">
+                            <div className="flex-shrink-0 h-10 w-10">
+                              <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
+                                <span className="text-sm font-medium text-blue-600">
+                                  {client.name.charAt(0).toUpperCase()}
+                                </span>
+                              </div>
+                            </div>
+                            <div className="ml-4">
+                              <div className="text-sm font-medium text-gray-900">
+                                {client.name}
+                              </div>
+                              <div className="text-sm text-gray-500">
+                                {client.mandanten_id || 'Keine ID'}
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                            client.status === 'active' 
+                              ? 'bg-green-100 text-green-800' 
+                              : 'bg-red-100 text-red-800'
+                          }`}>
+                            {client.status === 'active' ? 'Aktiv' : 'Inaktiv'}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {client.legalForm || 'Nicht angegeben'}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {client.city || 'Nicht angegeben'}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {client.created_at ? new Date(client.created_at).toLocaleDateString('de-DE') : 'Unbekannt'}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                          <div className="flex items-center justify-end space-x-2">
+                            <Link
+                              to={`/clients/${client.id}`}
+                              className="text-blue-600 hover:text-blue-900 transition-colors"
+                              title="Details anzeigen"
+                            >
+                              Details
+                            </Link>
+                            <Link
+                              to={`/clients/${client.id}/einstellungen`}
+                              className="text-gray-400 hover:text-gray-600 transition-colors"
+                              title="Einstellungen"
+                            >
+                              <Settings size={16} />
+                            </Link>
+                            <button
+                              onClick={() => handleDeleteClient(client.id)}
+                              className="text-gray-400 hover:text-red-600 transition-colors"
+                              title="Löschen"
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
             
             {filteredClients.length === 0 && !isLoading && (
-              <div className="col-span-full text-center py-12">
+              <div className="text-center py-12">
                 {searchTerm ? (
                   <>
                     <p className="text-gray-500">Keine Mandanten gefunden für "{searchTerm}"</p>
@@ -351,7 +469,7 @@ const ClientsPage: React.FC = () => {
                 )}
               </div>
             )}
-          </div>
+          </>
         )}
       </div>
 
