@@ -10,7 +10,7 @@ import { Client } from '../types';
 
 const ClientsPage: React.FC = () => {
 const { user } = useAuth();
-const \[searchTerm, setSearchTerm] = useState('');
+const [searchTerm, setSearchTerm] = useState('');
 const \[showImportForm, setShowImportForm] = useState(false);
 const \[clients, setClients] = useState\<Client\[]>(\[]);
 const \[isLoading, setIsLoading] = useState(true);
