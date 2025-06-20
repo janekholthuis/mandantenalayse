@@ -66,9 +66,9 @@ const ClientDetailPage: React.FC = () => {
   // Determine current tab from URL
   const getCurrentTab = (): TabType => {
     const path = location.pathname;
-    if (path.includes('/transactions')) return 'transactions';
-    if (path.includes('/contracts')) return 'contracts';
-    if (path.includes('/settings')) return 'settings';
+    if (path.includes('/benefits')) return 'benefits';
+    if (path.includes('/employees')) return 'Mitarbeiter';
+    if (path.includes('/settings')) return 'Einstellungen';
     return 'transactions'; // Default tab
   };
 
