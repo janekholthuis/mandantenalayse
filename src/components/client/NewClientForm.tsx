@@ -109,7 +109,7 @@ const NewClientForm: React.FC = () => {
 
   return (
     <div className="bg-white shadow rounded-lg max-w-4xl">
-      <form onSubmit={handleSubmit} className="space-y-8 p-8">#
+      <form onSubmit={handleSubmit} className="space-y-8 p-8">
 
 
         
