@@ -79,6 +79,38 @@ const ValidationConfirmation: React.FC<ValidationConfirmationProps> = ({
         </div>
       </div>
 
+      {/* Data Preview */}
+      <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6">
+        <h4 className="text-sm font-medium text-gray-900 mb-3">Beispiel der zu importierenden Daten:</h4>
+        <div className="overflow-x-auto">
+          <table className="min-w-full text-sm">
+            <thead>
+              <tr className="border-b border-gray-300">
+                <th className="text-left py-2 px-3 font-medium text-gray-700">Firmenname</th>
+                <th className="text-left py-2 px-3 font-medium text-gray-700">Mitarbeiter</th>
+                <th className="text-left py-2 px-3 font-medium text-gray-700">PLZ</th>
+                <th className="text-left py-2 px-3 font-medium text-gray-700">Ort</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.slice(0, 3).map((row, index) => (
+                <tr key={index} className="border-b border-gray-200">
+                  <td className="py-2 px-3 text-gray-900">{row.Firmenname || '-'}</td>
+                  <td className="py-2 px-3 text-gray-900">{row.Anzahl_Mitarbeiter || '-'}</td>
+                  <td className="py-2 px-3 text-gray-900">{row.PLZ || '-'}</td>
+                  <td className="py-2 px-3 text-gray-900">{row.Ort || '-'}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {data.length > 3 && (
+            <div className="text-center py-2 text-gray-500 text-xs">
+              ... und {data.length - 3} weitere Datensätze
+            </div>
+          )}
+        </div>
+      </div>
+
       {/* Error Handling Options */}
       {errors > 0 && (
         <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 mb-6">

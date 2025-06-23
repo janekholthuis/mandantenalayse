@@ -115,20 +115,20 @@ const EnhancedClientImportForm: React.FC<EnhancedClientImportFormProps> = ({
     setIsProcessing(true);
     
     try {
-      // Prepare data for insertion
+      // Prepare data for insertion - simplified to match NewClientForm fields
       const dataToInsert = mappedData
         .filter(row => {
           // Basic validation - skip rows without required fields
-          return row.Mandantenname || row.Mandantennummer;
+          return row.Firmenname && row.Anzahl_Mitarbeiter && row.Strasse && row.PLZ && row.Ort;
         })
         .map(row => ({
-          name: row.Mandantenname || row.Mandantennummer || 'Unbekannt',
-          Mandanten_ID: row.Mandantennummer || null,
-          plz: row.PLZ ? row.PLZ.toString() : null,
-          ort: row.Ort || null,
-          Mitarbeiter_Anzahl: row.Mitarbeiter_Anzahl ? parseInt(row.Mitarbeiter_Anzahl.toString()) || 0 : 0,
-          beraternummer: row.Beraternummer || null,
-          status: row.Status || 'aktiv',
+          name: row.Firmenname,
+          employee_count: parseInt(row.Anzahl_Mitarbeiter?.toString()) || 0,
+          strasse: row.Strasse,
+          plz: parseInt(row.PLZ?.toString()) || null,
+          ort: row.Ort,
+          land: row.Land || 'Deutschland',
+          legal_form: row.Rechtsform ? parseInt(row.Rechtsform.toString()) || null : null,
           user_id: user.id
         }));
 

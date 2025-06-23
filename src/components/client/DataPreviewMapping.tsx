@@ -22,15 +22,15 @@ const DataPreviewMapping: React.FC<DataPreviewMappingProps> = ({ data, onBack, o
   const [fieldMapping, setFieldMapping] = useState<Record<string, string>>({});
   const [validationErrors, setValidationErrors] = useState<ValidationError[]>([]);
 
-  // Available target fields
+  // Available target fields - simplified to match NewClientForm
   const targetFields = {
-    'Mandantennummer': { required: true, description: 'Eindeutige Nummer des Mandanten' },
-    'Mandantenname': { required: true, description: 'Name oder Firmenname' },
-    'Beraternummer': { required: false, description: 'Zuständiger Berater' },
-    'Status': { required: false, description: 'Aktiv/Inaktiv Status' },
-    'Ort': { required: false, description: 'Stadt/Ort' },
-    'PLZ': { required: false, description: 'Postleitzahl' },
-    'Mitarbeiter_Anzahl': { required: false, description: 'Anzahl der Mitarbeiter' }
+    'Firmenname': { required: true, description: 'Name oder Firmenname' },
+    'Anzahl_Mitarbeiter': { required: true, description: 'Anzahl der Mitarbeiter' },
+    'Rechtsform': { required: false, description: 'Rechtsform des Unternehmens' },
+    'Strasse': { required: true, description: 'Straße und Hausnummer' },
+    'PLZ': { required: true, description: 'Postleitzahl' },
+    'Ort': { required: true, description: 'Stadt/Ort' },
+    'Land': { required: false, description: 'Land (Standard: Deutschland)' }
   };
 
   // Get source fields from data
@@ -44,20 +44,20 @@ const DataPreviewMapping: React.FC<DataPreviewMappingProps> = ({ data, onBack, o
       const lowerSource = sourceField.toLowerCase();
       
       // Smart mapping based on field names
-      if (lowerSource.includes('mandantennummer') || lowerSource.includes('nummer')) {
-        autoMapping['Mandantennummer'] = sourceField;
-      } else if (lowerSource.includes('mandantenname') || lowerSource.includes('name') || lowerSource.includes('firma')) {
-        autoMapping['Mandantenname'] = sourceField;
-      } else if (lowerSource.includes('beraternummer') || lowerSource.includes('berater')) {
-        autoMapping['Beraternummer'] = sourceField;
-      } else if (lowerSource.includes('status')) {
-        autoMapping['Status'] = sourceField;
-      } else if (lowerSource.includes('ort') || lowerSource.includes('stadt')) {
-        autoMapping['Ort'] = sourceField;
-      } else if (lowerSource.includes('plz') || lowerSource.includes('postleitzahl')) {
+      if (lowerSource.includes('firmenname') || lowerSource.includes('mandantenname') || lowerSource.includes('name') || lowerSource.includes('firma')) {
+        autoMapping['Firmenname'] = sourceField;
+      } else if (lowerSource.includes('mitarbeiter') || lowerSource.includes('employee') || lowerSource.includes('anzahl')) {
+        autoMapping['Anzahl_Mitarbeiter'] = sourceField;
+      } else if (lowerSource.includes('rechtsform') || lowerSource.includes('legal') || lowerSource.includes('form')) {
+        autoMapping['Rechtsform'] = sourceField;
+      } else if (lowerSource.includes('strasse') || lowerSource.includes('street') || lowerSource.includes('adresse')) {
+        autoMapping['Strasse'] = sourceField;
+      } else if (lowerSource.includes('plz') || lowerSource.includes('postleitzahl') || lowerSource.includes('postal')) {
         autoMapping['PLZ'] = sourceField;
-      } else if (lowerSource.includes('mitarbeiter') || lowerSource.includes('employee')) {
-        autoMapping['Mitarbeiter_Anzahl'] = sourceField;
+      } else if (lowerSource.includes('ort') || lowerSource.includes('stadt') || lowerSource.includes('city')) {
+        autoMapping['Ort'] = sourceField;
+      } else if (lowerSource.includes('land') || lowerSource.includes('country')) {
+        autoMapping['Land'] = sourceField;
       }
     });
 
@@ -88,22 +88,22 @@ const DataPreviewMapping: React.FC<DataPreviewMappingProps> = ({ data, onBack, o
       // Validate PLZ format
       if (fieldMapping['PLZ']) {
         const plz = row[fieldMapping['PLZ']];
-        if (plz && !/^\d{5}$/.test(plz.toString())) {
+        if (plz && !/^\d{4,5}$/.test(plz.toString())) {
           errors.push({
             row: index + 2,
             field: 'PLZ',
-            message: 'PLZ muss 5-stellig sein'
+            message: 'PLZ muss 4-5 stellig sein'
           });
         }
       }
 
-      // Validate Mitarbeiter_Anzahl
-      if (fieldMapping['Mitarbeiter_Anzahl']) {
-        const count = row[fieldMapping['Mitarbeiter_Anzahl']];
+      // Validate Anzahl_Mitarbeiter
+      if (fieldMapping['Anzahl_Mitarbeiter']) {
+        const count = row[fieldMapping['Anzahl_Mitarbeiter']];
         if (count && (isNaN(count) || parseInt(count) < 0)) {
           errors.push({
             row: index + 2,
-            field: 'Mitarbeiter_Anzahl',
+            field: 'Anzahl_Mitarbeiter',
             message: 'Mitarbeiteranzahl muss eine positive Zahl sein'
           });
         }
@@ -174,7 +174,7 @@ const DataPreviewMapping: React.FC<DataPreviewMappingProps> = ({ data, onBack, o
             <div key={targetField} className="border border-gray-200 rounded-lg p-4">
               <div className="flex items-center justify-between mb-2">
                 <label className="text-sm font-medium text-gray-900">
-                  {targetField}
+                  {targetField.replace('_', ' ')}
                   {config.required && <span className="text-red-500 ml-1">*</span>}
                 </label>
                 {fieldMapping[targetField] && (
@@ -234,7 +234,7 @@ const DataPreviewMapping: React.FC<DataPreviewMappingProps> = ({ data, onBack, o
                 <tr>
                   {Object.keys(targetFields).map(field => (
                     <th key={field} className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
-                      {field}
+                      {field.replace('_', ' ')}
                       {targetFields[field].required && <span className="text-red-500 ml-1">*</span>}
                     </th>
                   ))}
