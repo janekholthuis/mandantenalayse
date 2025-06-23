@@ -87,7 +87,7 @@ const ClientCard: React.FC<ClientCardProps> = ({ client, onDelete }) => {
         <div className="space-y-2 mb-3">
           <div className="flex items-center text-sm text-gray-700">
             <Scale className="h-4 w-4 mr-2 text-gray-400" />
-            <span className="font-medium">Rechtsform:</span>
+            <span className="font-medium">Unternehmensform:</span>
             <span className="ml-1">{client.legalForm || 'nicht angegeben'}</span>
           </div>
         </div>
