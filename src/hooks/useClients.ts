@@ -18,7 +18,7 @@ export function useClients(): UseClients {
     if (!supabase.auth.getUser()) return;
 
     setIsLoading(true);
-    const user = supabase.auth.user()!;
+    const user = supabase.auth.getUser()!;
 
     const [{ data: act, error: e1 }, { data: del, error: e2 }] = await Promise.all([
       supabase
