@@ -103,7 +103,7 @@ const ClientsPage: React.FC = () => {
       ) : (
         filteredActive.length > 0 ? (
           viewMode === 'grid' ? (
-            <div className="grid ...">{filteredActive.map(c =>
+            <div >{filteredActive.map(c =>
               <ClientCard key={c.id} client={c} onDelete={() => softDelete(c.id)} />
             )}</div>
           ) : (
