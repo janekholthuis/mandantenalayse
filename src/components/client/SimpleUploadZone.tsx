@@ -77,7 +77,7 @@ const SimpleUploadZone: React.FC<SimpleUploadZoneProps> = ({ onFileSelect, onBac
   };
 
   const downloadExampleFile = () => {
-    window.open('https://eoxctywixmaelcnjuhmr.supabase.co/storage/v1/object/sign/landingpage/Beispiel%20Datei.csv?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV81NTIwNTUwYS05OGE1LTQwYjItYTAwNS0wNTk0ZGIzNTY1MmEiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJsYW5kaW5ncGFnZS9CZWlzcGllbCBEYXRlaS5jc3YiLCJpYXQiOjE3NTA2ODE0MDIsImV4cCI6ODgxNTA2ODE0MDJ9.__jpP5YAaXHrRN2TK4hHj8KpGdmSenUjArbE_K0fAtM', '_blank');
+    window.open('https://drive.google.com/uc?export=download&id=1VEU796USG9vQ9fJJ7fQZXB_p6Q7XX3Yq', '_blank');
   };
 
   return (
