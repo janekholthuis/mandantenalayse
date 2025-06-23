@@ -171,9 +171,9 @@ const SimplifiedClientImportForm: React.FC<SimplifiedClientImportFormProps> = ({
           <div className="bg-white rounded-t-xl border-b p-6">
             <div className="flex justify-between items-center">
               <div>
-                <h3 className="text-2xl font-semibold text-gray-900">
+                <h5 className="text-2xl font-semibold text-gray-900">
                   Mandanten hochladen
-                </h3>
+                </h5>
                 <div className="flex items-center mt-3 space-x-2">
                   {['upload', 'mapping', 'import'].map((step, index) => (
                     <div key={step} className="flex items-center">
