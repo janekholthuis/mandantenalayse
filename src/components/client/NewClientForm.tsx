@@ -1,140 +1,143 @@
-import React from "react";
-import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
-import { supabase } from "../../lib/supabase";
-import { showSuccess, showError } from "../../lib/toast";
-import Button from "../ui/Button";
+import React, { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
+import { supabase } from '../../lib/supabase';
+import { useAuth } from '../../hooks/useAuth';
+import { showError, showSuccess } from '../../lib/toast';
+import { Building2, Users, MapPin, Building } from 'lucide-react';
+import Button from '../ui/Button';
 
-interface FormData {
+type FormValues = {
   name: string;
   employee_count?: number;
-  plz?: number;
+  legal_form?: number;
+  plz?: string;
   ort?: string;
   land?: string;
   strasse?: string;
+};
+
+interface LegalForm {
+  id: number;
+  name: string;
 }
 
 const NewClientForm: React.FC = () => {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isSubmitting },
-  } = useForm<FormData>();
-
+  const { user } = useAuth();
   const navigate = useNavigate();
+  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<FormValues>();
+  const [legalForms, setLegalForms] = useState<LegalForm[]>([]);
 
-  const onSubmit = async (data: FormData) => {
+  useEffect(() => {
+    const fetchLegalForms = async () => {
+      const { data, error } = await supabase.from('legal_forms').select('*').order('name');
+      if (error) console.error(error);
+      else setLegalForms(data || []);
+    };
+    fetchLegalForms();
+  }, []);
+
+  const onSubmit = async (values: FormValues) => {
+    if (!user) {
+      showError('Sie müssen angemeldet sein.');
+      return;
+    }
+
     try {
-      const { error } = await supabase.from("clients").insert(data);
+      const { error } = await supabase.from('clients').insert([
+        {
+          ...values,
+          user_id: user.id,
+        }
+      ]);
+
       if (error) throw error;
 
-      showSuccess("Mandant erfolgreich erstellt");
-      navigate("/clients");
-    } catch (error: any) {
-      showError(error.message || "Fehler beim Erstellen des Mandanten");
+      showSuccess('Mandant erfolgreich gespeichert');
+      navigate('/clients');
+    } catch (err: any) {
+      showError(err.message || 'Fehler beim Anlegen des Mandanten');
     }
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-8 bg-white p-8 rounded-lg shadow max-w-4xl">
-      <h2 className="text-xl font-bold text-gray-900">Mandanteninformationen</h2>
+    <div className="bg-white shadow rounded-lg max-w-4xl">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-8 p-8">
+        {/* Firmenname */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Firmenname *</label>
+          <div className="relative mt-1">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <Building2 className="h-5 w-5 text-gray-400" />
+            </div>
+            <input
+              {...register('name', { required: 'Firmenname ist erforderlich' })}
+              className="block w-full pl-10 pr-3 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Musterfirma GmbH"
+            />
+          </div>
+          {errors.name && <p className="text-sm text-red-600 mt-1">{errors.name.message}</p>}
+        </div>
 
-      {/* Name */}
-      <div>
-        <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-          Firmenname <span className="text-red-500">*</span>
-        </label>
-        <input
-          id="name"
-          {...register("name", { required: "Pflichtfeld" })}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-        />
-        {errors.name && <p className="text-sm text-red-600 mt-1">{errors.name.message}</p>}
-      </div>
+        {/* Mitarbeiter & Rechtsform */}
+        <div className="grid md:grid-cols-2 gap-6">
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Anzahl Mitarbeiter</label>
+            <input
+              type="number"
+              {...register('employee_count', { min: 0 })}
+              className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
+              placeholder="25"
+            />
+          </div>
 
-      {/* Employee Count */}
-      <div>
-        <label htmlFor="employee_count" className="block text-sm font-medium text-gray-700">
-          Mitarbeiteranzahl
-        </label>
-        <input
-          type="number"
-          id="employee_count"
-          {...register("employee_count", {
-            valueAsNumber: true,
-            min: { value: 1, message: "Mindestens 1 Mitarbeiter" },
-            max: { value: 10000, message: "Maximal 10000 Mitarbeiter" },
-          })}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-        />
-        {errors.employee_count && <p className="text-sm text-red-600 mt-1">{errors.employee_count.message}</p>}
-      </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Rechtsform</label>
+            <select
+              {...register('legal_form')}
+              className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
+            >
+              <option value="">Rechtsform auswählen</option>
+              {legalForms.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}
+            </select>
+          </div>
+        </div>
 
-      {/* PLZ */}
-      <div>
-        <label htmlFor="plz" className="block text-sm font-medium text-gray-700">
-          PLZ
-        </label>
-        <input
-          type="number"
-          id="plz"
-          {...register("plz", {
-            valueAsNumber: true,
-            min: { value: 1000, message: "Ungültige PLZ" },
-            max: { value: 99999, message: "Ungültige PLZ" },
-          })}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-        />
-        {errors.plz && <p className="text-sm text-red-600 mt-1">{errors.plz.message}</p>}
-      </div>
+        {/* Adresse */}
+        <div>
+          <h3 className="text-lg font-medium text-gray-900 mb-4">Adresse</h3>
+          <div className="grid md:grid-cols-2 gap-6">
+            <input
+              placeholder="Straße & Hausnummer"
+              {...register('strasse')}
+              className="border border-gray-300 rounded-md px-3 py-2"
+            />
+            <input
+              placeholder="PLZ"
+              {...register('plz')}
+              className="border border-gray-300 rounded-md px-3 py-2"
+            />
+            <input
+              placeholder="Ort"
+              {...register('ort')}
+              className="border border-gray-300 rounded-md px-3 py-2"
+            />
+            <input
+              placeholder="Land"
+              defaultValue="Deutschland"
+              {...register('land')}
+              className="border border-gray-300 rounded-md px-3 py-2"
+            />
+          </div>
+        </div>
 
-      {/* Ort */}
-      <div>
-        <label htmlFor="ort" className="block text-sm font-medium text-gray-700">
-          Ort
-        </label>
-        <input
-          id="ort"
-          {...register("ort")}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-        />
-      </div>
-
-      {/* Land */}
-      <div>
-        <label htmlFor="land" className="block text-sm font-medium text-gray-700">
-          Land
-        </label>
-        <input
-          id="land"
-          defaultValue="Deutschland"
-          {...register("land")}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-        />
-      </div>
-
-      {/* Straße */}
-      <div>
-        <label htmlFor="strasse" className="block text-sm font-medium text-gray-700">
-          Straße & Hausnummer
-        </label>
-        <input
-          id="strasse"
-          {...register("strasse")}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-        />
-      </div>
-
-      {/* Action Buttons */}
-      <div className="flex justify-end gap-3 border-t pt-6">
-        <Button type="button" variant="secondary" onClick={() => navigate("/clients")}>
-          Abbrechen
-        </Button>
-        <Button type="submit" variant="primary" isLoading={isSubmitting}>
-          Mandant speichern
-        </Button>
-      </div>
-    </form>
+        {/* Aktionen */}
+        <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200">
+          <Button type="button" variant="secondary" onClick={() => navigate('/clients')}>Abbrechen</Button>
+          <Button type="submit" variant="primary" isLoading={isSubmitting}>Mandant anlegen</Button>
+        </div>
+      </form>
+    </div>
   );
 };
 
