@@ -230,19 +230,6 @@ const SimpleUploadZone: React.FC<SimpleUploadZoneProps> = ({ onFileSelect, onBac
         </div>
       )}
 
-      {/* Required Fields Info */}
-      <div className="mt-6 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-        <h4 className="text-sm font-medium text-yellow-900 mb-2">📋 Erforderliche Spalten</h4>
-        <div className="grid grid-cols-2 gap-2 text-sm text-yellow-800">
-          <div>• <strong>Firmenname</strong> (erforderlich)</div>
-          <div>• <strong>Anzahl Mitarbeiter</strong> (erforderlich)</div>
-          <div>• <strong>Straße & Hausnummer</strong> (erforderlich)</div>
-          <div>• <strong>PLZ</strong> (erforderlich)</div>
-          <div>• <strong>Ort</strong> (erforderlich)</div>
-          <div>• <strong>Unternehmensform</strong> (optional)</div>
-        </div>
-      </div>
-
       {/* Action Buttons */}
       <div className="flex justify-between mt-8">
         <Button
