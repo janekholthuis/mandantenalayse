@@ -255,7 +255,7 @@ const ClientsPage: React.FC = () => {
             <input
               type="text"
               className="flex-1 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-              placeholder={showTrash ? "Gelöschte Mandanten suchen..." : "Mandanten nach Name oder Rechtsform suchen..."}
+              placeholder={showTrash ? "Gelöschte Mandanten suchen..." : "Mandanten nach Name oder Unternehmensform suchen..."}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
