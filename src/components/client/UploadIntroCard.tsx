@@ -9,7 +9,7 @@ interface UploadIntroCardProps {
 const UploadIntroCard: React.FC<UploadIntroCardProps> = ({ onStartUpload }) => {
   const downloadExampleFile = () => {
     const data = [
-      ['Firmenname', 'Anzahl_Mitarbeiter', 'Rechtsform', 'Strasse', 'PLZ', 'Ort', 'Land'],
+      ['Firmenname', 'Anzahl_Mitarbeiter', 'Unternehmensform', 'Strasse', 'PLZ', 'Ort', 'Land'],
       ['Musterfirma GmbH', '25', 'GmbH', 'Musterstraße 1', '10115', 'Berlin', 'Deutschland'],
       ['Beispiel AG', '50', 'AG', 'Beispielweg 2', '80331', 'München', 'Deutschland'],
       ['Demo KG', '15', 'KG', 'Demostraße 3', '20095', 'Hamburg', 'Deutschland']
