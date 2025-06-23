@@ -1,239 +1,144 @@
-import React, { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { supabase } from '../../lib/supabase'
-import { useAuth } from '../../hooks/useAuth'
-import { showSuccess, showError } from '../../lib/toast'
-import { Building2, Users, MapPin, Building } from 'lucide-react'
-import Button from '../ui/Button'
+import React, { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
+import { supabase } from '../../lib/supabase';
+import { useAuth } from '../../hooks/useAuth';
+import { showError, showSuccess } from '../../lib/toast';
+import { Building2, Users, MapPin, Building } from 'lucide-react';
+import Button from '../ui/Button';
+
+type FormValues = {
+  name: string;
+  employee_count?: number;
+  legal_form?: number;
+  plz?: string;
+  ort?: string;
+  land?: string;
+  strasse?: string;
+};
 
 interface LegalForm {
-  id: number
-  name: string
-  category: string
+  id: number;
+  name: string;
 }
 
 const NewClientForm: React.FC = () => {
-  const navigate = useNavigate()
-  const { user } = useAuth()
-  const [legalForms, setLegalForms] = useState<LegalForm[]>([])
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [formData, setFormData] = useState({
-    name: '',
-    employee_count: '',
-    legal_form: '',
-    plz: '',
-    ort: '',
-    land: 'Deutschland',
-    strasse: ''
-  })
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<FormValues>();
+  const [legalForms, setLegalForms] = useState<LegalForm[]>([]);
 
   useEffect(() => {
     const fetchLegalForms = async () => {
-      const { data, error } = await supabase
-        .from('legal_forms')
-        .select('*')
-        .order('name')
-      if (error) {
-        console.error(error)
-        showError('Rechtsformen konnten nicht geladen werden.')
-      } else {
-        setLegalForms(data ?? [])
-      }
+      const { data, error } = await supabase.from('legal_forms').select('*').order('name');
+      if (error) console.error(error);
+      else setLegalForms(data || []);
+    };
+    fetchLegalForms();
+  }, []);
+
+  const onSubmit = async (values: FormValues) => {
+    if (!user) {
+      showError('Sie müssen angemeldet sein.');
+      return;
     }
-    fetchLegalForms()
-  }, [])
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target
-    setFormData(prev => ({ ...prev, [name]: value }))
-  }
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!user) return showError('Sie müssen eingeloggt sein')
-    if (!formData.name.trim()) return showError('Bitte geben Sie einen Firmennamen ein')
-
-    setIsSubmitting(true)
-
-    const insertData: any = {
-      name: formData.name.trim(),
-      user_id: user.id,
-    }
-
-    if (formData.employee_count) insertData.employee_count = parseInt(formData.employee_count)
-    if (formData.legal_form) insertData.legal_form = parseInt(formData.legal_form)
-    if (formData.plz) insertData.plz = formData.plz.trim()
-    if (formData.ort) insertData.ort = formData.ort.trim()
-    if (formData.land) insertData.land = formData.land.trim()
-    if (formData.strasse) insertData.strasse = formData.strasse.trim()
 
     try {
-      const { error } = await supabase.from('clients').insert([insertData])
-      if (error) throw error
-      showSuccess('Mandant erfolgreich angelegt')
-      navigate('/clients')
+      const { error } = await supabase.from('clients').insert([
+        {
+          ...values,
+          user_id: user.id,
+        }
+      ]);
+
+      if (error) throw error;
+
+      showSuccess('Mandant erfolgreich gespeichert');
+      navigate('/clients');
     } catch (err: any) {
-      console.error(err)
-      showError(err?.message ?? 'Fehler beim Speichern')
-    } finally {
-      setIsSubmitting(false)
+      showError(err.message || 'Fehler beim Anlegen des Mandanten');
     }
-  }
+  };
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white shadow rounded-xl max-w-4xl p-8 space-y-10 mx-auto">
-      <div>
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">Grunddaten</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Firmenname */}
-          <div className="md:col-span-2">
-            <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-              Firmenname <span className="text-red-500">*</span>
-            </label>
-            <div className="mt-1 relative">
-              <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
-                <Building2 className="w-5 h-5" />
-              </div>
-              <input
-                type="text"
-                name="name"
-                id="name"
-                required
-                className="pl-10 pr-3 py-2 w-full border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                placeholder="z. B. Musterfirma GmbH"
-                value={formData.name}
-                onChange={handleChange}
-              />
+    <div className="bg-white shadow rounded-lg max-w-4xl">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-8 p-8">
+        {/* Firmenname */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Firmenname *</label>
+          <div className="relative mt-1">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <Building2 className="h-5 w-5 text-gray-400" />
             </div>
+            <input
+              {...register('name', { required: 'Firmenname ist erforderlich' })}
+              className="block w-full pl-10 pr-3 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Musterfirma GmbH"
+            />
+          </div>
+          {errors.name && <p className="text-sm text-red-600 mt-1">{errors.name.message}</p>}
+        </div>
+
+        {/* Mitarbeiter & Rechtsform */}
+        <div className="grid md:grid-cols-2 gap-6">
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Anzahl Mitarbeiter</label>
+            <input
+              type="number"
+              {...register('employee_count', { min: 0 })}
+              className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
+              placeholder="25"
+            />
           </div>
 
-          {/* Mitarbeiterzahl */}
           <div>
-            <label htmlFor="employee_count" className="block text-sm font-medium text-gray-700">
-              Anzahl Mitarbeiter
-            </label>
-            <div className="mt-1 relative">
-              <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
-                <Users className="w-5 h-5" />
-              </div>
-              <input
-                type="number"
-                min="0"
-                name="employee_count"
-                id="employee_count"
-                className="pl-10 pr-3 py-2 w-full border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                placeholder="z. B. 25"
-                value={formData.employee_count}
-                onChange={handleChange}
-              />
-            </div>
-          </div>
-
-          {/* Rechtsform */}
-          <div>
-            <label htmlFor="legal_form" className="block text-sm font-medium text-gray-700">
-              Rechtsform
-            </label>
-            <div className="mt-1 relative">
-              <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
-                <Building className="w-5 h-5" />
-              </div>
-              <select
-                name="legal_form"
-                id="legal_form"
-                className="pl-10 pr-3 py-2 w-full border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                value={formData.legal_form}
-                onChange={handleChange}
-              >
-                <option value="">Bitte wählen</option>
-                {legalForms.map(form => (
-                  <option key={form.id} value={form.id}>
-                    {form.name}
-                  </option>
-                ))}
-              </select>
-            </div>
+            <label className="block text-sm font-medium text-gray-700">Rechtsform</label>
+            <select
+              {...register('legal_form')}
+              className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
+            >
+              <option value="">Rechtsform auswählen</option>
+              {legalForms.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}
+            </select>
           </div>
         </div>
-      </div>
 
-      {/* Adresse */}
-      <div>
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">Adresse</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="md:col-span-2">
-            <label htmlFor="strasse" className="block text-sm font-medium text-gray-700">
-              Straße & Hausnummer
-            </label>
+        {/* Adresse */}
+        <div>
+          <h3 className="text-lg font-medium text-gray-900 mb-4">Adresse</h3>
+          <div className="grid md:grid-cols-2 gap-6">
             <input
-              type="text"
-              name="strasse"
-              id="strasse"
-              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-              placeholder="Musterstraße 1"
-              value={formData.strasse}
-              onChange={handleChange}
+              placeholder="Straße & Hausnummer"
+              {...register('strasse')}
+              className="border border-gray-300 rounded-md px-3 py-2"
             />
-          </div>
-
-          <div>
-            <label htmlFor="plz" className="block text-sm font-medium text-gray-700">PLZ</label>
             <input
-              type="text"
-              name="plz"
-              id="plz"
-              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-              placeholder="10115"
-              value={formData.plz}
-              onChange={handleChange}
+              placeholder="PLZ"
+              {...register('plz')}
+              className="border border-gray-300 rounded-md px-3 py-2"
             />
-          </div>
-
-          <div>
-            <label htmlFor="ort" className="block text-sm font-medium text-gray-700">Stadt</label>
             <input
-              type="text"
-              name="ort"
-              id="ort"
-              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-              placeholder="Berlin"
-              value={formData.ort}
-              onChange={handleChange}
+              placeholder="Ort"
+              {...register('ort')}
+              className="border border-gray-300 rounded-md px-3 py-2"
             />
-          </div>
-
-          <div>
-            <label htmlFor="land" className="block text-sm font-medium text-gray-700">Land</label>
             <input
-              type="text"
-              name="land"
-              id="land"
-              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-              placeholder="Deutschland"
-              value={formData.land}
-              onChange={handleChange}
+              placeholder="Land"
+              defaultValue="Deutschland"
+              {...register('land')}
+              className="border border-gray-300 rounded-md px-3 py-2"
             />
           </div>
         </div>
-      </div>
 
-      {/* Submit */}
-      <div className="flex justify-end pt-6 border-t border-gray-200 space-x-3">
-        <Button variant="secondary" onClick={() => navigate('/clients')} disabled={isSubmitting}>
-          Abbrechen
-        </Button>
-        <Button
-          type="submit"
-          variant="primary"
-          isLoading={isSubmitting}
-          disabled={isSubmitting || !formData.name.trim()}
-          className="bg-blue-600 hover:bg-blue-700"
-        >
-          {isSubmitting ? 'Speichere...' : 'Mandant anlegen'}
-        </Button>
-      </div>
-    </form>
-  )
-}
+        {/* Aktionen */}
+        <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200">
+          <Button type="button" variant="secondary" onClick={() => navigate('/clients')}>Abbrechen</Button>
+          <Button type="submit" variant="primary" isLoading={isSubmitting}>Mandant anlegen</Button>
+        </div>
+      </form>
+    </div>
+  );
+};
 
-export default NewClientForm
+export default NewClientForm;
