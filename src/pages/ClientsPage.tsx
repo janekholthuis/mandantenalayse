@@ -1,9 +1,8 @@
-import React, { useState, useCallback } from 'react';
-import { debounce } from 'lodash';
+import React, { useState, useMemo } from 'react';
 import { UserPlus, Trash2, Grid, List } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import ClientCard from '../components/client/ClientCard';
-import EnhancedClientImportForm from '../components/client/EnhancedClientImportForm';
+import SimplifiedClientImportForm from '../components/client/SimplifiedClientImportForm';
 import Button from '../components/ui/Button';
 import { useClients } from '../hooks/useClients';
 import { showSuccess } from '../lib/toast';
@@ -20,24 +19,36 @@ const ClientsPage: React.FC = () => {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [showImportForm, setShowImportForm] = useState(false);
 
-  const debouncedSetSearch = useCallback(debounce(setSearchText, 300), []);
+  const filteredActive = useMemo(() => {
+    if (!searchTerm) return active;
+    const t = searchTerm.toLowerCase();
+    return active.filter(c =>
+      c.name.toLowerCase().includes(t) ||
+      (c.legalForm?.toLowerCase().includes(t) ?? false)
+    );
+  }, [active, searchTerm]);
+
+  const filteredDeleted = useMemo(() => {
+    if (!searchTerm) return deleted;
+    const t = searchTerm.toLowerCase();
+    return deleted.filter(c =>
+      c.name.toLowerCase().includes(t) ||
+      (c.legalForm?.toLowerCase().includes(t) ?? false)
+    );
+  }, [deleted, searchTerm]);
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
-    debouncedSetSearch(e.target.value);
   };
 
   const filterClients = (clients: typeof active | typeof deleted) => {
-    if (!searchText) return clients;
-    const t = searchText.toLowerCase();
+    if (!searchTerm) return clients;
+    const t = searchTerm.toLowerCase();
     return clients.filter(c =>
       c.name.toLowerCase().includes(t) ||
       (c.legalForm?.toLowerCase().includes(t) ?? false)
     );
   };
-
-  const filteredActive = filterClients(active);
-  const filteredDeleted = filterClients(deleted);
 
   const softDelete = async (id: string) => {
     await supabase.from('clients').update({ deleted_at: new Date().toISOString() }).eq('id', id);
@@ -100,7 +111,7 @@ const ClientsPage: React.FC = () => {
           placeholder={showTrash ? "Gelöschte Mandanten suchen..." : "Mandanten suchen..."}
           className="flex-1 rounded-md border border-gray-300 p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
           value={searchTerm}
-          onChange={handleSearch}
+          onChange={(e) => setSearchTerm(e.target.value)}
         />
         {!showTrash && (
           <div className="flex border border-gray-300 rounded-md">
@@ -161,7 +172,7 @@ const ClientsPage: React.FC = () => {
 
       {/* Import Modal */}
       {showImportForm && (
-        <EnhancedClientImportForm
+        <SimplifiedClientImportForm
           onImportComplete={() => {
             setShowImportForm(false);
             refresh();
