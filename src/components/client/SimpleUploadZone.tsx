@@ -86,11 +86,9 @@ const SimpleUploadZone: React.FC<SimpleUploadZoneProps> = ({ onFileSelect, onBac
       <div className="text-center mb-8">
         
         <h2 className="text-2xl font-bold text-gray-900 mb-2">
-          Schritt 1: Datei hochladen
+        Datei hochladen
         </h2>
-        <p className="text-gray-600">
-          Wählen Sie eine CSV- oder Excel-Datei mit Ihren Mandantendaten aus.
-        </p>
+       
       </div>
 
       {/* DATEV Help Banner */}
