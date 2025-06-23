@@ -102,7 +102,7 @@ const NewClientForm: React.FC = () => {
               {...register('legal_form')}
               className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
             >
-              <option value="">Rechtsform auswählen</option>
+              <option value="">Unternehmensform auswählen</option>
               {legalForms.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}
             </select>
           </div>
