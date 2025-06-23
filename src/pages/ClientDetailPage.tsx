@@ -356,7 +356,7 @@ const ClientDetailPage: React.FC = () => {
 
         // Refresh benefits linked to this client
         const { data: updatedBenefitsData } = await supabase
-          .from('client_benefits')
+          .from('benefits')
           .select('*')
           .eq('client', client.id);
 
