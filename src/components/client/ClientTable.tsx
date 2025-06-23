@@ -46,7 +46,6 @@ const ClientTable: React.FC<Props> = ({ clients, onDelete }) => {
                   onClick={() => goToDetails(client.id)}
                 >
                   <div className="flex items-center">
-                   
                     <div className="ml-4">
                       <div className="text-sm font-semibold text-gray-900 hover:text-blue-600 transition-colors">
                         {client.name}
