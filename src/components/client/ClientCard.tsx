@@ -36,9 +36,7 @@ const ClientCard: React.FC<ClientCardProps> = ({ client, onDelete }) => {
             <h3 className="text-lg font-semibold text-gray-900 truncate group-hover:text-blue-600 transition-colors">
               {client.name}
             </h3>
-            <div className="flex items-center justify-between mt-2">
-              {getStatusBadge()}
-            </div>
+          
           </div>
 
           <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
