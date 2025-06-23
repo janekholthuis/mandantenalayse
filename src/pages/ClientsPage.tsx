@@ -85,7 +85,7 @@ const ClientsPage: React.FC = () => {
   <Grid size={16} />
 </button>
 
-            <button ... onClick={() => setViewMode('list')}><List size={16} /></button>
+            <button  onClick={() => setViewMode('list')}><List size={16} /></button>
           </div>
         )}
       </div>
@@ -95,7 +95,7 @@ const ClientsPage: React.FC = () => {
         <div className="flex justify-center"><div className="spinner" /></div>
       ) : showTrash ? (
         filteredDeleted.length > 0 ? filteredDeleted.map(c => (
-          <div key={c.id} className="...">
+          <div key={c.id}>
             <h3>{c.name}</h3>
             <Button onClick={() => softDelete(c.id)}>Undo Löschung</Button>
           </div>
