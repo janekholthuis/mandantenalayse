@@ -15,7 +15,7 @@ export function useClients(): UseClients {
   const [isLoading, setIsLoading] = useState(true);
 
   const fetch = useCallback(async () => {
-    if (!supabase.auth.user()) return;
+    if (!supabase.auth.getuser()) return;
 
     setIsLoading(true);
     const user = supabase.auth.user()!;
