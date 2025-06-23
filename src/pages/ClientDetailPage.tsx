@@ -624,7 +624,7 @@ const ClientDetailPage: React.FC = () => {
                       }}
                       className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     >
-                      <option value="">Rechtsform auswählen</option>
+                      <option value="">Unternehmensform auswählen</option>
                       {legalForms.map(form => (
                         <option key={form.id} value={form.id.toString()}>{form.name}</option>
                       ))}
