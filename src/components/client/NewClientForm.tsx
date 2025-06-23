@@ -100,7 +100,7 @@ const NewClientForm: React.FC = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">Rechtsform</label>
+            <label className="block text-sm font-medium text-gray-700">Rechtsform (optional)</label>
             <select
               {...register('legal_form', { valueAsNumber: true })}
               className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
