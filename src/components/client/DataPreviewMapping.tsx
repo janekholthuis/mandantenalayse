@@ -49,7 +49,7 @@ const DataPreviewMapping: React.FC<DataPreviewMappingProps> = ({ data, onBack, o
       } else if (lowerSource.includes('mitarbeiter') || lowerSource.includes('employee') || lowerSource.includes('anzahl')) {
         autoMapping['Anzahl_Mitarbeiter'] = sourceField;
       } else if (lowerSource.includes('rechtsform') || lowerSource.includes('legal') || lowerSource.includes('form')) {
-        autoMapping['Rechtsform'] = sourceField;
+        autoMapping['Unternehmensform'] = sourceField;
       } else if (lowerSource.includes('strasse') || lowerSource.includes('street') || lowerSource.includes('adresse')) {
         autoMapping['Strasse'] = sourceField;
       } else if (lowerSource.includes('plz') || lowerSource.includes('postleitzahl') || lowerSource.includes('postal')) {
