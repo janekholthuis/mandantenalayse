@@ -417,7 +417,7 @@ const ClientsPage: React.FC = () => {
                           </div>
                         </td>
                       </tr>
-                    ))}
+                    ))}</tr><<<<<
                   </tbody>
                 </table>
               </div>
