@@ -382,15 +382,7 @@ const ClientsPage: React.FC = () => {
                             </div>
                           </div>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                            client.status === 'active' 
-                              ? 'bg-green-100 text-green-800' 
-                              : 'bg-red-100 text-red-800'
-                          }`}>
-                            {client.status === 'active' ? 'Aktiv' : 'Inaktiv'}
-                          </span>
-                        </td>
+                      
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                           {client.legalForm || 'Nicht angegeben'}
                         </td>
