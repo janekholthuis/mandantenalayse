@@ -84,9 +84,7 @@ const SimpleUploadZone: React.FC<SimpleUploadZoneProps> = ({ onFileSelect, onBac
     <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-8 max-w-4xl mx-auto">
       {/* Header */}
       <div className="text-center mb-8">
-        <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-blue-100 mb-4">
-          <Upload className="h-8 w-8 text-blue-600" />
-        </div>
+        
         <h2 className="text-2xl font-bold text-gray-900 mb-2">
           Schritt 1: Datei hochladen
         </h2>
