@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
+import { useAuth } from './useAuth';
 import { Client } from '../types';
 
 interface UseClients {
@@ -13,12 +14,16 @@ export function useClients(): UseClients {
   const [active, setActive] = useState<Client[]>([]);
   const [deleted, setDeleted] = useState<Client[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const { user, loading: authLoading } = useAuth();
 
   const fetch = useCallback(async () => {
-    if (!supabase.auth.getUser()) return;
+    // Don't fetch if auth is still loading or user is not available
+    if (authLoading || !user) {
+      setIsLoading(false);
+      return;
+    }
 
     setIsLoading(true);
-    const user = supabase.auth.getUser()!;
 
     const [{ data: act, error: e1 }, { data: del, error: e2 }] = await Promise.all([
       supabase
@@ -38,9 +43,11 @@ export function useClients(): UseClients {
     if (!e1 && act) setActive(act as any);
     if (!e2 && del) setDeleted(del as any);
     setIsLoading(false);
-  }, []);
+  }, [user, authLoading]);
 
-  useEffect(() => { fetch(); }, [fetch]);
+  useEffect(() => { 
+    fetch(); 
+  }, [fetch]);
 
   return { active, deleted, isLoading, refresh: fetch };
 }
