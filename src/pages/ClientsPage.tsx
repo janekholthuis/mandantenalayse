@@ -80,9 +80,6 @@ const ClientsPage: React.FC = () => {
                 Mandanten hinzufügen
               </Button>
             </Link>
-            <Button variant="secondary" icon={<Upload size={16} />} onClick={() => setShowImportForm(true)}>
-              CSV Importieren
-            </Button>
           </div>
         )}
       </div>
