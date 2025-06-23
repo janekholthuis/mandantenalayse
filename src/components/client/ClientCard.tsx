@@ -27,29 +27,6 @@ const ClientCard: React.FC<ClientCardProps> = ({ client, onDelete }) => {
     }
   };
 
-  const getStatusBadge = () => {
-    const isActive = client.status === 'active';
-    return (
-      <span
-        className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-          isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-        }`}
-      >
-        {isActive ? (
-          <>
-            <CheckCircle className="h-3 w-3 mr-1" />
-            Aktiv
-          </>
-        ) : (
-          <>
-            <AlertCircle className="h-3 w-3 mr-1" />
-            Inaktiv
-          </>
-        )}
-      </span>
-    );
-  };
-
   return (
     <Link to={`/clients/${client.id}`} className="block hover:no-underline">
       <div className="bg-white overflow-hidden shadow rounded-lg transition-all hover:shadow-md border border-gray-100 group p-6">
