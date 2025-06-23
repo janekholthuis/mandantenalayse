@@ -79,7 +79,7 @@ const NewClientForm: React.FC = () => {
           {errors.name && <p className="text-sm text-red-600 mt-1">{errors.name.message}</p>}
         </div>
 
-        {/* Mitarbeiter & Rechtsform */}
+        {/* Mitarbeiter & Unternehmensform */}
         <div className="grid md:grid-cols-2 gap-6">
           <div>
             <label className="block text-sm font-medium text-gray-700">Anzahl Mitarbeiter *</label>
