@@ -11,7 +11,7 @@ type FormValues = {
   name: string;
   employee_count?: number;
   legal_form?: number;
-  plz?: string;
+  plz?: numeric;
   ort?: string;
   land?: string;
   strasse?: string;
