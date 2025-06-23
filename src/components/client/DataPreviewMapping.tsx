@@ -26,7 +26,7 @@ const DataPreviewMapping: React.FC<DataPreviewMappingProps> = ({ data, onBack, o
   const targetFields = {
     'Firmenname': { required: true, description: 'Name oder Firmenname' },
     'Anzahl_Mitarbeiter': { required: true, description: 'Anzahl der Mitarbeiter' },
-    'Unternehmensform': { required: false, description: 'Rechtsform des Unternehmens' },
+    'Unternehmensform': { required: false, description: 'Unternehmensform des Unternehmens' },
     'Strasse': { required: true, description: 'Straße und Hausnummer' },
     'PLZ': { required: true, description: 'Postleitzahl' },
     'Ort': { required: true, description: 'Stadt/Ort' },
