@@ -128,7 +128,7 @@ const EnhancedClientImportForm: React.FC<EnhancedClientImportFormProps> = ({
           plz: parseInt(row.PLZ?.toString()) || null,
           ort: row.Ort,
           land: row.Land || 'Deutschland',
-          legal_form: row.Rechtsform ? parseInt(row.Rechtsform.toString()) || null : null,
+          legal_form: row.Unternehmensform ? parseInt(row.Rechtsform.toString()) || null : null,
           user_id: user.id
         }));
 
