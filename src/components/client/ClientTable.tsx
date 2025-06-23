@@ -1,8 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Pencil, Trash2, Info } from 'lucide-react';
+import { Eye, Settings, Trash2 } from 'lucide-react';
 import { Client } from '../../types';
-import Button from '../ui/Button';
 
 interface Props {
   clients: Client[];
@@ -16,70 +15,99 @@ const ClientTable: React.FC<Props> = ({ clients, onDelete }) => {
     navigate(`/clients/${id}`);
   };
 
-  const goToEdit = (id: string) => {
-    navigate(`/clients/${id}/edit`);
+  const goToSettings = (id: string) => {
+    navigate(`/clients/${id}/einstellungen`);
   };
 
   return (
-    <div className="bg-white shadow rounded-lg overflow-x-auto">
-      <table className="min-w-full divide-y divide-gray-200">
-        <thead className="bg-gray-50">
-          <tr>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Mandant</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Rechtsform</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Ort</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Erstellt</th>
-            <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Aktionen</th>
-          </tr>
-        </thead>
-        <tbody className="bg-white divide-y divide-gray-200">
-          {clients.map(c => (
-            <tr
-              key={c.id}
-              onClick={() => goToDetails(c.id)}
-              className="hover:bg-blue-50 cursor-pointer transition"
-            >
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{c.name}</td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{c.legalForm ?? '—'}</td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{c.city ?? '—'}</td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {c.created_at ? new Date(c.created_at).toLocaleDateString('de-DE') : '—'}
-              </td>
-              <td
-                className="px-6 py-4 whitespace-nowrap text-right space-x-2"
-                onClick={e => e.stopPropagation()} // Prevent row click
-              >
-                <Button
-                  size="icon-sm"
-                  variant="ghost"
-                  onClick={() => goToEdit(c.id)}
-                  title="Bearbeiten"
-                >
-                  <Pencil size={16} />
-                </Button>
-
-                <Button
-                  size="icon-sm"
-                  variant="ghost"
-                  onClick={() => goToDetails(c.id)}
-                  title="Details"
-                >
-                  <Info size={16} />
-                </Button>
-
-                <Button
-                  size="icon-sm"
-                  variant="danger"
-                  onClick={() => onDelete(c.id)}
-                  title="Löschen"
-                >
-                  <Trash2 size={16} />
-                </Button>
-              </td>
+    <div className="bg-white shadow-sm rounded-lg border border-gray-200 overflow-hidden">
+      <div className="overflow-x-auto">
+        <table className="min-w-full">
+          <thead>
+            <tr className="bg-gray-50 border-b border-gray-200">
+              <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
+                Mandant
+              </th>
+              <th className="px-6 py-4 text-right text-sm font-semibold text-gray-900">
+                Aktionen
+              </th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody className="divide-y divide-gray-100">
+            {clients.map((client, index) => (
+              <tr
+                key={client.id}
+                className={`hover:bg-blue-50 transition-colors duration-150 ${
+                  index % 2 === 0 ? 'bg-white' : 'bg-gray-50/30'
+                }`}
+              >
+                <td 
+                  className="px-6 py-4 cursor-pointer"
+                  onClick={() => goToDetails(client.id)}
+                >
+                  <div className="flex items-center">
+                    <div className="flex-shrink-0 h-10 w-10">
+                      <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
+                        <span className="text-sm font-semibold text-blue-600">
+                          {client.name.charAt(0).toUpperCase()}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="ml-4">
+                      <div className="text-sm font-semibold text-gray-900 hover:text-blue-600 transition-colors">
+                        {client.name}
+                      </div>
+                      <div className="text-sm text-gray-500">
+                        {client.city && client.plz ? `${client.plz} ${client.city}` : client.city || 'Keine Adresse'}
+                      </div>
+                    </div>
+                  </div>
+                </td>
+                <td className="px-6 py-4">
+                  <div className="flex items-center justify-end space-x-2">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        goToDetails(client.id);
+                      }}
+                      className="inline-flex items-center justify-center w-8 h-8 rounded-full text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-all duration-150"
+                      title="Details anzeigen"
+                    >
+                      <Eye size={16} />
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        goToSettings(client.id);
+                      }}
+                      className="inline-flex items-center justify-center w-8 h-8 rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-all duration-150"
+                      title="Einstellungen"
+                    >
+                      <Settings size={16} />
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onDelete(client.id);
+                      }}
+                      className="inline-flex items-center justify-center w-8 h-8 rounded-full text-gray-400 hover:text-red-600 hover:bg-red-50 transition-all duration-150"
+                      title="Löschen"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      
+      {clients.length === 0 && (
+        <div className="text-center py-12">
+          <p className="text-gray-500">Keine Mandanten gefunden</p>
+        </div>
+      )}
     </div>
   );
 };
