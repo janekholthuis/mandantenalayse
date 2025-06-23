@@ -59,7 +59,7 @@ const UploadIntroCard: React.FC<UploadIntroCardProps> = ({ onStartUpload }) => {
               <div>• <strong>Straße & Hausnummer</strong> (erforderlich)</div>
               <div>• <strong>PLZ</strong> (erforderlich)</div>
               <div>• <strong>Ort</strong> (erforderlich)</div>
-              <div>• <strong>Rechtsform</strong> (optional)</div>
+              <div>• <strong>Unternehmensform</strong> (optional)</div>
             </div>
           </div>
         </div>
