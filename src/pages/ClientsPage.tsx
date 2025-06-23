@@ -1,6 +1,6 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import { debounce } from 'lodash';
-import { UserPlus, Trash2, Grid, List, Upload } from 'lucide-react';
+import { UserPlus, Trash2, Grid, List } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import ClientCard from '../components/client/ClientCard';
 import EnhancedClientImportForm from '../components/client/EnhancedClientImportForm';
@@ -58,13 +58,22 @@ const ClientsPage: React.FC = () => {
         <div>
           <div className="flex items-center space-x-4">
             <h1 className="text-2xl font-bold text-gray-900">{showTrash ? 'Papierkorb' : 'Mandanten'}</h1>
-            <button
-              onClick={() => setShowTrash(!showTrash)}
-              className="inline-flex items-center px-3 py-1.5 rounded-md text-sm font-medium bg-gray-100 text-gray-600 hover:bg-gray-200"
-            >
-              <Trash2 size={14} className="mr-1 />
-              Papierkorb ({deleted.length})
-            </button>
+            {showTrash ? (
+              <button
+                onClick={() => setShowTrash(false)}
+                className="inline-flex items-center px-3 py-1.5 rounded-md text-sm font-medium bg-blue-100 text-blue-700 hover:bg-blue-200 transition"
+              >
+                Zurück zu aktiven Mandanten
+              </button>
+            ) : (
+              <button
+                onClick={() => setShowTrash(true)}
+                className="inline-flex items-center px-3 py-1.5 rounded-md text-sm font-medium bg-gray-100 text-gray-600 hover:bg-gray-200 transition"
+              >
+                <Trash2 size={14} className="mr-1" />
+                Papierkorb ({deleted.length})
+              </button>
+            )}
           </div>
           <p className="mt-1 text-sm text-gray-500">
             {showTrash
@@ -84,7 +93,7 @@ const ClientsPage: React.FC = () => {
         )}
       </div>
 
-      {/* Suche */}
+      {/* Suche & Ansicht */}
       <div className="mb-6 flex gap-2 items-center">
         <input
           type="text"
@@ -111,7 +120,7 @@ const ClientsPage: React.FC = () => {
         )}
       </div>
 
-      {/* Loading oder Inhalt */}
+      {/* Loading / Content */}
       {isLoading ? (
         <div className="text-center text-gray-500 mt-16">⏳ Lade Mandanten...</div>
       ) : showTrash ? (
@@ -131,7 +140,9 @@ const ClientsPage: React.FC = () => {
               </div>
             ))}
           </div>
-        ) : <EmptyTrash />
+        ) : (
+          <EmptyTrash />
+        )
       ) : (
         filteredActive.length > 0 ? (
           viewMode === 'grid' ? (
@@ -148,7 +159,7 @@ const ClientsPage: React.FC = () => {
         )
       )}
 
-      {/* Modal */}
+      {/* Import Modal */}
       {showImportForm && (
         <EnhancedClientImportForm
           onImportComplete={() => {
