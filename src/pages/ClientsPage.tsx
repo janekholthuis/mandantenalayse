@@ -148,14 +148,8 @@ const ClientsPage: React.FC = () => {
         )
       )}
 
-      {/* Modal */}
-      {showImportForm && (
-        <EnhancedClientImportForm
-          onImportComplete={() => {
-            setShowImportForm(false);
-            refresh();
-          }}
-          onClose={() => setShowImportForm(false)}
+  
+   
         />
       )}
     </>
