@@ -381,8 +381,7 @@ const ClientsPage: React.FC = () => {
                             
                             </div>
                           </div>
-                        </td>
-                      
+                    
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                           {client.legalForm || 'Nicht angegeben'}
                         </td>
