@@ -81,7 +81,10 @@ const ClientsPage: React.FC = () => {
           className="flex-1 rounded-md border ..." value={searchTerm} onChange={handleSearch} />
         {!showTrash && (
           <div className="flex border rounded-md">
-            <button ... onClick={() => setViewMode('grid')}><Grid size={16} /></button>
+            <button className={`px-2 py-1 ${viewMode === 'grid' ? 'bg-blue-100' : ''}`} onClick={() => setViewMode('grid')}>
+  <Grid size={16} />
+</button>
+
             <button ... onClick={() => setViewMode('list')}><List size={16} /></button>
           </div>
         )}
