@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
-import EnhancedClientImportForm from '../components/client/EnhancedClientImportForm';
+import SimplifiedClientImportForm from '../components/client/SimplifiedClientImportForm';
 import DatevInstructions from '../components/client/DatevInstructions';
 
 const ClientUploadPage: React.FC = () => {
@@ -35,7 +35,7 @@ const ClientUploadPage: React.FC = () => {
       </div>
 
       {showImportForm && (
-        <EnhancedClientImportForm
+        <SimplifiedClientImportForm
           onImportComplete={handleImportComplete}
           onClose={handleClose}
         />
