@@ -113,9 +113,9 @@ const SimpleUploadZone: React.FC<SimpleUploadZoneProps> = ({ onFileSelect, onBac
         <div className="flex items-start gap-3">
           <Info className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
           <div className="flex-1">
-            <h3 className="font-medium text-blue-900 mb-1">Beispieldatei herunterladen</h3>
+            <h3 className="font-medium text-blue-900 mb-1">Beispielvorlage herunterladen</h3>
             <p className="text-blue-700 text-sm mb-3">
-              Laden Sie unsere Beispieldatei herunter, um das richtige Format zu sehen.
+              Laden Sie unsere Vorlage herunter, um das richtige Format zu sehen.
             </p>
             <Button
               variant="outline"
