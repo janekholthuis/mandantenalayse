@@ -13,9 +13,7 @@ const EmptyState: React.FC<Props> = ({ onAdd }) => (
       <Button variant="primary" icon={<UserPlus size={16} />} onClick={onAdd}>
         Neuer Mandant
       </Button>
-      <Button variant="secondary" icon={<Upload size={16} />} onClick={onAdd}>
-        CSV importieren
-      </Button>
+     
     </div>
   </div>
 );
