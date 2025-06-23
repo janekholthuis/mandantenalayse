@@ -225,7 +225,7 @@ const ClientImportForm: React.FC<ClientImportFormProps> = ({ onImportComplete, o
         errors.push({
           row: index + 2,
           field: 'PLZ',
-          message: 'PLZ muss eine 5-stellige Zahl sein'
+          message: 'PLZ muss eine 4 oder 5-stellige Zahl sein'
         });
       }
 
