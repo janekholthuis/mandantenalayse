@@ -221,7 +221,7 @@ const ClientImportForm: React.FC<ClientImportFormProps> = ({ onImportComplete, o
       }
 
       // Validate PLZ if provided
-      if (row.PLZ && (row.PLZ < 10000 || row.PLZ > 99999)) {
+      if (row.PLZ && (row.PLZ < 1000 || row.PLZ > 99999)) {
         errors.push({
           row: index + 2,
           field: 'PLZ',
