@@ -47,11 +47,7 @@ const ClientTable: React.FC<Props> = ({ clients, onDelete }) => {
                 >
                   <div className="flex items-center">
                     <div className="flex-shrink-0 h-10 w-10">
-                      <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
-                        <span className="text-sm font-semibold text-blue-600">
-                          {client.name.charAt(0).toUpperCase()}
-                        </span>
-                      </div>
+                      
                     </div>
                     <div className="ml-4">
                       <div className="text-sm font-semibold text-gray-900 hover:text-blue-600 transition-colors">
