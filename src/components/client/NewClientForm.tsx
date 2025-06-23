@@ -4,17 +4,17 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../hooks/useAuth';
 import { showError, showSuccess } from '../../lib/toast';
-import { Building2, Users, Building } from 'lucide-react';
+import { Building2, Users, MapPin, Building } from 'lucide-react';
 import Button from '../ui/Button';
 
 type FormValues = {
   name: string;
-  employee_count?: number;
+  employee_count: number;
   legal_form?: number;
-  plz?: number;
-  ort?: string;
-  land?: string;
-  strasse?: string;
+  plz: number;
+  ort: string;
+  land: string;
+  strasse: string;
 };
 
 interface LegalForm {
@@ -25,12 +25,7 @@ interface LegalForm {
 const NewClientForm: React.FC = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isSubmitting },
-  } = useForm<FormValues>();
-
+  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<FormValues>();
   const [legalForms, setLegalForms] = useState<LegalForm[]>([]);
 
   useEffect(() => {
@@ -53,8 +48,9 @@ const NewClientForm: React.FC = () => {
         {
           ...values,
           user_id: user.id,
-        },
+        }
       ]);
+
       if (error) throw error;
 
       showSuccess('Mandant erfolgreich gespeichert');
@@ -86,10 +82,11 @@ const NewClientForm: React.FC = () => {
         {/* Mitarbeiter & Rechtsform */}
         <div className="grid md:grid-cols-2 gap-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700">Anzahl Mitarbeiter</label>
+            <label className="block text-sm font-medium text-gray-700">Anzahl Mitarbeiter *</label>
             <input
               type="number"
               {...register('employee_count', {
+                required: 'Mitarbeiteranzahl ist erforderlich',
                 min: { value: 0, message: 'Muss 0 oder mehr sein' },
                 valueAsNumber: true,
               })}
@@ -102,61 +99,68 @@ const NewClientForm: React.FC = () => {
           <div>
             <label className="block text-sm font-medium text-gray-700">Rechtsform (optional)</label>
             <select
-              {...register('legal_form', { valueAsNumber: true })}
+              {...register('legal_form')}
               className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
             >
               <option value="">Rechtsform auswählen</option>
-              {legalForms.map(f => (
-                <option key={f.id} value={f.id}>
-                  {f.name}
-                </option>
-              ))}
+              {legalForms.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}
             </select>
           </div>
         </div>
 
         {/* Adresse */}
         <div>
-          <h3 className="text-lg font-medium text-gray-900 mb-4">Adresse</h3>
+          <h3 className="text-lg font-medium text-gray-900 mb-4">Adresse *</h3>
           <div className="grid md:grid-cols-2 gap-6">
-            <input
-              placeholder="Straße & Hausnummer"
-              {...register('strasse')}
-              className="border border-gray-300 rounded-md px-3 py-2"
-            />
-            <input
-              type="number"
-              placeholder="PLZ"
-              {...register('plz', {
-                valueAsNumber: true,
-                min: { value: 1000, message: 'Ungültige PLZ' },
-                max: { value: 99999, message: 'Ungültige PLZ' },
-              })}
-              className="border border-gray-300 rounded-md px-3 py-2"
-            />
-            {errors.plz && <p className="text-sm text-red-600">{errors.plz.message}</p>}
-            <input
-              placeholder="Ort"
-              {...register('ort')}
-              className="border border-gray-300 rounded-md px-3 py-2"
-            />
-            <input
-              placeholder="Land"
-              defaultValue="Deutschland"
-              {...register('land')}
-              className="border border-gray-300 rounded-md px-3 py-2"
-            />
+            <div>
+              <input
+                placeholder="Straße & Hausnummer"
+                {...register('strasse', { required: 'Straße ist erforderlich' })}
+                className="border border-gray-300 rounded-md px-3 py-2 w-full"
+              />
+              {errors.strasse && <p className="text-sm text-red-600 mt-1">{errors.strasse.message}</p>}
+            </div>
+
+            <div>
+              <input
+                type="number"
+                placeholder="PLZ"
+                {...register('plz', {
+                  required: 'PLZ ist erforderlich',
+                  min: { value: 1000, message: 'Ungültige PLZ' },
+                  max: { value: 99999, message: 'Ungültige PLZ' },
+                  valueAsNumber: true,
+                })}
+                className="border border-gray-300 rounded-md px-3 py-2 w-full"
+              />
+              {errors.plz && <p className="text-sm text-red-600 mt-1">{errors.plz.message}</p>}
+            </div>
+
+            <div>
+              <input
+                placeholder="Ort"
+                {...register('ort', { required: 'Ort ist erforderlich' })}
+                className="border border-gray-300 rounded-md px-3 py-2 w-full"
+              />
+              {errors.ort && <p className="text-sm text-red-600 mt-1">{errors.ort.message}</p>}
+            </div>
+
+            <div>
+              <input
+                placeholder="Land"
+                defaultValue="Deutschland"
+                {...register('land', { required: 'Land ist erforderlich' })}
+                className="border border-gray-300 rounded-md px-3 py-2 w-full"
+              />
+              {errors.land && <p className="text-sm text-red-600 mt-1">{errors.land.message}</p>}
+            </div>
           </div>
         </div>
 
         {/* Aktionen */}
         <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200">
-          <Button type="button" variant="secondary" onClick={() => navigate('/clients')}>
-            Abbrechen
-          </Button>
-          <Button type="submit" variant="primary" isLoading={isSubmitting}>
-            Mandant anlegen
-          </Button>
+          <Button type="button" variant="secondary" onClick={() => navigate('/clients')}>Abbrechen</Button>
+          <Button type="submit" variant="primary" isLoading={isSubmitting}>Mandant anlegen</Button>
         </div>
       </form>
     </div>
