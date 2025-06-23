@@ -62,7 +62,7 @@ const ClientsPage: React.FC = () => {
               onClick={() => setShowTrash(!showTrash)}
               className="inline-flex items-center px-3 py-1.5 rounded-md text-sm font-medium bg-gray-100 text-gray-600 hover:bg-gray-200"
             >
-              <Trash2 size={14} className="mr-2" />
+              <Trash2 size={14} className="mr-3" />
               Papierkorb ({deleted.length})
             </button>
           </div>
