@@ -4,14 +4,14 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../hooks/useAuth';
 import { showError, showSuccess } from '../../lib/toast';
-import { Building2, Users, MapPin, Building } from 'lucide-react';
+import { Building2, Users, Building } from 'lucide-react';
 import Button from '../ui/Button';
 
 type FormValues = {
   name: string;
   employee_count?: number;
   legal_form?: number;
-  plz?: string;
+  plz?: number;
   ort?: string;
   land?: string;
   strasse?: string;
@@ -25,7 +25,12 @@ interface LegalForm {
 const NewClientForm: React.FC = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<FormValues>();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<FormValues>();
+
   const [legalForms, setLegalForms] = useState<LegalForm[]>([]);
 
   useEffect(() => {
@@ -48,9 +53,8 @@ const NewClientForm: React.FC = () => {
         {
           ...values,
           user_id: user.id,
-        }
+        },
       ]);
-
       if (error) throw error;
 
       showSuccess('Mandant erfolgreich gespeichert');
@@ -85,20 +89,28 @@ const NewClientForm: React.FC = () => {
             <label className="block text-sm font-medium text-gray-700">Anzahl Mitarbeiter</label>
             <input
               type="number"
-              {...register('employee_count', { min: 0 })}
+              {...register('employee_count', {
+                min: { value: 0, message: 'Muss 0 oder mehr sein' },
+                valueAsNumber: true,
+              })}
               className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
               placeholder="25"
             />
+            {errors.employee_count && <p className="text-sm text-red-600 mt-1">{errors.employee_count.message}</p>}
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700">Rechtsform</label>
             <select
-              {...register('legal_form')}
+              {...register('legal_form', { valueAsNumber: true })}
               className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
             >
               <option value="">Rechtsform auswählen</option>
-              {legalForms.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}
+              {legalForms.map(f => (
+                <option key={f.id} value={f.id}>
+                  {f.name}
+                </option>
+              ))}
             </select>
           </div>
         </div>
@@ -113,10 +125,16 @@ const NewClientForm: React.FC = () => {
               className="border border-gray-300 rounded-md px-3 py-2"
             />
             <input
+              type="number"
               placeholder="PLZ"
-              {...register('plz')}
+              {...register('plz', {
+                valueAsNumber: true,
+                min: { value: 1000, message: 'Ungültige PLZ' },
+                max: { value: 99999, message: 'Ungültige PLZ' },
+              })}
               className="border border-gray-300 rounded-md px-3 py-2"
             />
+            {errors.plz && <p className="text-sm text-red-600">{errors.plz.message}</p>}
             <input
               placeholder="Ort"
               {...register('ort')}
@@ -133,8 +151,12 @@ const NewClientForm: React.FC = () => {
 
         {/* Aktionen */}
         <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200">
-          <Button type="button" variant="secondary" onClick={() => navigate('/clients')}>Abbrechen</Button>
-          <Button type="submit" variant="primary" isLoading={isSubmitting}>Mandant anlegen</Button>
+          <Button type="button" variant="secondary" onClick={() => navigate('/clients')}>
+            Abbrechen
+          </Button>
+          <Button type="submit" variant="primary" isLoading={isSubmitting}>
+            Mandant anlegen
+          </Button>
         </div>
       </form>
     </div>
